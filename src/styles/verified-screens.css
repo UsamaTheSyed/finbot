@@ -1,0 +1,326 @@
+/* Verified from Figma 3jjUDQgHWXPqD3L6yy6thh: 655:1018 and 782:1341. */
+@layer components {
+  /* Figma inside strokes do not contribute to layout dimensions. */
+  .dashboard-page .card,
+  .detail-page .card {
+    border: 0;
+    outline: 1px solid var(--color-border);
+    outline-offset: -1px;
+  }
+  .dashboard-page .metric-grid {
+    align-items: start;
+  }
+  .dashboard-page .metric-card:first-child {
+    height: 96px;
+    min-height: 96px;
+  }
+  .app-shell--dashboard .header .menu-trigger,
+  .app-shell--detail .header .menu-trigger {
+    border: 0;
+  }
+
+  .app-shell--dashboard,
+  .app-shell--detail {
+    background: var(--color-dashboardCanvas);
+    min-height: 100vh;
+  }
+  .app-shell--dashboard .header-left {
+    gap: var(--space-4);
+  }
+  .app-shell--dashboard .brand-name {
+    font-size: 18px;
+    color: var(--color-brand);
+  }
+  .app-shell--dashboard .logo-mark,
+  .app-shell--detail .logo-mark {
+    font-weight: 700;
+  }
+  .app-shell--dashboard .header-right,
+  .app-shell--detail .header-right {
+    gap: var(--space-5);
+  }
+  .app-shell--dashboard .header-search {
+    width: 200px;
+  }
+  .app-shell--dashboard .header-search,
+  .app-shell--detail .header-search {
+    background: var(--color-dashboardCanvas);
+    color: var(--color-secondary);
+    border-radius: var(--radius-control);
+  }
+  .app-shell--dashboard .avatar,
+  .app-shell--detail .avatar {
+    width: 32px;
+    height: 32px;
+  }
+  .app-shell--dashboard .user-meta {
+    display: none;
+  }
+  .app-shell--dashboard .user-chevron,
+  .app-shell--detail .user-chevron {
+    display: block;
+  }
+  .app-shell--detail .user-meta small {
+    display: none;
+  }
+  .app-shell--detail .user-meta strong {
+    font-size: var(--font-normal);
+    font-weight: 500;
+  }
+  .app-shell--dashboard .notification-trigger,
+  .app-shell--detail .notification-trigger {
+    background: transparent;
+  }
+  .app-shell--dashboard .notification-dot,
+  .app-shell--detail .notification-dot {
+    background: var(--color-danger);
+  }
+  .workspace-name {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text);
+    font-size: var(--font-normal);
+    font-weight: 500;
+  }
+  .app-shell--dashboard .breadcrumb li,
+  .app-shell--detail .breadcrumb li {
+    color: var(--color-secondary);
+  }
+  .app-shell--dashboard .sidebar nav {
+    padding-top: var(--space-4);
+    gap: 2px;
+  }
+  .app-shell--detail .sidebar nav {
+    padding-top: 2px;
+    gap: 2px;
+  }
+  .app-shell--dashboard .sidebar-link,
+  .app-shell--detail .sidebar-link {
+    height: 44px;
+    font-weight: 400;
+  }
+  .app-shell--detail .sidebar-link {
+    font-weight: 500;
+  }
+  .app-shell--dashboard .sidebar-link.active,
+  .app-shell--detail .sidebar-link.active {
+    padding-left: var(--space-3);
+    font-weight: 600;
+  }
+  .app-shell--dashboard .sidebar-link:hover {
+    background: var(--color-dashboardCanvas);
+  }
+  .sidebar-brand {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    padding: var(--space-6);
+  }
+  .sidebar-brand .brand-name {
+    color: var(--color-brand);
+  }
+  .app-shell--detail main {
+    align-self: start;
+    background: var(--color-canvas);
+  }
+  .dashboard-page .metric-card {
+    box-shadow: var(--shadow-metric);
+  }
+  .dashboard-page .metric-card strong {
+    font-weight: 700;
+  }
+  .metric-card--success strong,
+  .metric-card--success svg {
+    color: var(--color-success);
+  }
+  .metric-card--danger strong,
+  .metric-card--danger svg {
+    color: var(--color-danger);
+  }
+  .dashboard-page .metric-card .row-between {
+    font-weight: 500;
+  }
+  .dashboard-page .table-card {
+    box-shadow: var(--shadow-table);
+  }
+  .dashboard-page .section-heading {
+    border-bottom: 1px solid var(--color-border);
+  }
+  .dashboard-page .section-heading a,
+  .dashboard-page .overdue-table td:last-child a {
+    color: var(--color-info);
+    font-weight: 500;
+  }
+  .dashboard-page .compact-table {
+    table-layout: fixed;
+  }
+  .dashboard-page .compact-table th {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+  .dashboard-page .compact-table th,
+  .dashboard-page .compact-table td {
+    padding: var(--space-2) 0;
+  }
+  .dashboard-page .compact-table th:first-child,
+  .dashboard-page .compact-table td:first-child {
+    width: 116px;
+    padding-left: var(--space-4);
+  }
+  .dashboard-page .compact-table th:nth-child(3),
+  .dashboard-page .compact-table td:nth-child(3) {
+    width: 120px;
+  }
+  .dashboard-page .recent-table th:last-child,
+  .dashboard-page .recent-table td:last-child {
+    width: 116px;
+    padding-right: var(--space-4);
+  }
+  .dashboard-page .overdue-table th:last-child,
+  .dashboard-page .overdue-table td:last-child {
+    width: 96px;
+    padding-right: var(--space-4);
+    text-align: right;
+  }
+  .dashboard-page .compact-table td:first-child {
+    color: var(--color-secondary);
+  }
+  .dashboard-page .compact-table td:nth-child(2) {
+    font-weight: 500;
+  }
+  .dashboard-page .compact-table td:nth-child(3) {
+    font-weight: 600;
+  }
+  .dashboard-page .badge {
+    border: 0;
+    border-radius: var(--radius-small);
+  }
+  .dashboard-page .badge--warning {
+    color: var(--color-dashboardWarning);
+  }
+  .dashboard-page .badge--success {
+    background: var(--color-dashboardSuccessBg);
+  }
+  .dashboard-page .quick-actions .button {
+    box-shadow: var(--shadow-metric);
+  }
+  .detail-page h1 {
+    font-weight: 700;
+  }
+  .detail-page .page-header .button {
+    font-size: var(--font-normal);
+    color: var(--color-text);
+  }
+  .detail-page .page-header .button--primary {
+    color: var(--color-surface);
+  }
+  .detail-page .page-header .button--danger {
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+  }
+  .detail-page .title-with-status .badge {
+    border-radius: var(--radius-control);
+  }
+  .detail-page .title-with-status .badge--warning {
+    background: var(--color-dangerBg);
+    color: var(--color-danger);
+  }
+  .detail-page .meta-card span {
+    text-transform: uppercase;
+    color: var(--color-muted);
+    font-weight: 600;
+  }
+  .detail-page .meta-card strong {
+    font-weight: 600;
+  }
+  .detail-page .meta-card a {
+    color: var(--color-brand);
+  }
+  .detail-page .items-table {
+    table-layout: fixed;
+  }
+  .detail-page .items-table th {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+  .detail-page .items-table td,
+  .detail-page .items-table th {
+    padding: var(--space-4) 0;
+  }
+  .detail-page .items-table td:first-child,
+  .detail-page .items-table th:first-child {
+    width: auto;
+    padding-left: var(--space-4);
+  }
+  .detail-page .items-table td:nth-child(2),
+  .detail-page .items-table th:nth-child(2) {
+    width: 100px;
+  }
+  .detail-page .items-table td:nth-child(3),
+  .detail-page .items-table th:nth-child(3) {
+    width: 120px;
+    text-align: right;
+  }
+  .detail-page .items-table td:last-child,
+  .detail-page .items-table th:last-child {
+    width: 156px;
+    padding-right: var(--space-4);
+    text-align: right;
+  }
+  .detail-page .items-table td:nth-child(2),
+  .detail-page .items-table td:nth-child(3) {
+    color: var(--color-secondary);
+    font-weight: 400;
+  }
+  .detail-page .items-table td:last-child {
+    font-weight: 700;
+  }
+  .detail-page .ledger-card dl > div {
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .detail-page .ledger-card dl > div:nth-child(2) dd {
+    color: var(--color-danger);
+  }
+  .detail-page .ledger-card dl > div:nth-child(5) dd {
+    color: var(--color-success);
+  }
+  .detail-page .ledger-card dl > div:last-child dt {
+    color: var(--color-secondary);
+  }
+  .detail-page .ledger-card dl > div:nth-child(4) dd,
+  .detail-page .ledger-card dl > div:last-child dd {
+    font-weight: 700;
+  }
+}
+@media (max-width: 1280px) {
+  .app-shell--dashboard .breadcrumb li:first-child,
+  .app-shell--detail .breadcrumb li:first-child {
+    display: flex;
+  }
+  .detail-page .page-header .actions {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 1050px) {
+  .app-shell--dashboard .header-right,
+  .app-shell--detail .header-right {
+    gap: var(--space-3);
+  }
+  .app-shell--dashboard .header-left {
+    gap: var(--space-3);
+  }
+}
+@media (max-width: 800px) {
+  .workspace-name,
+  .sidebar-brand .brand-name {
+    display: none;
+  }
+  .sidebar-brand {
+    padding: var(--space-6) var(--space-4);
+  }
+  .app-shell--dashboard .header-search {
+    width: 36px;
+  }
+}

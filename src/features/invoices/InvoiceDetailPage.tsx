@@ -1,0 +1,143 @@
+import { useState } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { Download, Printer, Bell, MoreHorizontal } from "lucide-react";
+import {
+  useInvoice,
+  useFinanceParties,
+  usePayments,
+  useFinanceMutations,
+} from "../finance/queries";
+import { QueryState } from "../../components/common/QueryState";
+import { PageHeader } from "../../components/common/Page";
+import { Card, StatusBadge } from "../../components/ui/Display";
+import { Button } from "../../components/ui/Button";
+import { Dropdown } from "../../components/ui/Overlays";
+import { useToast } from "../../components/feedback/Toast";
+import { PaymentHistory, FinancialSummary } from "../finance/components";
+import { RecordPaymentDialog } from "../payments/RecordPaymentDialog";
+import { InvoiceDocument, invoiceSummaryRows } from "./InvoiceDocument";
+import { fromMinor } from "../../utils/money";
+export function InvoiceDetailPage() {
+  const { id = "" } = useParams(),
+    navigate = useNavigate(),
+    query = useInvoice(id),
+    parties = useFinanceParties(),
+    payments = usePayments(),
+    { updateInvoice } = useFinanceMutations(),
+    notify = useToast();
+  const [payment, setPayment] = useState(false);
+  if (!query.data || !parties.data || !payments.data)
+    return <QueryState queries={[query, parties, payments]} back="/invoices" />;
+  const invoice = query.data,
+    party = parties.data.find((p) => p.id === invoice.partyId);
+  async function issueDraft() {
+    try {
+      await updateInvoice.mutateAsync({
+        id: invoice.id,
+        draft: false,
+        data: {
+          partyId: invoice.partyId,
+          date: invoice.date,
+          dueDate: invoice.dueDate,
+          reference: invoice.reference,
+          items: invoice.items.map((l) => ({
+            ...l,
+            rate: fromMinor(l.rateMinor),
+          })),
+          discount: fromMinor(invoice.discountMinor),
+          amountPaid: 0,
+          method: "Cash",
+          notes: invoice.notes,
+          terms: invoice.terms,
+        },
+      });
+      notify(
+        "Draft issued. Its balance is now included in the ledger.",
+        "success",
+      );
+    } catch (e) {
+      notify((e as Error).message, "error");
+    }
+  }
+  return (
+    <div className="page-stack finance-page invoice-detail-page">
+      <PageHeader
+        title={
+          <>
+            <Link to="/invoices">Invoices</Link>
+            <span className="muted"> › </span>
+            {invoice.id} <StatusBadge status={invoice.status} />
+          </>
+        }
+        subtitle={`Created on ${invoice.date}`}
+      />
+      <Card className="invoice-action-bar">
+        <div className="actions">
+          <Button
+            onClick={() =>
+              notify("PDF generation is planned for a later phase.")
+            }
+          >
+            <Download size={16} /> Download PDF
+          </Button>
+          <Button
+            onClick={() =>
+              notify("Invoice printing is planned for a later phase.")
+            }
+          >
+            <Printer size={16} /> Print
+          </Button>
+          <Button
+            onClick={() => notify("Messaging is planned for a later phase.")}
+          >
+            <Bell size={16} /> Send Reminder
+          </Button>
+          <Dropdown
+            label="More Actions"
+            trigger={
+              <>
+                More Actions <MoreHorizontal size={16} />
+              </>
+            }
+            items={[
+              {
+                label: "View Party",
+                onSelect: () => navigate(`/parties/${invoice.partyId}`),
+              },
+              {
+                label: "Issue Draft",
+                disabled: invoice.status !== "Draft" || updateInvoice.isPending,
+                onSelect: () => void issueDraft(),
+              },
+            ]}
+          />
+        </div>
+        <Button
+          variant="primary"
+          disabled={invoice.status === "Draft" || invoice.balanceMinor === 0}
+          onClick={() => setPayment(true)}
+        >
+          Record Payment
+        </Button>
+      </Card>
+      <Link id="invoice-party-link" to={`/parties/${invoice.partyId}`}>
+        View {party?.name}'s account
+      </Link>
+      <InvoiceDocument invoice={invoice} party={party} summary={false} />
+      <div className="invoice-bottom-grid">
+        <PaymentHistory
+          payments={payments.data.filter((p) => p.invoiceId === invoice.id)}
+        />
+        <FinancialSummary rows={invoiceSummaryRows(invoice)} />
+      </div>
+      {payment && (
+        <RecordPaymentDialog
+          partyId={invoice.partyId}
+          invoiceId={invoice.id}
+          direction={party?.kind === "Supplier" ? "Sent" : "Received"}
+          onClose={() => setPayment(false)}
+        />
+      )}
+    </div>
+  );
+}

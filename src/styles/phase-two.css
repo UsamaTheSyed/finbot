@@ -1,0 +1,536 @@
+/* Values from Figma 655:1502, 782:1159, 655:2403, 655:1812,
+   782:1473, 782:1661 and 782:906. Laptop reflow is an implementation decision. */
+@layer components {
+  .badge--info {
+    color: var(--color-info);
+    background: var(--color-infoBg);
+  }
+  .success-text {
+    color: var(--color-success);
+  }
+  main:has(.parties-page) {
+    background: var(--color-partiesCanvas);
+  }
+  main:has(.invoice-detail-page),
+  main:has(.create-invoice-page) {
+    background: var(--color-dashboardCanvas);
+  }
+  .finance-page h1 {
+    font-size: var(--font-kpi);
+    line-height: 1.3;
+  }
+  .parties-page h1 {
+    font-size: var(--font-logo);
+  }
+  .finance-page h2 {
+    font-size: var(--font-section);
+    font-weight: 600;
+  }
+  .finance-page .page-header .actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .finance-page [role="tabpanel"] {
+    margin-top: var(--space-6);
+  }
+  .finance-page .tabs {
+    gap: var(--space-6);
+  }
+  .finance-page .tabs button {
+    font-size: var(--font-normal);
+    font-weight: 500;
+    background: transparent;
+    cursor: pointer;
+  }
+  .finance-page .page-header > .actions > .button--primary {
+    min-height: var(--space-12);
+    padding-inline: var(--space-6);
+  }
+  .party-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+  .party-card {
+    padding: var(--space-4);
+    box-shadow: var(--shadow-party);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .party-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .party-card-header h2,
+  .party-card-header a {
+    font-size: var(--font-section);
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  .party-card .badge,
+  .party-detail-header .badge {
+    border: 0;
+    border-radius: var(--radius-small);
+    font-size: var(--font-caption);
+    padding: var(--space-1) var(--space-2);
+  }
+  .party-card .badge--success {
+    background: var(--color-partySuccessBg);
+  }
+  .party-card .badge--danger {
+    background: var(--color-partyDangerBg);
+  }
+  .party-card-contact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    font-size: var(--font-small);
+    color: var(--color-secondary);
+  }
+  .party-card-contact p {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    overflow-wrap: anywhere;
+  }
+  .party-card-contact svg {
+    flex-shrink: 0;
+  }
+  .party-card-balance {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--font-small);
+  }
+  .party-card-balance .badge {
+    font-size: var(--font-small);
+    font-weight: 700;
+  }
+  .party-card .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+  }
+  .party-card .actions .button {
+    border-color: var(--color-brand);
+    color: var(--color-brand);
+    padding: var(--space-2);
+    border-radius: var(--radius-small);
+  }
+  .finance-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+  .finance-metric {
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .finance-metric > span {
+    font-size: var(--font-body);
+    color: var(--color-secondary);
+  }
+  .finance-metric strong {
+    font-size: var(--font-kpi);
+    font-weight: 700;
+  }
+  .finance-metric small {
+    font-size: var(--font-small);
+    color: var(--color-muted);
+  }
+  .invoices-page .finance-metrics {
+    gap: var(--space-4);
+  }
+  .invoices-page .finance-metric {
+    padding: var(--space-4);
+    border-radius: var(--radius-large);
+  }
+  .party-detail-header {
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+  .party-detail-header h1 {
+    margin-bottom: var(--space-2);
+  }
+  .party-contact {
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--space-4);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+    font-size: var(--font-body);
+    color: var(--color-secondary);
+  }
+  .party-contact span {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .party-overview {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--layout-ledger);
+    gap: var(--space-6);
+    align-items: start;
+  }
+  .outstanding-invoices {
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .outstanding-invoices a {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    background: var(--color-selected);
+    padding: var(--space-3);
+    border-radius: var(--radius-small);
+    font-size: var(--font-body);
+  }
+  .outstanding-invoices small {
+    display: block;
+    font-size: var(--font-small);
+    color: var(--color-secondary);
+    margin-top: var(--space-1);
+  }
+  .balance-card {
+    padding: var(--space-5);
+    border-color: var(--color-brand);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .balance-card strong {
+    font-size: var(--font-logo);
+  }
+  .finance-table th {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--font-small);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .finance-table td {
+    padding: 14px var(--space-4);
+    font-size: var(--font-body);
+    height: var(--layout-row);
+  }
+  .finance-table a {
+    color: var(--color-brand);
+    font-weight: 500;
+  }
+  .finance-table tbody tr:nth-child(even) {
+    background: var(--color-canvas);
+  }
+  .finance-table td small {
+    display: block;
+    color: var(--color-secondary);
+    font-size: var(--font-small);
+    margin-top: var(--space-1);
+  }
+  .invoice-list-table td {
+    padding: var(--space-4) var(--space-6);
+    cursor: pointer;
+  }
+  .invoice-list-table th {
+    padding-inline: var(--space-6);
+  }
+  .invoice-list-table {
+    min-width: 760px;
+  }
+  .invoices-page .table-card {
+    border-radius: var(--radius-large);
+  }
+  .finance-page .badge {
+    border: 0;
+    border-radius: var(--radius-small);
+  }
+  .invoice-list-table .badge--success {
+    background: var(--color-success);
+    color: var(--color-surface);
+  }
+  .invoice-list-table .badge--warning {
+    background: var(--color-warning);
+    color: var(--color-surface);
+  }
+  .invoice-list-table .badge--info {
+    background: var(--color-info);
+    color: var(--color-surface);
+  }
+  .invoice-action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+  .invoice-action-bar .actions {
+    flex-wrap: wrap;
+  }
+  .invoice-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+  }
+  .invoice-info-grid .card {
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .invoice-info-grid dl,
+  .financial-summary dl,
+  .payment-detail dl {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    font-size: var(--font-body);
+  }
+  .invoice-info-grid dl > div,
+  .financial-summary dl > div,
+  .payment-detail dl > div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .invoice-info-grid dt,
+  .financial-summary dt,
+  .payment-detail dt {
+    color: var(--color-secondary);
+  }
+  .invoice-info-grid dd,
+  .financial-summary dd,
+  .payment-detail dd {
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+  .invoice-info-grid p {
+    color: var(--color-secondary);
+    font-size: var(--font-body);
+  }
+  .invoice-items {
+    min-width: 650px;
+  }
+  .invoice-items th:first-child {
+    width: 45%;
+  }
+  .invoice-bottom-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--layout-invoiceSummary);
+    gap: var(--space-6);
+    align-items: start;
+  }
+  .financial-summary {
+    padding: var(--space-5);
+  }
+  .financial-summary h2 {
+    margin-bottom: var(--space-5);
+  }
+  .financial-summary dl > div:nth-child(4) {
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--space-4);
+    font-weight: 700;
+  }
+  .financial-summary dl > div:nth-last-child(2):nth-child(5) {
+    background: var(--color-successBg);
+    padding: var(--space-3);
+    color: var(--color-success);
+  }
+  .financial-summary dl > div:last-child:nth-child(6) {
+    background: var(--color-partyDangerBg);
+    padding: var(--space-3);
+    color: var(--color-danger);
+    font-weight: 700;
+  }
+  .invoice-notes {
+    padding: var(--space-5);
+  }
+  .invoice-notes p {
+    white-space: pre-wrap;
+    font-size: var(--font-body);
+    color: var(--color-secondary);
+    margin-block: var(--space-3);
+  }
+  .invoice-form-card {
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+  .create-invoice-page .control {
+    height: var(--space-10);
+  }
+  .create-invoice-page textarea.control {
+    height: 80px;
+  }
+  .create-invoice-page .field > label {
+    font-size: var(--font-small);
+    text-transform: uppercase;
+  }
+  .invoice-item-editor table {
+    min-width: 1050px;
+    table-layout: fixed;
+  }
+  .invoice-item-editor th:nth-child(1) {
+    width: 140px;
+  }
+  .invoice-item-editor th:nth-child(2) {
+    width: 180px;
+  }
+  .invoice-item-editor th:nth-child(3) {
+    width: 90px;
+  }
+  .invoice-item-editor th:nth-child(4) {
+    width: 100px;
+  }
+  .invoice-item-editor th:nth-child(5) {
+    width: 120px;
+  }
+  .invoice-item-editor th:nth-child(6) {
+    width: 100px;
+  }
+  .invoice-item-editor th:nth-child(7) {
+    width: 160px;
+  }
+  .invoice-item-editor th:last-child {
+    width: 56px;
+  }
+  .invoice-item-editor td {
+    padding: var(--space-3);
+    vertical-align: top;
+  }
+  .invoice-item-editor .control {
+    height: 36px;
+    padding: var(--space-2);
+    border-radius: var(--radius-small);
+  }
+  .invoice-item-editor .field > label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .invoice-item-editor .field-error {
+    white-space: normal;
+  }
+  .finance-filters {
+    display: flex;
+    gap: var(--space-3);
+    align-items: end;
+    justify-content: flex-end;
+  }
+  .finance-filters .field {
+    min-width: 160px;
+  }
+  .payments-table {
+    min-width: 980px;
+  }
+  .payment-detail {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    margin-top: var(--space-6);
+  }
+  .payment-detail > strong {
+    font-size: var(--font-kpi);
+  }
+  .payment-detail .badge {
+    align-self: flex-start;
+  }
+  .party-form-modal {
+    width: min(var(--layout-partyModal), calc(100vw - 48px));
+    padding: 0;
+  }
+  .party-form-modal .modal-heading {
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .party-form-modal .modal-heading h2 {
+    font-size: 18px;
+  }
+  .party-form-modal .form-stack {
+    margin: 0;
+    padding: var(--space-5);
+    gap: var(--space-4);
+  }
+  .party-form-modal .field {
+    gap: 6px;
+  }
+  .party-form-modal .field > label {
+    font-size: var(--font-small);
+    font-weight: 500;
+  }
+  .party-form-modal .control {
+    min-height: 44px;
+    padding-inline: 14px;
+  }
+  .party-form-modal textarea {
+    height: 80px;
+  }
+  .party-form-modal .dialog-actions {
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--space-4);
+    margin-top: 0;
+    gap: var(--space-3);
+  }
+  .payment-balance {
+    display: flex;
+    justify-content: space-between;
+    background: var(--color-selected);
+    padding: var(--space-3);
+    border-radius: var(--radius-control);
+  }
+  .invoice-preview-modal {
+    width: min(1000px, calc(100vw - 48px));
+  }
+  .invoice-preview-modal .invoice-document {
+    margin-top: var(--space-6);
+  }
+}
+@media (max-width: 1280px) {
+  .party-overview {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+  .invoice-bottom-grid {
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
+  .party-detail-header .page-header {
+    align-items: flex-start;
+  }
+  .party-detail-header .page-header .actions {
+    max-width: 410px;
+  }
+}
+@media (max-width: 1100px) {
+  .party-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .party-overview {
+    grid-template-columns: 1fr;
+  }
+  .finance-metric strong {
+    font-size: var(--font-logo);
+  }
+  .invoice-bottom-grid {
+    grid-template-columns: minmax(0, 1fr) 280px;
+  }
+  .invoice-action-bar {
+    flex-wrap: wrap;
+  }
+  .invoice-form-card .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

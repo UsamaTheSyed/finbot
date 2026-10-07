@@ -1,0 +1,84 @@
+.team-page .data-table th,
+.team-page .data-table td {
+  padding: 14px 16px;
+}
+.team-page .data-table th:last-child,
+.team-page .data-table td:last-child {
+  text-align: right;
+}
+.team-page .data-table td:last-child {
+  white-space: nowrap;
+}
+.team-modal {
+  width: min(600px, calc(100vw - 48px));
+}
+.team-modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.team-modal fieldset {
+  border: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.team-modal legend {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.notifications-page section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.notification-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto auto;
+  gap: 12px;
+  align-items: center;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.notification-group + .notification-group {
+  margin-top: 24px;
+}
+
+.notification-group h2 {
+  margin: 0 0 10px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.notification-row.is-read {
+  opacity: 0.65;
+}
+.notification-row p,
+.notification-row time {
+  color: var(--color-secondary);
+  font-size: 12px;
+}
+.notification-orb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-successBg);
+}
+@media (max-width: 1050px) {
+  .notification-row {
+    grid-template-columns: 28px minmax(0, 1fr);
+  }
+  .notification-row time,
+  .notification-row > button,
+  .notification-row > span:last-child {
+    grid-column: 2;
+  }
+  .team-page .table-scroll {
+    overflow: auto;
+  }
+}

@@ -1,0 +1,186 @@
+[
+  {
+    "id": "655:902",
+    "name": "Desktop / Login",
+    "x": "17607",
+    "y": "-20611",
+    "width": "1440",
+    "height": "900"
+  },
+  {
+    "id": "655:1018",
+    "name": "Desktop / Dashboard",
+    "x": "20013",
+    "y": "-20611",
+    "width": "1440",
+    "height": "1200"
+  },
+  {
+    "id": "655:1200",
+    "name": "Desktop / Transactions",
+    "x": "21757",
+    "y": "-20611",
+    "width": "1440",
+    "height": "1000"
+  },
+  {
+    "id": "655:1502",
+    "name": "Desktop / Parties",
+    "x": "23501",
+    "y": "-20563",
+    "width": "1440",
+    "height": "1000"
+  },
+  {
+    "id": "655:1812",
+    "name": "Desktop / Invoices",
+    "x": "25177",
+    "y": "-20561",
+    "width": "1440",
+    "height": "900"
+  },
+  {
+    "id": "655:2031",
+    "name": "Desktop / Reports / Daily Summary",
+    "x": "26943",
+    "y": "-20563",
+    "width": "1440",
+    "height": "900"
+  },
+  {
+    "id": "655:2146",
+    "name": "Desktop / Reports / AR Aging",
+    "x": "28671",
+    "y": "-20561",
+    "width": "1440",
+    "height": "900"
+  },
+  {
+    "id": "655:2327",
+    "name": "Modal / Add Transaction",
+    "x": "31059",
+    "y": "-20635",
+    "width": "680",
+    "height": "884"
+  },
+  {
+    "id": "655:2403",
+    "name": "Modal / Add Party",
+    "x": "31839",
+    "y": "-20635",
+    "width": "680",
+    "height": "839"
+  },
+  {
+    "id": "782:906",
+    "name": "Desktop / Payments",
+    "x": "32559",
+    "y": "-20561",
+    "width": "1440",
+    "height": "1000"
+  },
+  {
+    "id": "782:1159",
+    "name": "Desktop / Party Detail",
+    "x": "34039",
+    "y": "-20561",
+    "width": "1440",
+    "height": "1100"
+  },
+  {
+    "id": "782:1341",
+    "name": "Desktop / Transaction Detail",
+    "x": "35519",
+    "y": "-20561",
+    "width": "1440",
+    "height": "1000"
+  },
+  {
+    "id": "782:1473",
+    "name": "Desktop / Invoice Detail",
+    "x": "36999",
+    "y": "-20561",
+    "width": "1440",
+    "height": "1100"
+  },
+  {
+    "id": "782:1661",
+    "name": "Desktop / Create Invoice",
+    "x": "38479",
+    "y": "-20561",
+    "width": "1440",
+    "height": "1100"
+  },
+  {
+    "id": "782:1862",
+    "name": "Desktop / Reports / Overview",
+    "x": "39959",
+    "y": "-20561",
+    "width": "1440",
+    "height": "1000"
+  },
+  {
+    "id": "783:2089",
+    "name": "Desktop / Reports / Profit & Loss",
+    "x": "41439",
+    "y": "-20561",
+    "width": "1440",
+    "height": "1150"
+  },
+  {
+    "id": "783:2264",
+    "name": "Desktop / Reports / Cash Flow",
+    "x": "42919",
+    "y": "-20561",
+    "width": "1440",
+    "height": "1150"
+  },
+  {
+    "id": "783:2446",
+    "name": "Desktop / Settings",
+    "x": "44399",
+    "y": "-20561",
+    "width": "1440",
+    "height": "1150"
+  },
+  {
+    "id": "783:2604",
+    "name": "Desktop / Team Management",
+    "x": "45879",
+    "y": "-20561",
+    "width": "1440",
+    "height": "1200"
+  },
+  {
+    "id": "783:2780",
+    "name": "Desktop / Notifications",
+    "x": "47359",
+    "y": "-20561",
+    "width": "1440",
+    "height": "1000"
+  },
+  {
+    "id": "783:2918",
+    "name": "Desktop / Global Search",
+    "x": "48839",
+    "y": "-20561",
+    "width": "1440",
+    "height": "1000"
+  },
+  {
+    "id": "783:3190",
+    "name": "Components / Empty States",
+    "x": "50319",
+    "y": "-20561",
+    "width": "1440",
+    "height": "1400"
+  },
+  {
+    "id": "783:3248",
+    "name": "Components / System States",
+    "x": "51799",
+    "y": "-20561",
+    "width": "1440",
+    "height": "1200"
+  }
+]

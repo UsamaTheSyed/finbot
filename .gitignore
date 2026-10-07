@@ -1,0 +1,15 @@
+node_modules/
+dist/
+server-dist/
+.env*
+!.env.example
+test-results/
+
+/test-results/
+/playwright-report/
+*.log
+
+
+/finbot@0.1.0
+/npm
+/playwright

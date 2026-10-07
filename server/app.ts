@@ -1,0 +1,48 @@
+import Fastify from "fastify";
+import cookie from "@fastify/cookie";
+import type { AppConfig } from "./config.js";
+import { createDatabase } from "./db/client.js";
+import { auth } from "./lib/auth.js";
+import { errorHandler } from "./lib/errors.js";
+import { authRoutes } from "./routes/auth.js";
+import { partyRoutes } from "./routes/parties.js";
+import { transactionRoutes } from "./routes/transactions.js";
+import { invoiceRoutes } from "./routes/invoices.js";
+import { paymentRoutes } from "./routes/payments.js";
+import { workspaceRoutes } from "./routes/workspace.js";
+import { reportRoutes } from "./routes/reports.js";
+import { seedDevelopment } from "./db/seed.js";
+
+export async function buildApp(config: AppConfig) {
+  const app = Fastify({
+    logger: {
+      level: config.NODE_ENV === "test" ? "error" : "info",
+      redact: ["req.headers.authorization", `req.cookies.${config.SESSION_COOKIE_NAME}`, "req.body.password"],
+    },
+    trustProxy: config.NODE_ENV === "production",
+  });
+  await app.register(cookie);
+  const { db, pool } = createDatabase(config);
+  const security = auth(config, db);
+  app.decorateRequest("sessionUser", null);
+  app.addHook("onRequest", security.restore);
+  app.setErrorHandler(errorHandler);
+  app.get("/api/health", async () => {
+    await pool.query("select 1");
+    return { status: "ok" };
+  });
+  if (config.NODE_ENV === "test")
+    app.post("/api/test/reset", async () => {
+      await seedDevelopment(pool);
+      return { status: "reset" };
+    });
+  await authRoutes(app, db, security);
+  await partyRoutes(app, pool, security);
+  await transactionRoutes(app, pool, security);
+  await invoiceRoutes(app, pool, security);
+  await paymentRoutes(app, pool, security);
+  await workspaceRoutes(app, pool, security);
+  await reportRoutes(app, pool, security);
+  app.addHook("onClose", async () => pool.end());
+  return app;
+}
