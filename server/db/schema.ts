@@ -89,6 +89,11 @@ export const businesses = pgTable("businesses", {
   ...timestamps,
 });
 
+export const invoiceCounters = pgTable("invoice_counters", {
+  businessId: text("business_id").primaryKey().references(() => businesses.id, { onDelete: "cascade" }),
+  lastNumber: bigint("last_number", { mode: "bigint" }).notNull().default(sql`0`),
+});
+
 export const memberships = pgTable(
   "workspace_memberships",
   {

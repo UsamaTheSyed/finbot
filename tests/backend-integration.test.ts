@@ -5,6 +5,7 @@ import { buildApp } from "../server/app";
 import { createDatabase } from "../server/db/client";
 import { seedDevelopment } from "../server/db/seed";
 import type { AppConfig } from "../server/config";
+import { allocateInvoiceNumber } from "../server/services/invoiceNumber";
 
 try {
   process.loadEnvFile?.(".env");
@@ -61,6 +62,8 @@ test("authenticated API preserves workspace isolation and atomic finance invaria
     });
     assert.equal(invoice.statusCode, 201);
     const invoiceBody = invoice.json();
+    assert.equal(invoiceBody.displayId, "INV-000020");
+    assert.notEqual(invoiceBody.id, invoiceBody.displayId);
     assert.equal(invoiceBody.totalMinor, 260000);
     const partial = await app.inject({
       method: "POST", url: "/api/businesses/business-1/payments", headers,
@@ -71,6 +74,8 @@ test("authenticated API preserves workspace isolation and atomic finance invaria
     //   body: partial.body,
     // });
     assert.equal(partial.statusCode, 201);
+    assert.equal(partial.json().invoiceId, invoiceBody.id);
+    assert.equal(partial.json().invoiceDisplayId, invoiceBody.displayId);
     const afterPartial = await app.inject({ method: "GET", url: `/api/businesses/business-1/invoices/${invoiceBody.id}`, headers });
     assert.equal(afterPartial.json().status, "Partial");
     assert.equal(afterPartial.json().balanceMinor, 200000);
@@ -85,6 +90,61 @@ test("authenticated API preserves workspace isolation and atomic finance invaria
     const report = await app.inject({ method: "GET", url: "/api/businesses/business-1/reports/ar-aging?period=2026-11", headers });
     assert.equal(report.statusCode, 200);
     assert.ok(report.json().aging.at(-1).total > 0);
+    // Concurrent creation must allocate distinct workspace numbers, keeping UUID routes.
+    const draftInput = {
+      partyId, date: "2026-11-28", dueDate: "2026-12-28", reference: "numbering",
+      items: [{ item: "Test", description: "", quantity: 1, unit: "Each", rate: 100, taxPercent: 0 }],
+      discount: 0, amountPaid: 0, method: "Cash", notes: "", terms: "", draft: true,
+    };
+    const created = await Promise.all(Array.from({ length: 4 }, () => app.inject({
+      method: "POST", url: "/api/businesses/business-1/invoices", headers, payload: draftInput,
+    })));
+    for (const response of created) assert.equal(response.statusCode, 201, response.body);
+    assert.deepEqual(created.map((r) => r.json().displayId).sort(), [
+      "INV-000021", "INV-000022", "INV-000023", "INV-000024",
+    ]);
+    const draft = created[0].json();
+    for (const isDraft of [true, false]) {
+      const updated = await app.inject({ method: "PATCH",
+        url: `/api/businesses/business-1/invoices/${draft.id}`, headers,
+        payload: { ...draftInput, draft: isDraft },
+      });
+      assert.equal(updated.statusCode, 200, updated.body);
+      assert.equal(updated.json().id, draft.id);
+      assert.equal(updated.json().displayId, draft.displayId);
+    }
+    const list = await app.inject({ method: "GET", url: "/api/businesses/business-1/invoices", headers });
+    assert.equal(list.json().find((i: { id: string }) => i.id === draft.id).displayId, draft.displayId);
+    // Failure after allocation must roll back the counter as well as the invoice.
+    const rejected = await app.inject({ method: "POST",
+      url: "/api/businesses/business-1/invoices", headers,
+      payload: { ...draftInput, partyId: "party-2" },
+    });
+    assert.equal(rejected.statusCode, 400, rejected.body);
+    const next = await app.inject({ method: "POST",
+      url: "/api/businesses/business-1/invoices", headers, payload: draftInput,
+    });
+    assert.equal(next.statusCode, 201, next.body);
+    assert.equal(next.json().displayId, "INV-000025");
+    // Committed numbers remain consumed even if the invoice is later deleted.
+    await setup.pool.query("delete from invoices where id=$1", [next.json().id]);
+    const afterDelete = await app.inject({ method: "POST",
+      url: "/api/businesses/business-1/invoices", headers, payload: draftInput,
+    });
+    assert.equal(afterDelete.statusCode, 201, afterDelete.body);
+    assert.equal(afterDelete.json().displayId, "INV-000026");
+    const counterClient = await setup.pool.connect();
+    try {
+      await counterClient.query("begin");
+      assert.equal(await allocateInvoiceNumber(counterClient, "business-2"), "INV-000001");
+      await counterClient.query("rollback");
+      await counterClient.query("begin");
+      assert.equal(await allocateInvoiceNumber(counterClient, "business-2"), "INV-000001");
+      await counterClient.query("commit");
+    } finally {
+      await counterClient.query("rollback");
+      counterClient.release();
+    }
   } finally {
     await app.close();
     await setup.pool.end();

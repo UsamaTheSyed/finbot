@@ -103,6 +103,13 @@ test("drafts stay unposted until issued and payment filters work", async ({
   await expect(
     page.getByRole("button", { name: "Record Payment", exact: true }),
   ).toBeDisabled();
+  const draftUrl = page.url();
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: /^Invoices\s*›\s*INV-000020\s+Draft$/,
+    }),
+  ).toBeVisible();
   await page.getByRole("button", { name: "More Actions", exact: true }).click();
   await page
     .getByRole("menuitem", { name: "Issue Draft", exact: true })
@@ -110,6 +117,13 @@ test("drafts stay unposted until issued and payment filters work", async ({
   await expect(
     page.getByRole("button", { name: "Record Payment", exact: true }),
   ).toBeEnabled();
+  await expect(page).toHaveURL(draftUrl);
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: /^Invoices\s*›\s*INV-000020\s+Sent$/,
+    }),
+  ).toBeVisible();
   await page.getByRole("link", { name: "Payments", exact: true }).click();
   await expect(
     page.getByRole("table", { name: "Payments", exact: true }),

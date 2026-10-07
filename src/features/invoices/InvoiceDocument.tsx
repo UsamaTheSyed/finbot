@@ -23,7 +23,7 @@ export function InvoiceDocument({
           <h2>Invoice Details</h2>
           <dl>
             {[
-              ["Invoice Number", invoice.id],
+              ["Invoice Number", invoice.displayId ?? invoice.id],
               ["Invoice Date", formatMetadataDate(invoice.date)],
               ["Due Date", formatMetadataDate(invoice.dueDate)],
               ["Reference", invoice.reference || "—"],

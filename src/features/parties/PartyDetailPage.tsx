@@ -39,7 +39,7 @@ export function PartyDetailPage() {
               outstanding.map((i) => (
                 <Link key={i.id} to={`/invoices/${i.id}`}>
                   <span>
-                    {i.id}
+                    {i.displayId ?? i.id}
                     <small>Due {i.dueDate}</small>
                   </span>
                   <Money value={i.balanceMinor} />

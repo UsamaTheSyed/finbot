@@ -62,6 +62,8 @@ export interface InvoiceItem {
   taxPercent: number;
 }
 export interface Invoice {
+  /** Human-readable number. Optional for existing mock fixtures/previews. */
+  displayId?: string;
   id: string;
   businessId: string;
   transactionId?: string;
@@ -86,6 +88,7 @@ export interface Payment {
   businessId: string;
   partyId: string;
   invoiceId?: string;
+  invoiceDisplayId?: string;
   transactionId?: string;
   direction: "Received" | "Sent";
   amountMinor: number;

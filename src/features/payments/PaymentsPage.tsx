@@ -172,7 +172,7 @@ export function PaymentsPage() {
             </dl>
             {selected.invoiceId ? (
               <Link to={`/invoices/${selected.invoiceId}`}>
-                View {selected.invoiceId}
+                View {selected.invoiceDisplayId ?? selected.invoiceId}
               </Link>
             ) : (
               <p className="muted">No linked invoice</p>

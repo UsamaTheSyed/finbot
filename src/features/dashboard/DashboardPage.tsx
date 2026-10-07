@@ -129,7 +129,7 @@ export function DashboardPage() {
             <tbody>
               {invoices.data?.map((row) => (
                 <TableRow key={row.id}>
-                  <td>{row.id}</td>
+                  <td>{row.displayId ?? row.id}</td>
                   <td>{names.get(row.partyId)}</td>
                   <td className="danger-text">{row.daysOverdue} days</td>
                   <td>

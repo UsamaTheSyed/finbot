@@ -157,7 +157,7 @@ function PaymentFormDialog({
           <option value="">On account — no invoice</option>
           {available.map((i) => (
             <option key={i.id} value={i.id}>
-              {i.id}
+              {i.displayId ?? i.id}
             </option>
           ))}
         </Select>

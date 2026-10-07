@@ -76,14 +76,14 @@ function SearchResults({ onClose }: { onClose: () => void }) {
         .filter(
           (invoice) =>
             term &&
-            `${invoice.id} ${partyName(invoice.partyId)}`
+            `${invoice.displayId ?? invoice.id} ${invoice.id} ${partyName(invoice.partyId)}`
               .toLowerCase()
               .includes(term),
         )
         .slice(0, 2)
         .map((invoice) => ({
           id: `invoice-${invoice.id}`,
-          title: `${invoice.id} — ${partyName(invoice.partyId)}`,
+          title: `${invoice.displayId ?? invoice.id} — ${partyName(invoice.partyId)}`,
           subtitle: `Created ${invoice.date} • Due ${invoice.dueDate}`,
           href: `/invoices/${invoice.id}`,
           amount: fromMinor(invoice.totalMinor),

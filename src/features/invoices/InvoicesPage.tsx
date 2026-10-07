@@ -63,7 +63,7 @@ export function InvoicesPage() {
                   onClick={() => navigate(`/invoices/${i.id}`)}
                 >
                   <td>
-                    <Link to={`/invoices/${i.id}`}>{i.id}</Link>
+                    <Link to={`/invoices/${i.id}`}>{i.displayId ?? i.id}</Link>
                   </td>
                   <td>{parties.data?.find((p) => p.id === i.partyId)?.name}</td>
                   <td>
@@ -81,7 +81,7 @@ export function InvoicesPage() {
                   <td onClick={(e) => e.stopPropagation()}>
                     <Dropdown
                       trigger={<MoreHorizontal size={18} />}
-                      label={`Actions for ${i.id}`}
+                      label={`Actions for ${i.displayId ?? i.id}`}
                       items={[
                         {
                           label: "View",

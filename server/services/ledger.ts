@@ -103,7 +103,8 @@ export async function invoiceDto(client: Queryable, businessId: string, id: stri
   const balanceMinor = totalMinor - paidMinor;
   const status = invoiceStatus(row.status, totalMinor, paidMinor, row.due_date);
   return {
-    id: row.display_id,
+    id: row.id,
+    displayId: row.display_id,
     businessId: row.business_id,
     transactionId: row.transaction_id || undefined,
     partyId: row.party_id,
@@ -136,8 +137,9 @@ export async function invoiceDto(client: Queryable, businessId: string, id: stri
 
 export async function paymentDto(client: Queryable, businessId: string, id: string) {
   const result = await client.query(
-    `select p.*, pa.invoice_id
+    `select p.*, pa.invoice_id, i.display_id as invoice_display_id
      from payments p left join payment_allocations pa on pa.payment_id = p.id
+     left join invoices i on i.id = pa.invoice_id and i.business_id = p.business_id
      where p.id = $1 and p.business_id = $2`,
     [id, businessId],
   );
@@ -148,6 +150,7 @@ export async function paymentDto(client: Queryable, businessId: string, id: stri
     businessId: row.business_id,
     partyId: row.party_id,
     invoiceId: row.invoice_id || undefined,
+    invoiceDisplayId: row.invoice_display_id || undefined,
     transactionId: row.transaction_id || undefined,
     direction: row.direction,
     amountMinor: Number(row.amount_minor),

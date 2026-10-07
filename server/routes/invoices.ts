@@ -6,6 +6,7 @@ import type { Auth } from "../lib/auth.js";
 import { id, invoiceInput, type InvoiceInput } from "../domain/validation.js";
 import { calculateInvoice } from "../domain/money.js";
 import { ApiError } from "../lib/errors.js";
+import { allocateInvoiceNumber } from "../services/invoiceNumber.js";
 import {
   businessDate,
   invoiceDto,
@@ -21,6 +22,7 @@ async function insertInvoiceGraph(
   userId: string,
   invoiceId: string,
   input: InvoiceInput,
+  displayId: string,
 ) {
   const party = await requireScopedRecord(client, "parties", businessId, input.partyId, true);
   if (party.kind !== "Customer") throw new ApiError(400, "CUSTOMER_REQUIRED", "Choose a customer for a new sales invoice.");
@@ -30,8 +32,8 @@ async function insertInvoiceGraph(
   await client.query(
     `insert into invoices
      (id,display_id,business_id,transaction_id,party_id,date,due_date,reference,subtotal_minor,tax_minor,discount_minor,total_minor,status,notes,terms)
-     values ($1,$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
-    [ invoiceId, businessId, null, input.partyId, input.date, input.dueDate, input.reference, totals.subtotalMinor, totals.taxMinor, totals.discountMinor, totals.totalMinor, storedStatus, input.notes, input.terms, ],
+     values ($1,$15,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
+    [ invoiceId, businessId, null, input.partyId, input.date, input.dueDate, input.reference, totals.subtotalMinor, totals.taxMinor, totals.discountMinor, totals.totalMinor, storedStatus, input.notes, input.terms, displayId ],
   );
   for (const [position, item] of totals.items.entries()) {
     const itemId = `${invoiceId}-line-${position + 1}`;
@@ -111,7 +113,8 @@ export async function invoiceRoutes(app: FastifyInstance, pool: DatabasePool, au
         );
 
         return {
-          id: row.display_id,
+          id: row.id,
+          displayId: row.display_id,
           businessId: row.business_id,
           transactionId: row.transaction_id || undefined,
           partyId: row.party_id,
@@ -155,7 +158,8 @@ export async function invoiceRoutes(app: FastifyInstance, pool: DatabasePool, au
     const client = await pool.connect();
     try {
       await client.query("begin");
-      await insertInvoiceGraph(client, businessId, membership.user.id, invoiceId, input);
+      const displayId = await allocateInvoiceNumber(client, businessId);
+      await insertInvoiceGraph(client, businessId, membership.user.id, invoiceId, input, displayId);
       await client.query("commit");
     } catch (error) {
       await client.query("rollback");
@@ -175,7 +179,7 @@ export async function invoiceRoutes(app: FastifyInstance, pool: DatabasePool, au
       if (current.status !== "Draft") throw new ApiError(409, "INVOICE_NOT_DRAFT", "Only drafts can be edited.");
       await client.query("delete from invoice_items where invoice_id=$1", [invoiceId]);
       await client.query("delete from invoices where id=$1 and business_id=$2", [invoiceId, businessId]);
-      await insertInvoiceGraph(client, businessId, membership.user.id, invoiceId, input);
+      await insertInvoiceGraph(client, businessId, membership.user.id, invoiceId, input, String(current.display_id));
       await client.query("commit");
     } catch (error) {
       await client.query("rollback");

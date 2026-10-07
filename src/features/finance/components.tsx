@@ -124,7 +124,7 @@ export function InvoiceRows({ invoices }: { invoices: Invoice[] }) {
             {invoices.map((i) => (
               <TableRow key={i.id}>
                 <td>
-                  <Link to={`/invoices/${i.id}`}>{i.id}</Link>
+                  <Link to={`/invoices/${i.id}`}>{i.displayId ?? i.id}</Link>
                 </td>
                 <td>{formatMetadataDate(i.date)}</td>
                 <td>

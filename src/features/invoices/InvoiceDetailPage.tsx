@@ -66,7 +66,7 @@ export function InvoiceDetailPage() {
           <>
             <Link to="/invoices">Invoices</Link>
             <span className="muted"> › </span>
-            {invoice.id} <StatusBadge status={invoice.status} />
+            {invoice.displayId ?? invoice.id} <StatusBadge status={invoice.status} />
           </>
         }
         subtitle={`Created on ${invoice.date}`}
