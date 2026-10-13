@@ -8,7 +8,7 @@ import { useAppStore } from "../../store/useAppStore";
 import { settingsService } from "../../services/settingsService";
 import { BusinessProfileForm } from "./BusinessProfileForm";
 import whatsapp from "../../assets/phase-three/whatsapp.svg";
-import telegram from "../../assets/phase-three/telegram.svg";
+import { TelegramIntegration } from "./TelegramIntegration";
 import "../../styles/phase-three.css";
 export function SettingsPage() {
   const id = useAppStore((s) => s.workspaceId);
@@ -70,7 +70,6 @@ export function SettingsPage() {
           <div className="integration-grid">
             {[
               { title: "WhatsApp Business", icon: whatsapp },
-              { title: "Telegram Bot", icon: telegram },
             ].map((bot) => (
               <Card className="integration-card" key={bot.title}>
                 <div className="row-between">
@@ -98,6 +97,7 @@ export function SettingsPage() {
                 </div>
               </Card>
             ))}
+            <TelegramIntegration key={id} businessId={id} />
           </div>
         </Card>
       </div>

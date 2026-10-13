@@ -8,6 +8,7 @@ import { Card, StatusBadge } from "../../components/ui/Display";
 import { Button } from "../../components/ui/Button";
 import { Dropdown } from "../../components/ui/Overlays";
 import { Table, TableHeader, TableRow } from "../../components/ui/Table";
+import { Select } from "../../components/ui/Fields";
 import { Tabs } from "../../components/navigation/Controls";
 import { EmptyState } from "../../components/feedback/States";
 import { useToast } from "../../components/feedback/Toast";
@@ -21,15 +22,25 @@ export function InvoicesPage() {
     navigate = useNavigate(),
     notify = useToast();
   const [payment, setPayment] = useState<Invoice>();
+  const [kind, setKind] = useState("All");
   if (!query.data || !parties.data)
     return <QueryState queries={[query, parties]} />;
-  const issued = query.data.filter(
+  const rows = query.data.filter(
+    (i) =>
+      kind === "All" ||
+      parties.data?.find((p) => p.id === i.partyId)?.kind === kind,
+  );
+  const issued = rows.filter(
     (i) =>
       i.status !== "Draft" &&
-      parties.data?.find((p) => p.id === i.partyId)?.kind === "Customer",
+      parties.data?.find((p) => p.id === i.partyId)?.kind ===
+        (kind === "Supplier" ? "Supplier" : "Customer"),
   );
   const summaries: [string, number][] = [
-    ["Total Receivables", sumMinor(issued.map((i) => i.totalMinor))],
+    [
+      kind === "Supplier" ? "Total Payables" : "Total Receivables",
+      sumMinor(issued.map((i) => i.totalMinor)),
+    ],
     ["Total Paid", sumMinor(issued.map((i) => i.paidMinor))],
     ["Pending Due", sumMinor(issued.map((i) => i.balanceMinor))],
   ];
@@ -44,7 +55,7 @@ export function InvoicesPage() {
             <TableHeader>
               <TableRow>
                 {[
-                  "Invoice #",
+                  "Invoice / Bill #",
                   "Party",
                   "Total",
                   "Paid",
@@ -114,7 +125,7 @@ export function InvoicesPage() {
   return (
     <div className="page-stack finance-page invoices-page">
       <PageHeader
-        title="Invoices"
+        title={kind === "Supplier" ? "Bills" : "Invoices"}
         subtitle="Manage your billing and track invoice status."
         actions={
           <>
@@ -125,12 +136,24 @@ export function InvoicesPage() {
             >
               <Download size={16} /> Export
             </Button>
+            <Button onClick={() => navigate("/invoices/new?kind=Supplier")}>
+              <Plus size={18} /> New Bill
+            </Button>
             <Button variant="primary" onClick={() => navigate("/invoices/new")}>
               <Plus size={18} /> New Invoice
             </Button>
           </>
         }
       />
+      <Select
+        label="Document type"
+        value={kind}
+        onChange={(e) => setKind(e.target.value)}
+      >
+        <option value="All">All invoices and bills</option>
+        <option value="Customer">Customer invoices</option>
+        <option value="Supplier">Supplier bills</option>
+      </Select>
       <div className="finance-metrics">
         {summaries.map(([label, value]) => (
           <Card className="finance-metric" key={label}>
@@ -138,7 +161,10 @@ export function InvoicesPage() {
             <strong>
               <Money value={value} />
             </strong>
-            <small>{issued.length} issued invoices</small>
+            <small>
+              {issued.length} issued{" "}
+              {kind === "Supplier" ? "bills" : "customer invoices"}
+            </small>
           </Card>
         ))}
       </div>
@@ -148,7 +174,7 @@ export function InvoicesPage() {
           value: status,
           label: status,
           content: invoiceTable(
-            query.data.filter((i) => status === "All" || i.status === status),
+            rows.filter((i) => status === "All" || i.status === status),
           ),
         }))}
       />

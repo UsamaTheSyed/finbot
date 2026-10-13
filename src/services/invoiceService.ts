@@ -28,8 +28,8 @@ function prepare(
 ): Invoice {
   const value = invoiceSchema.parse(input),
     party = requireParty(businessId, value.partyId);
-  if (party.kind !== "Customer")
-    throw new Error("Choose a customer for a new sales invoice.");
+  if (!["Customer", "Supplier"].includes(party.kind))
+    throw new Error("Choose a customer or supplier.");
   if (draft && value.amountPaid > 0)
     throw new Error(
       "A draft cannot record a payment. Set Amount Paid to zero or create the invoice.",
@@ -103,7 +103,11 @@ export const invoiceService = {
                   partyId: invoice.partyId,
                   invoiceId: invoice.id,
                   transactionId: transaction?.id,
-                  direction: "Received",
+                  direction:
+                    requireParty(businessId, invoice.partyId).kind ===
+                    "Supplier"
+                      ? "Sent"
+                      : "Received",
                   amountMinor: invoice.paidMinor,
                   method: value.method,
                   date: value.date,

@@ -1,0 +1,10 @@
+{
+  "src/services/invoiceService.ts": "5d4bd4a70029113d4636c18633f6a79d3403e6ac6d06bafc05989a70b181c310",
+  "src/features/invoices/InvoiceDetailPage.tsx": "1f888b2159beb7f516e63197193cb17b43e734b0737a0992a2868ef38d3b1c50",
+  "src/features/invoices/CreateInvoicePage.tsx": "850b6781a42e87947d82afc89c7929387b1a3e0d4ea0aee4e07869544338cb3b",
+  "src/features/invoices/InvoicesPage.tsx": "84c2466b3cd608cacc8fb6bad2373a6e7a03119a318d79ccdce80b33087fcb48",
+  "src/features/invoices/InvoiceDocument.tsx": "d0a26ffd5dea1cfc7288e844210330117ef237a40324ea975256630d7c2baa7c",
+  "src/features/parties/PartyDetailPage.tsx": "b1695f9f8aa13d939985c07116d0d6c07ccec9a44b80094465825e3bf7b2b17e",
+  "tests/supplier-bills.test.ts": "d0337deb2845c97d160af9b76d17a4dff7827d34e96131697604e17b87b52daf",
+  "tests/browser/supplier-bills.spec.ts": "d1601fe846b5fadd344f0c6cb38d67ad9e964d09396351705875eb42c217ebf2"
+}

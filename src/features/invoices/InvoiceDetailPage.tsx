@@ -64,9 +64,12 @@ export function InvoiceDetailPage() {
       <PageHeader
         title={
           <>
-            <Link to="/invoices">Invoices</Link>
+            <Link to="/invoices">
+              {party?.kind === "Supplier" ? "Bills" : "Invoices"}
+            </Link>
             <span className="muted"> › </span>
-            {invoice.displayId ?? invoice.id} <StatusBadge status={invoice.status} />
+            {invoice.displayId ?? invoice.id}{" "}
+            <StatusBadge status={invoice.status} />
           </>
         }
         subtitle={`Created on ${invoice.date}`}
@@ -126,7 +129,22 @@ export function InvoiceDetailPage() {
       <InvoiceDocument invoice={invoice} party={party} summary={false} />
       <div className="invoice-bottom-grid">
         <PaymentHistory
-          payments={payments.data.filter((p) => p.invoiceId === invoice.id)}
+          payments={payments.data
+            .filter(
+              (p) =>
+                p.invoiceId === invoice.id ||
+                p.allocations?.some((a) => a.invoiceId === invoice.id),
+            )
+            .map((p) =>
+              p.allocations?.length
+                ? {
+                    ...p,
+                    amountMinor: p.allocations
+                      .filter((a) => a.invoiceId === invoice.id)
+                      .reduce((sum, a) => sum + a.amountMinor, 0),
+                  }
+                : p,
+            )}
         />
         <FinancialSummary rows={invoiceSummaryRows(invoice)} />
       </div>

@@ -36,6 +36,11 @@ export function CreateInvoicePage() {
     navigate = useNavigate(),
     [search] = useSearchParams(),
     notify = useToast();
+  const isBill =
+    search.get("kind") === "Supplier" ||
+    parties.data?.find((p) => p.id === search.get("party"))?.kind ===
+      "Supplier";
+  const partyKind = isBill ? "Supplier" : "Customer";
   const [preview, setPreview] = useState<Invoice>();
   const defaultDueDate = new Date(`${demoDate}T00:00:00Z`);
   defaultDueDate.setUTCDate(defaultDueDate.getUTCDate() + 30);
@@ -64,9 +69,18 @@ export function CreateInvoicePage() {
   const values = watch(),
     calculated = tryInvoicePreview(values);
   async function save(data: InvoiceInput, draft: boolean) {
+    if (
+      !parties.data?.some((p) => p.id === data.partyId && p.kind === partyKind)
+    ) {
+      setError("partyId", { message: `Choose a ${partyKind.toLowerCase()}.` });
+      return;
+    }
     try {
       const invoice = await createInvoice.mutateAsync({ data, draft });
-      notify(draft ? "Draft saved." : "Invoice created.", "success");
+      notify(
+        draft ? "Draft saved." : isBill ? "Bill created." : "Invoice created.",
+        "success",
+      );
       navigate(`/invoices/${invoice.id}`);
     } catch (e) {
       setError("root", { message: (e as Error).message });
@@ -76,8 +90,12 @@ export function CreateInvoicePage() {
   return (
     <div className="page-stack finance-page create-invoice-page">
       <PageHeader
-        title="New Invoice"
-        subtitle="Draft and dispatch customer ledger values"
+        title={isBill ? "New Bill" : "New Invoice"}
+        subtitle={
+          isBill
+            ? "Record a supplier bill and track amounts payable"
+            : "Draft and dispatch customer ledger values"
+        }
       />
       <FormProvider {...form}>
         <form
@@ -87,16 +105,20 @@ export function CreateInvoicePage() {
         >
           <div className="invoice-bottom-grid">
             <Card className="invoice-form-card">
-              <h2>Client & Date Parameters</h2>
+              <h2>
+                {isBill
+                  ? "Supplier & Date Parameters"
+                  : "Client & Date Parameters"}
+              </h2>
               <div className="form-grid">
                 <Select
-                  label="Customer"
+                  label={partyKind}
                   {...register("partyId")}
                   error={errors.partyId?.message}
                 >
-                  <option value="">Choose a customer</option>
+                  <option value="">Choose a {partyKind.toLowerCase()}</option>
                   {parties.data
-                    .filter((p) => p.kind === "Customer")
+                    .filter((p) => p.kind === partyKind)
                     .map((p) => (
                       <option key={p.id} value={p.id}>
                         {p.name}
@@ -109,7 +131,7 @@ export function CreateInvoicePage() {
                   error={errors.reference?.message}
                 />
                 <DatePicker
-                  label="Invoice Date"
+                  label={isBill ? "Bill Date" : "Invoice Date"}
                   {...register("date")}
                   error={errors.date?.message}
                 />
@@ -216,7 +238,7 @@ export function CreateInvoicePage() {
               type="submit"
               loading={createInvoice.isPending}
             >
-              Create Invoice
+              {isBill ? "Create Bill" : "Create Invoice"}
             </Button>
           </Card>
         </form>
@@ -224,7 +246,7 @@ export function CreateInvoicePage() {
       {preview && (
         <Modal
           open
-          title="Invoice Preview"
+          title={isBill ? "Bill Preview" : "Invoice Preview"}
           className="invoice-preview-modal"
           onOpenChange={(v) => {
             if (!v) setPreview(undefined);

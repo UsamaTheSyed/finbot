@@ -15,6 +15,20 @@
       "when": 1791333107038,
       "tag": "0001_invoice_numbering",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791403230040,
+      "tag": "0002_bot_core",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791829261205,
+      "tag": "0003_fifo_allocations",
+      "breakpoints": true
     }
   ]
 }

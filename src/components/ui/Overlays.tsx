@@ -54,6 +54,7 @@ export function ConfirmationDialog({
   description,
   onConfirm,
   loading = false,
+  confirmLabel = "Delete",
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -61,6 +62,7 @@ export function ConfirmationDialog({
   description: string;
   onConfirm: () => void;
   loading?: boolean;
+  confirmLabel?: string;
 }) {
   return (
     <Modal
@@ -75,7 +77,7 @@ export function ConfirmationDialog({
           Cancel
         </Button>
         <Button variant="danger" loading={loading} onClick={onConfirm}>
-          Delete
+          {confirmLabel}
         </Button>
       </div>
     </Modal>

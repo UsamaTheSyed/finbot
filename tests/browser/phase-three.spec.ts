@@ -108,7 +108,7 @@ test("business settings validate, save within the session and reject invalid log
   await expect(page.getByRole("button", { name: "Remove logo" })).toBeVisible();
   await page.getByRole("button", { name: "Save Changes" }).click();
   await expect(
-    page.getByText("Business profile saved."),
+    page.getByText("Business profile saved.", { exact: true }),
   ).toBeVisible();
   await page
     .getByRole("link", { name: "Dashboard", exact: true })

@@ -34,7 +34,11 @@ export function PartyDetailPage() {
         <PartyTransactions transactions={transactions.slice(0, 5)} />
         <div className="page-stack">
           <Card className="outstanding-invoices">
-            <h2>Outstanding Invoices</h2>
+            <h2>
+              {party.kind === "Supplier"
+                ? "Outstanding Bills"
+                : "Outstanding Invoices"}
+            </h2>
             {outstanding.length ? (
               outstanding.map((i) => (
                 <Link key={i.id} to={`/invoices/${i.id}`}>
@@ -46,7 +50,10 @@ export function PartyDetailPage() {
                 </Link>
               ))
             ) : (
-              <p className="muted">No outstanding invoices.</p>
+              <p className="muted">
+                No outstanding{" "}
+                {party.kind === "Supplier" ? "bills" : "invoices"}.
+              </p>
             )}
           </Card>
           <Card className="balance-card">
@@ -137,10 +144,14 @@ export function PartyDetailPage() {
       </div>
       <div className="actions">
         <Button
-          disabled={party.kind === "Supplier"}
-          onClick={() => navigate(`/invoices/new?party=${party.id}`)}
+          onClick={() =>
+            navigate(
+              `/invoices/new?party=${encodeURIComponent(party.id)}&kind=${party.kind}`,
+            )
+          }
         >
-          <Plus size={16} /> Create Invoice
+          <Plus size={16} />{" "}
+          {party.kind === "Supplier" ? "Create Bill" : "Create Invoice"}
         </Button>
         <Button
           onClick={() =>

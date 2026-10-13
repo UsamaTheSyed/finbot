@@ -14,7 +14,7 @@ export interface ApiClient {
   post<T>(path: string, body: unknown): Promise<T>;
   delete<T>(path: string): Promise<T>;
 }
-export const createHttpClient = (baseUrl: string): ApiClient => {
+export const createHttpClient = (baseUrl: string, extraHeaders: Record<string, string> = {}): ApiClient => {
   async function request<T>(
     path: string,
     method: string,
@@ -22,10 +22,7 @@ export const createHttpClient = (baseUrl: string): ApiClient => {
   ): Promise<T> {
     const response = await fetch(`${baseUrl}${path}`, {
       method,
-      headers:
-        body === undefined
-          ? undefined
-          : { "Content-Type": "application/json" },
+      headers: { ...extraHeaders, ...(body === undefined ? {} : { "Content-Type": "application/json" }) },
       credentials: "same-origin",
       body: body === undefined ? undefined : JSON.stringify(body),
     });

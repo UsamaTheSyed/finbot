@@ -16,6 +16,113 @@ import {
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
+export const botIdentities = pgTable(
+  "bot_identities",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    channel: text("channel").notNull(),
+    externalUserId: text("external_user_id").notNull(),
+    externalChatId: text("external_chat_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("bot_external_identity_unique").on(
+      t.channel,
+      t.externalUserId,
+      t.externalChatId,
+    ),
+  ],
+);
+export const botLinkTokens = pgTable("bot_link_tokens", {
+  hash: text("hash").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  businessId: text("business_id")
+    .notNull()
+    .references(() => businesses.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true }),
+});
+export const botConversations = pgTable("bot_conversations", {
+  identityId: uuid("identity_id")
+    .primaryKey()
+    .references(() => botIdentities.id, { onDelete: "cascade" }),
+  state: jsonb("state").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+});
+export const botActions = pgTable(
+  "bot_actions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    identityId: uuid("identity_id")
+      .notNull()
+      .references(() => botIdentities.id, { onDelete: "cascade" }),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    intent: text("intent").notNull(),
+    payload: jsonb("payload").notNull(),
+    status: text("status").notNull().default("pending"),
+    result: jsonb("result"),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
+    executedAt: timestamp("executed_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("bot_actions_identity_idx").on(t.identityId),
+    check(
+      "bot_action_status",
+      sql`${t.status} in ('pending','confirmed','executed','cancelled','expired','failed')`,
+    ),
+  ],
+);
+export const botReceipts = pgTable("bot_receipts", {
+  key: text("key").primaryKey(),
+  response: jsonb("response").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+export const botAudit = pgTable("bot_audit", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  businessId: text("business_id").references(() => businesses.id, {
+    onDelete: "cascade",
+  }),
+  userId: text("user_id").references(() => users.id, { onDelete: "set null" }),
+  channel: text("channel").notNull(),
+  messageId: text("message_id").notNull(),
+  intent: text("intent").notNull(),
+  actionId: uuid("action_id"),
+  result: text("result").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+export const botRateLimits = pgTable("bot_rate_limits", {
+  key: text("key").primaryKey(),
+  count: integer("count").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+});
+export const botRuntime = pgTable("bot_runtime", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+});
+
 export const partyKind = pgEnum("party_kind", ["Customer", "Supplier"]);
 export const membershipRole = pgEnum("membership_role", [
   "Owner",
@@ -42,7 +149,10 @@ export const invoiceStatus = pgEnum("invoice_status", [
   "Partial",
   "Overdue",
 ]);
-export const paymentDirection = pgEnum("payment_direction", ["Received", "Sent"]);
+export const paymentDirection = pgEnum("payment_direction", [
+  "Received",
+  "Sent",
+]);
 export const paymentStatus = pgEnum("payment_status", [
   "Completed",
   "Pending",
@@ -57,8 +167,12 @@ export const paymentMethod = pgEnum("payment_method", [
 ]);
 
 const timestamps = {
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 };
 
 export const users = pgTable(
@@ -85,20 +199,30 @@ export const businesses = pgTable("businesses", {
   address: text("address").notNull().default(""),
   ntn: text("ntn").notNull().default(""),
   logo: text("logo").notNull().default(""),
-  openingCashMinor: bigint("opening_cash_minor", { mode: "number" }).notNull().default(0),
+  openingCashMinor: bigint("opening_cash_minor", { mode: "number" })
+    .notNull()
+    .default(0),
   ...timestamps,
 });
 
 export const invoiceCounters = pgTable("invoice_counters", {
-  businessId: text("business_id").primaryKey().references(() => businesses.id, { onDelete: "cascade" }),
-  lastNumber: bigint("last_number", { mode: "bigint" }).notNull().default(sql`0`),
+  businessId: text("business_id")
+    .primaryKey()
+    .references(() => businesses.id, { onDelete: "cascade" }),
+  lastNumber: bigint("last_number", { mode: "bigint" })
+    .notNull()
+    .default(sql`0`),
 });
 
 export const memberships = pgTable(
   "workspace_memberships",
   {
-    userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-    businessId: text("business_id").notNull().references(() => businesses.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
     role: membershipRole("role").notNull(),
     status: membershipStatus("status").notNull().default("Active"),
     permissions: jsonb("permissions").$type<string[]>().notNull().default([]),
@@ -116,19 +240,28 @@ export const sessions = pgTable(
   "sessions",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
     tokenHash: text("token_hash").notNull().unique(),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
-  (table) => [index("sessions_user_idx").on(table.userId), index("sessions_expiry_idx").on(table.expiresAt)],
+  (table) => [
+    index("sessions_user_idx").on(table.userId),
+    index("sessions_expiry_idx").on(table.expiresAt),
+  ],
 );
 
 export const parties = pgTable(
   "parties",
   {
     id: text("id").primaryKey(),
-    businessId: text("business_id").notNull().references(() => businesses.id, { onDelete: "cascade" }),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     kind: partyKind("kind").notNull(),
     phone: text("phone").notNull().default(""),
@@ -138,7 +271,9 @@ export const parties = pgTable(
     paymentTerms: text("payment_terms").notNull().default("Net 30"),
     ...timestamps,
   },
-  (table) => [index("parties_workspace_name_idx").on(table.businessId, table.name)],
+  (table) => [
+    index("parties_workspace_name_idx").on(table.businessId, table.name),
+  ],
 );
 
 export const transactions = pgTable(
@@ -146,15 +281,23 @@ export const transactions = pgTable(
   {
     id: text("id").primaryKey(),
     displayId: text("display_id").notNull(),
-    businessId: text("business_id").notNull().references(() => businesses.id, { onDelete: "cascade" }),
-    partyId: text("party_id").notNull().references(() => parties.id),
-    createdBy: text("created_by").notNull().references(() => users.id),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    partyId: text("party_id")
+      .notNull()
+      .references(() => parties.id),
+    createdBy: text("created_by")
+      .notNull()
+      .references(() => users.id),
     date: date("date").notNull(),
     dueDate: date("due_date").notNull(),
     type: transactionType("type").notNull(),
     status: transactionStatus("status").notNull(),
     subtotalMinor: bigint("subtotal_minor", { mode: "number" }).notNull(),
-    discountMinor: bigint("discount_minor", { mode: "number" }).notNull().default(0),
+    discountMinor: bigint("discount_minor", { mode: "number" })
+      .notNull()
+      .default(0),
     taxMinor: bigint("tax_minor", { mode: "number" }).notNull().default(0),
     taxRateBasisPoints: integer("tax_rate_basis_points"),
     totalMinor: bigint("total_minor", { mode: "number" }).notNull(),
@@ -162,10 +305,16 @@ export const transactions = pgTable(
     ...timestamps,
   },
   (table) => [
-    uniqueIndex("transactions_workspace_display_unique").on(table.businessId, table.displayId),
+    uniqueIndex("transactions_workspace_display_unique").on(
+      table.businessId,
+      table.displayId,
+    ),
     index("transactions_workspace_date_idx").on(table.businessId, table.date),
     index("transactions_party_idx").on(table.partyId),
-    check("transactions_money_nonnegative", sql`${table.subtotalMinor} >= 0 AND ${table.discountMinor} >= 0 AND ${table.taxMinor} >= 0 AND ${table.totalMinor} >= 0`),
+    check(
+      "transactions_money_nonnegative",
+      sql`${table.subtotalMinor} >= 0 AND ${table.discountMinor} >= 0 AND ${table.taxMinor} >= 0 AND ${table.totalMinor} >= 0`,
+    ),
   ],
 );
 
@@ -173,7 +322,9 @@ export const transactionItems = pgTable(
   "transaction_items",
   {
     id: text("id").primaryKey(),
-    transactionId: text("transaction_id").notNull().references(() => transactions.id, { onDelete: "cascade" }),
+    transactionId: text("transaction_id")
+      .notNull()
+      .references(() => transactions.id, { onDelete: "cascade" }),
     position: integer("position").notNull(),
     description: text("description").notNull(),
     quantityMilli: bigint("quantity_milli", { mode: "number" }).notNull(),
@@ -181,8 +332,14 @@ export const transactionItems = pgTable(
     rateMinor: bigint("rate_minor", { mode: "number" }).notNull(),
   },
   (table) => [
-    uniqueIndex("transaction_items_position_unique").on(table.transactionId, table.position),
-    check("transaction_items_positive", sql`${table.quantityMilli} > 0 AND ${table.rateMinor} >= 0`),
+    uniqueIndex("transaction_items_position_unique").on(
+      table.transactionId,
+      table.position,
+    ),
+    check(
+      "transaction_items_positive",
+      sql`${table.quantityMilli} > 0 AND ${table.rateMinor} >= 0`,
+    ),
   ],
 );
 
@@ -191,15 +348,23 @@ export const invoices = pgTable(
   {
     id: text("id").primaryKey(),
     displayId: text("display_id").notNull(),
-    businessId: text("business_id").notNull().references(() => businesses.id, { onDelete: "cascade" }),
-    transactionId: text("transaction_id").references(() => transactions.id, { onDelete: "restrict" }),
-    partyId: text("party_id").notNull().references(() => parties.id),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    transactionId: text("transaction_id").references(() => transactions.id, {
+      onDelete: "restrict",
+    }),
+    partyId: text("party_id")
+      .notNull()
+      .references(() => parties.id),
     date: date("date").notNull(),
     dueDate: date("due_date").notNull(),
     reference: text("reference").notNull().default(""),
     subtotalMinor: bigint("subtotal_minor", { mode: "number" }).notNull(),
     taxMinor: bigint("tax_minor", { mode: "number" }).notNull().default(0),
-    discountMinor: bigint("discount_minor", { mode: "number" }).notNull().default(0),
+    discountMinor: bigint("discount_minor", { mode: "number" })
+      .notNull()
+      .default(0),
     totalMinor: bigint("total_minor", { mode: "number" }).notNull(),
     status: invoiceStatus("status").notNull(),
     notes: text("notes").notNull().default(""),
@@ -207,12 +372,22 @@ export const invoices = pgTable(
     ...timestamps,
   },
   (table) => [
-    uniqueIndex("invoices_workspace_display_unique").on(table.businessId, table.displayId),
+    uniqueIndex("invoices_workspace_display_unique").on(
+      table.businessId,
+      table.displayId,
+    ),
     uniqueIndex("invoices_transaction_unique").on(table.transactionId),
-    index("invoices_workspace_status_date_idx").on(table.businessId, table.status, table.date),
+    index("invoices_workspace_status_date_idx").on(
+      table.businessId,
+      table.status,
+      table.date,
+    ),
     index("invoices_party_idx").on(table.partyId),
     check("invoices_dates_valid", sql`${table.dueDate} >= ${table.date}`),
-    check("invoices_money_nonnegative", sql`${table.subtotalMinor} >= 0 AND ${table.taxMinor} >= 0 AND ${table.discountMinor} >= 0 AND ${table.totalMinor} >= 0`),
+    check(
+      "invoices_money_nonnegative",
+      sql`${table.subtotalMinor} >= 0 AND ${table.taxMinor} >= 0 AND ${table.discountMinor} >= 0 AND ${table.totalMinor} >= 0`,
+    ),
   ],
 );
 
@@ -220,7 +395,9 @@ export const invoiceItems = pgTable(
   "invoice_items",
   {
     id: text("id").primaryKey(),
-    invoiceId: text("invoice_id").notNull().references(() => invoices.id, { onDelete: "cascade" }),
+    invoiceId: text("invoice_id")
+      .notNull()
+      .references(() => invoices.id, { onDelete: "cascade" }),
     position: integer("position").notNull(),
     item: text("item").notNull(),
     description: text("description").notNull().default(""),
@@ -230,8 +407,14 @@ export const invoiceItems = pgTable(
     taxBasisPoints: integer("tax_basis_points").notNull().default(0),
   },
   (table) => [
-    uniqueIndex("invoice_items_position_unique").on(table.invoiceId, table.position),
-    check("invoice_items_positive", sql`${table.quantityMilli} > 0 AND ${table.rateMinor} >= 0 AND ${table.taxBasisPoints} BETWEEN 0 AND 10000`),
+    uniqueIndex("invoice_items_position_unique").on(
+      table.invoiceId,
+      table.position,
+    ),
+    check(
+      "invoice_items_positive",
+      sql`${table.quantityMilli} > 0 AND ${table.rateMinor} >= 0 AND ${table.taxBasisPoints} BETWEEN 0 AND 10000`,
+    ),
   ],
 );
 
@@ -240,9 +423,16 @@ export const payments = pgTable(
   {
     id: text("id").primaryKey(),
     displayId: text("display_id").notNull(),
-    businessId: text("business_id").notNull().references(() => businesses.id, { onDelete: "cascade" }),
-    partyId: text("party_id").notNull().references(() => parties.id),
-    transactionId: text("transaction_id").references(() => transactions.id, { onDelete: "restrict" }),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    partyId: text("party_id")
+      .notNull()
+      .references(() => parties.id),
+    transactionId: text("transaction_id").references(() => transactions.id, {
+      onDelete: "restrict",
+    }),
+    allocationMode: text("allocation_mode").notNull().default("manual"),
     direction: paymentDirection("direction").notNull(),
     amountMinor: bigint("amount_minor", { mode: "number" }).notNull(),
     method: paymentMethod("method").notNull(),
@@ -253,9 +443,16 @@ export const payments = pgTable(
     ...timestamps,
   },
   (table) => [
-    uniqueIndex("payments_workspace_display_unique").on(table.businessId, table.displayId),
+    uniqueIndex("payments_workspace_display_unique").on(
+      table.businessId,
+      table.displayId,
+    ),
     index("payments_workspace_date_idx").on(table.businessId, table.date),
     index("payments_party_idx").on(table.partyId),
+    check(
+      "payments_allocation_mode",
+      sql`${table.allocationMode} IN ('manual','fifo')`,
+    ),
     check("payments_amount_positive", sql`${table.amountMinor} > 0`),
   ],
 );
@@ -263,10 +460,16 @@ export const payments = pgTable(
 export const paymentAllocations = pgTable(
   "payment_allocations",
   {
-    paymentId: text("payment_id").notNull().references(() => payments.id, { onDelete: "cascade" }),
-    invoiceId: text("invoice_id").notNull().references(() => invoices.id, { onDelete: "restrict" }),
+    paymentId: text("payment_id")
+      .notNull()
+      .references(() => payments.id, { onDelete: "cascade" }),
+    invoiceId: text("invoice_id")
+      .notNull()
+      .references(() => invoices.id, { onDelete: "restrict" }),
     amountMinor: bigint("amount_minor", { mode: "number" }).notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [
     primaryKey({ columns: [table.paymentId, table.invoiceId] }),
@@ -276,24 +479,74 @@ export const paymentAllocations = pgTable(
 );
 
 export const businessSettings = pgTable("business_settings", {
-  businessId: text("business_id").primaryKey().references(() => businesses.id, { onDelete: "cascade" }),
-  notificationPreferences: jsonb("notification_preferences").$type<Record<string, boolean>>().notNull().default({}),
-  invoiceSettings: jsonb("invoice_settings").$type<Record<string, unknown>>().notNull().default({}),
-  paymentMethods: jsonb("payment_methods").$type<string[]>().notNull().default([]),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  businessId: text("business_id")
+    .primaryKey()
+    .references(() => businesses.id, { onDelete: "cascade" }),
+  notificationPreferences: jsonb("notification_preferences")
+    .$type<Record<string, boolean>>()
+    .notNull()
+    .default({}),
+  invoiceSettings: jsonb("invoice_settings")
+    .$type<Record<string, unknown>>()
+    .notNull()
+    .default({}),
+  paymentMethods: jsonb("payment_methods")
+    .$type<string[]>()
+    .notNull()
+    .default([]),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const notifications = pgTable(
   "notifications",
   {
     id: text("id").primaryKey(),
-    businessId: text("business_id").notNull().references(() => businesses.id, { onDelete: "cascade" }),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
     title: text("title").notNull(),
     description: text("description").notNull(),
     read: boolean("read").notNull().default(false),
     href: text("href").notNull(),
     eventDate: date("event_date").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
-  (table) => [index("notifications_workspace_read_idx").on(table.businessId, table.read, table.createdAt)],
+  (table) => [
+    index("notifications_workspace_read_idx").on(
+      table.businessId,
+      table.read,
+      table.createdAt,
+    ),
+  ],
+);
+
+export const paymentTransactionAllocations = pgTable(
+  "payment_transaction_allocations",
+  {
+    paymentId: text("payment_id")
+      .notNull()
+      .references(() => payments.id, { onDelete: "cascade" }),
+    transactionId: text("transaction_id")
+      .notNull()
+      .references(() => transactions.id, { onDelete: "restrict" }),
+    amountMinor: bigint("amount_minor", { mode: "number" }).notNull(),
+    effectiveDate: date("effective_date").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.paymentId, table.transactionId] }),
+    index("payment_transaction_allocations_transaction_idx").on(
+      table.transactionId,
+    ),
+    check(
+      "payment_transaction_allocations_amount_minor_check",
+      sql`${table.amountMinor} > 0`,
+    ),
+  ],
 );

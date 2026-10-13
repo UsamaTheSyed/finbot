@@ -12,12 +12,23 @@ import { paymentRoutes } from "./routes/payments.js";
 import { workspaceRoutes } from "./routes/workspace.js";
 import { reportRoutes } from "./routes/reports.js";
 import { seedDevelopment } from "./db/seed.js";
+import { botRoutes } from "./routes/bot.js";
+import { botConfig, type BotConfig } from "./bot/config.js";
 
-export async function buildApp(config: AppConfig) {
+export async function buildApp(
+  config: AppConfig,
+  options: { bot?: BotConfig } = {},
+) {
   const app = Fastify({
     logger: {
       level: config.NODE_ENV === "test" ? "error" : "info",
-      redact: ["req.headers.authorization", `req.cookies.${config.SESSION_COOKIE_NAME}`, "req.body.password"],
+      redact: [
+        "req.headers.authorization",
+        "req.headers.cookie",
+        'req.headers["x-telegram-bot-api-secret-token"]',
+        `req.cookies.${config.SESSION_COOKIE_NAME}`,
+        "req.body.password",
+      ],
     },
     trustProxy: config.NODE_ENV === "production",
   });
@@ -43,6 +54,7 @@ export async function buildApp(config: AppConfig) {
   await paymentRoutes(app, pool, security);
   await workspaceRoutes(app, pool, security);
   await reportRoutes(app, pool, security);
+  await botRoutes(app, pool, security, options.bot ?? botConfig());
   app.addHook("onClose", async () => pool.end());
   return app;
 }

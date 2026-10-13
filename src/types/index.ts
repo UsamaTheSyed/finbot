@@ -84,6 +84,15 @@ export interface Invoice {
   daysOverdue: number;
 }
 export interface Payment {
+  allocationMode?: "manual" | "fifo";
+  advanceMinor?: number;
+  allocations?: {
+    transactionId: string;
+    invoiceId?: string;
+    displayId: string;
+    amountMinor: number;
+    effectiveDate: string;
+  }[];
   id: string;
   businessId: string;
   partyId: string;

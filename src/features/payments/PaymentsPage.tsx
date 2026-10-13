@@ -170,7 +170,31 @@ export function PaymentsPage() {
                 </div>
               ))}
             </dl>
-            {selected.invoiceId ? (
+            {selected.allocationMode === "fifo" ? (
+              <div>
+                <p>Oldest-first allocation</p>
+                {selected.allocations?.map((a) => (
+                  <p key={a.transactionId}>
+                    <Link
+                      to={
+                        a.invoiceId
+                          ? `/invoices/${a.invoiceId}`
+                          : `/transactions/${a.transactionId}`
+                      }
+                    >
+                      {a.displayId}
+                    </Link>
+                    {" — "}
+                    <Money value={a.amountMinor} />
+                    {` · ${a.effectiveDate}`}
+                  </p>
+                ))}
+                <p>
+                  Advance available:{" "}
+                  <Money value={selected.advanceMinor ?? 0} />
+                </p>
+              </div>
+            ) : selected.invoiceId ? (
               <Link to={`/invoices/${selected.invoiceId}`}>
                 View {selected.invoiceDisplayId ?? selected.invoiceId}
               </Link>

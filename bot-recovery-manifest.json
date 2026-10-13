@@ -1,0 +1,52 @@
+[
+  {
+    "path": "BOT-RECOVERY-APPLY.md",
+    "baseline_sha256": null,
+    "patched_sha256": "cced6f3a20f60d2c193f6325f9c994eab4a34fda4f4e7609e83ddca70352a5ce"
+  },
+  {
+    "path": "server/bot/ai/prompt.ts",
+    "baseline_sha256": "ba20f7579257019f2f385a859c66e37096e717582a0466b3485c3147865165f5",
+    "patched_sha256": "04652c46b5037cbf32cef5826afa0c8d9e1a631f3b5819161237a903c667980e"
+  },
+  {
+    "path": "server/bot/core/engine.ts",
+    "baseline_sha256": "e7a85dba6ef915c5a906191e2c86570093ab0f2080ba3da9d5119e2e9ea5d37f",
+    "patched_sha256": "306690264524dd84a5af8a91de01e6572f87073f52957dfb7df11381b60161c9"
+  },
+  {
+    "path": "server/bot/core/flow.ts",
+    "baseline_sha256": "d083fbbf188db8b63a1358c4a213c5e18571153660d6fad15f774c541cd1ec67",
+    "patched_sha256": "7f1809d171f11689839ef58d646553ff548a7959ee043aa3068f1d40604659de"
+  },
+  {
+    "path": "server/bot/core/recovery.ts",
+    "baseline_sha256": null,
+    "patched_sha256": "5b37fbfbbc8e560cc990f374b2e1698e7190a127662dbe7ee2541b0b5e8a40a4"
+  },
+  {
+    "path": "server/bot/tools/read.ts",
+    "baseline_sha256": "5d7e60173e37f80516f48712b07cd0404ea3317cf948257a8800e4c0218b7c88",
+    "patched_sha256": "cef9190d2381348087a30550ab29966cb726d689e1f670ff3891894d777c5905"
+  },
+  {
+    "path": "server/bot/types.ts",
+    "baseline_sha256": "626c9ff7e4100b216ed401eec811425200ad594d888975adf943f1d1793a1647",
+    "patched_sha256": "415034a6ad7a7e1b33ce9d6d5bd10152cbf4663ef45bbf654d1baffebbee9c0d"
+  },
+  {
+    "path": "server/services/parties.ts",
+    "baseline_sha256": "ec5161f88ea8addefef14718f8c510b78fc015f77742fb81bc9fd1e0a58a728c",
+    "patched_sha256": "06e6b5f769cef40b9bd2528e345bfc4b643072ee57979fdafb8d74e718fdcc41"
+  },
+  {
+    "path": "tests/bot-recovery.test.ts",
+    "baseline_sha256": null,
+    "patched_sha256": "0bbdc9fdcefebed6d97f66e5de29e32d0736177fde91c7ca49115773aafcf21e"
+  },
+  {
+    "path": "tests/helpers/botIntegration.ts",
+    "baseline_sha256": "abc38a760ca3cc67b5b3d7a032c0cacbf0d074d355b1a28e3e81ad7b0270b0ae",
+    "patched_sha256": "166ad2478591a6e7837f41c779476ed76a2336dc277c5224b3b910036a2d9bee"
+  }
+]

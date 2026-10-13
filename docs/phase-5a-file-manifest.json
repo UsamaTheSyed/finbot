@@ -1,0 +1,269 @@
+{
+  "baseline": "e1c9d83",
+  "files": [
+    {
+      "path": ".env.example",
+      "operation": "replace",
+      "baseline_sha256": "a3fc5a1ea920060d1a4b78306286387c88b951edecf07113f95d8b460bc93dd1",
+      "sha256": "fb98d92feb20bb1f66e6ed56baeb492f26dc31a530a3f1419b1cb8cd5846728e"
+    },
+    {
+      "path": "PHASE-5A-BOT-APPLY.md",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "99a01dde52cfdc816ceffe08b7bbe78878288ad6b1809cd51c678b66b4af5507"
+    },
+    {
+      "path": "docs/phase-5a-bot-report.md",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "070b9a9dbb46d9f801e1fe4f627161b1a29039a05fdcd9ccae5efe8a4ad1ff2b"
+    },
+    {
+      "path": "package.json",
+      "operation": "replace",
+      "baseline_sha256": "222652db08efaaa901e553ee13b119c87ff353eacaef1a87582004f81557dc85",
+      "sha256": "b167155d4cddbaaec916f77e5a3cebac04a371ed398330a9a1f63c80ac931606"
+    },
+    {
+      "path": "server/app.ts",
+      "operation": "replace",
+      "baseline_sha256": "e426069feecb68cce5ea2e841f910d7961415a171464a1172ca3ee23bbb2343a",
+      "sha256": "d59e51b8f1e1574ac995323d35824ed8a853aff4c5f6f775a82ac026ade2bf11"
+    },
+    {
+      "path": "server/bot/ai/openai.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "93780cdfcd9eeee0921d37ae6388acd20267cff89f0b5671f67adadd4ae22b0a"
+    },
+    {
+      "path": "server/bot/ai/prompt.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "ba20f7579257019f2f385a859c66e37096e717582a0466b3485c3147865165f5"
+    },
+    {
+      "path": "server/bot/channels/telegram.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "8599333496eb0a134eb644d85bff1689b07cefa7bdd2839bc4c958650af87fbf"
+    },
+    {
+      "path": "server/bot/config.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "de45d3e28c0af4febea8bc7033eb58221582848b4d2311cd4ab2131897a51c73"
+    },
+    {
+      "path": "server/bot/core/actions.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "cb618f843591c0a65ad76be16470b05d737a643f0a4f76213852d0e2816b39c9"
+    },
+    {
+      "path": "server/bot/core/engine.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "e7a85dba6ef915c5a906191e2c86570093ab0f2080ba3da9d5119e2e9ea5d37f"
+    },
+    {
+      "path": "server/bot/core/flow.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "4223737a96f6bbedb5cb4b43421b3449b8ab8410b2e92a07308b50eff56bc97b"
+    },
+    {
+      "path": "server/bot/core/normalize.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "d0cbaca27afedce74f27888be9dcde5d04803261e3b53dffe1d4f325a3506fa7"
+    },
+    {
+      "path": "server/bot/prune.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "2557bc93b13fc4bf67c4dec34cd88e50be60e3c09612ac21efab92c771890812"
+    },
+    {
+      "path": "server/bot/security/access.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "3b9aca8cedf17efe2d3fc54221d95fb40532c86c94f808b5e19177f4cc9424f4"
+    },
+    {
+      "path": "server/bot/security/diagnostics.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "e8a5b0268a8ea7b9b25d228d95ddd8d3442d8a0353074b285fb7c711ea750cf5"
+    },
+    {
+      "path": "server/bot/telegram.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "7f48a5c49d92cfe916a3c5754479f2d0988df4ef8071a9a18b5e88e80d6ecef5"
+    },
+    {
+      "path": "server/bot/tools/catalog.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "b60e385abd009a546b4f22d20a291280aae9ce40aeb91105c1f6797314be062d"
+    },
+    {
+      "path": "server/bot/tools/read.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "5d7e60173e37f80516f48712b07cd0404ea3317cf948257a8800e4c0218b7c88"
+    },
+    {
+      "path": "server/bot/tools/write.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "fef571a17324c87c152f5005dddd2a44c5f78497e29bc93a0b141a8c98b58eab"
+    },
+    {
+      "path": "server/bot/types.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "2023ebbb03af8bc27b473f05943764fbb50fb65d9667119ca4f846ef2f295c3c"
+    },
+    {
+      "path": "server/db/migrations/0002_bot_core.sql",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "9791259e18dc8a87c06fa32aae4b76962f2b97621ca4188ab8b6515dc797def0"
+    },
+    {
+      "path": "server/db/migrations/meta/0002_snapshot.json",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "7f05edd2888d23dfa573ec31732847f2d27c7be015b0dac1d6ea0595bf55de49"
+    },
+    {
+      "path": "server/db/migrations/meta/_journal.json",
+      "operation": "replace",
+      "baseline_sha256": "1bdc846e09921a256bcbe07d33c4903a5cf5c58b0aaf82bfb80af6668aff7372",
+      "sha256": "6fde7cb3a4b354175d286689f7752202984920fd98270fd46c13c7a8344dc857"
+    },
+    {
+      "path": "server/db/schema.ts",
+      "operation": "replace",
+      "baseline_sha256": "50072cfe4e8402c6f2166c59a0585edc9b10fe1e070217a8d2a282e427f62bc2",
+      "sha256": "458b55c4375bad08a4dc35edb92c07b8da49a40efc17b4cb9a068ff7e04b1f46"
+    },
+    {
+      "path": "server/domain/validation.ts",
+      "operation": "replace",
+      "baseline_sha256": "b352f8929bd2b1b801457445a30a944ae40d7f625a511dd8867cab96e2d5e95f",
+      "sha256": "ae3f5d5e68d18505dea8ed3bcff0f37c6647c053a0c0acc39b9f1c23495fcaae"
+    },
+    {
+      "path": "server/routes/bot.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "48b604b4a08dfbdbd3c7770533e57c0a74f4d281001f5221340dceb188d04b75"
+    },
+    {
+      "path": "server/routes/invoices.ts",
+      "operation": "replace",
+      "baseline_sha256": "ee5f3640e2513a0bb97efcf264019255f019f6346854765d25c5fb8cca91a156",
+      "sha256": "a380e900c1dab0bc1b055b72b432934c686cd3c79d9eec5ee622677b38ab8a46"
+    },
+    {
+      "path": "server/routes/parties.ts",
+      "operation": "replace",
+      "baseline_sha256": "f8ac4aed0d0e30bf593a10c6ccf0dada766bf50a64b831ec6688af86e984fc7b",
+      "sha256": "3ae075cf044ee85f5cb1bd6738cb1f2b43264110b6c5ebdfaff3a21e62a74be6"
+    },
+    {
+      "path": "server/routes/reports.ts",
+      "operation": "replace",
+      "baseline_sha256": "c019e57e4297b9c8e0d40a0a6c6211f79107ba88ee46fe417773f92fbc063e82",
+      "sha256": "1af8d9bcf475bf01e29b6bf7c35a0347e4f7e9c966c54ddfdd4e5c0f3b134fa1"
+    },
+    {
+      "path": "server/services/invoices.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "58e460842d21da6f3c3355de294526363970d30ee2fe961000cb23109fc33f8a"
+    },
+    {
+      "path": "server/services/ledger.ts",
+      "operation": "replace",
+      "baseline_sha256": "93433690f2fab189fa7edacc95899edc399be5b95916406cfa68dcbab57aa739",
+      "sha256": "f2baad87eff4b2f754d98a1825552beb1c54a629028e37d28b0a19113cc50ec4"
+    },
+    {
+      "path": "server/services/parties.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "a17cc2d5a0f3fc3cd3c52d00f602dad36ae3db92628561b1c91dc4a8a15fdf2d"
+    },
+    {
+      "path": "server/services/payments.ts",
+      "operation": "replace",
+      "baseline_sha256": "2986c21569995cb836adb7b6fb062ec7e4613571e4ee613f2759b70ef4af4879",
+      "sha256": "ce24c82b59e9335dae99691e73224027b2e2e3f1813249236b73c009d7f6baf8"
+    },
+    {
+      "path": "server/services/reports.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "297102237ee8d04d9078685c0bbf1623a37131ee00183dd1dbb3363ac9d170f8"
+    },
+    {
+      "path": "src/components/ui/Overlays.tsx",
+      "operation": "replace",
+      "baseline_sha256": "54ed634080da19d4610558ab7eb76c5948738b16575b9b5c400b8f8320ce01ca",
+      "sha256": "1c3d6d8f20d9e0a6b46dd5dfb3a4fd97a0515db83f20b94a5bdfd6f481866527"
+    },
+    {
+      "path": "src/features/settings/SettingsPage.tsx",
+      "operation": "replace",
+      "baseline_sha256": "3990b8d4b2469b0feca2dd81a825fc2c8c419cc8f3aa0bf93a38972bf976bbf4",
+      "sha256": "cc8344d5c428086a8ce781f51c6477e0331e5e20e7d07c589861eba6f3095059"
+    },
+    {
+      "path": "src/features/settings/TelegramIntegration.tsx",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "9e6a2b3d0185417455c23d826e4ac78a743ba7188932ca7bbc1ca43264091228"
+    },
+    {
+      "path": "src/services/api.ts",
+      "operation": "replace",
+      "baseline_sha256": "2a7c132d78fd1114c3a6a130a87be4af27ce8ab60815b4d472427181aa18f41a",
+      "sha256": "f4875d284de6c1e88857c8622dbecbf304855de10dcd5143a442cdf9b2dca764"
+    },
+    {
+      "path": "src/services/botService.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "adc39057528a27641b2d2b8568ec0956dfa8456e17867f51823e4d26b37f2dfe"
+    },
+    {
+      "path": "tests/backend-integration.test.ts",
+      "operation": "replace",
+      "baseline_sha256": "816079b190c028a4ae5243d3223ddc1f41940a8fb5cd1e14db8346a9f0404803",
+      "sha256": "a490cc8a3208997699c287fcf26b36085ec1988eb8c0a2b86d59c25c86d527c4"
+    },
+    {
+      "path": "tests/bot.test.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "f6d2075282718182cea5c927bc5d21bb9c9ea0af9b568a64837da957bbd8db67"
+    },
+    {
+      "path": "tests/browser/phase-five-a.spec.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "e0acf0b84d188dc9541764ed3dbba82653aaddcc66ee056114300570cb6a4c5f"
+    },
+    {
+      "path": "tests/helpers/botIntegration.ts",
+      "operation": "add",
+      "baseline_sha256": null,
+      "sha256": "660afaf5f171a19541d942caba65897c6e93382142aea932085d8ffa0cf8e88d"
+    }
+  ]
+}

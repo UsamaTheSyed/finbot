@@ -1,0 +1,130 @@
+{
+  "baseline": "uploaded finbot-current.zip",
+  "files": [
+    {
+      "path": "FIFO-ALLOCATION-APPLY.md",
+      "original_sha256": null,
+      "patch_sha256": "93f8ec781c88c602a51ffaf1236136b0de8b0a80f463a0e5ef086ee6164b4f34"
+    },
+    {
+      "path": "server/bot/core/flow.ts",
+      "original_sha256": "4223737a96f6bbedb5cb4b43421b3449b8ab8410b2e92a07308b50eff56bc97b",
+      "patch_sha256": "d083fbbf188db8b63a1358c4a213c5e18571153660d6fad15f774c541cd1ec67"
+    },
+    {
+      "path": "server/bot/tools/write.ts",
+      "original_sha256": "fef571a17324c87c152f5005dddd2a44c5f78497e29bc93a0b141a8c98b58eab",
+      "patch_sha256": "1fbeee393ccffeea47c17fe77cf6130f3c4a012beb0f45a85c967a535cf475e8"
+    },
+    {
+      "path": "server/bot/types.ts",
+      "original_sha256": "2023ebbb03af8bc27b473f05943764fbb50fb65d9667119ca4f846ef2f295c3c",
+      "patch_sha256": "626c9ff7e4100b216ed401eec811425200ad594d888975adf943f1d1793a1647"
+    },
+    {
+      "path": "server/db/migrations/0003_fifo_allocations.sql",
+      "original_sha256": null,
+      "patch_sha256": "ff2f4be60549bf0df3b685299809ec78a06123c02ef17a9902073e267a76921c"
+    },
+    {
+      "path": "server/db/migrations/meta/0003_snapshot.json",
+      "original_sha256": null,
+      "patch_sha256": "c581b0aeaedab001961655608e0d79d78edec31f97ee1ac25231e8d3660e2d6b"
+    },
+    {
+      "path": "server/db/migrations/meta/_journal.json",
+      "original_sha256": "6fde7cb3a4b354175d286689f7752202984920fd98270fd46c13c7a8344dc857",
+      "patch_sha256": "0fbd9dcabdb6dc86a382fbfb91159120bbd30ca4162dc2149394bc11bef8676a"
+    },
+    {
+      "path": "server/db/schema.ts",
+      "original_sha256": "458b55c4375bad08a4dc35edb92c07b8da49a40efc17b4cb9a068ff7e04b1f46",
+      "patch_sha256": "f19f40df569dbaba9415c4340a573a1bb0d7c157221119b89bcd505c89a34d4e"
+    },
+    {
+      "path": "server/db/seed.ts",
+      "original_sha256": "086e1030ff483af2eccbb315c334410189b41961701fb00476b1364c2cf98dbd",
+      "patch_sha256": "8c92da096a71cac02d34c57c8a368995151e4d8d6d8f393314277a7690f54441"
+    },
+    {
+      "path": "server/domain/allocation.ts",
+      "original_sha256": null,
+      "patch_sha256": "1d29b8e3adb1ae5f35fff6ce759cbde4ac84cf7b13fce6869e2d7a2c085cf4a0"
+    },
+    {
+      "path": "server/domain/validation.ts",
+      "original_sha256": "ae3f5d5e68d18505dea8ed3bcff0f37c6647c053a0c0acc39b9f1c23495fcaae",
+      "patch_sha256": "52b5b241f921fcea700753b08f3b9da98c8f571f54dc97f83a78667c16dce6ff"
+    },
+    {
+      "path": "server/routes/invoices.ts",
+      "original_sha256": "a380e900c1dab0bc1b055b72b432934c686cd3c79d9eec5ee622677b38ab8a46",
+      "patch_sha256": "46953920985c59f03ca361e771862150639fedbbacf96dd0ca3b277809cd85b8"
+    },
+    {
+      "path": "server/routes/transactions.ts",
+      "original_sha256": "03b3ed56ba17d622b380f1700538faea6633d0abb5d90dac851697091a9aa1d7",
+      "patch_sha256": "e1f9bf651a21e3d00daf887c30bfb4f8d5eb2fca5c0047736979fc131b494891"
+    },
+    {
+      "path": "server/services/allocations.ts",
+      "original_sha256": null,
+      "patch_sha256": "15cac7c915884c5e46f4dbaf8f1d737d06934ed6437bae9b48cce678a7883955"
+    },
+    {
+      "path": "server/services/invoices.ts",
+      "original_sha256": "58e460842d21da6f3c3355de294526363970d30ee2fe961000cb23109fc33f8a",
+      "patch_sha256": "2f1e2e3d95530c2fc7b85ee174f5b63065bd90a35e1c1358fb5e17106ac7fcd5"
+    },
+    {
+      "path": "server/services/ledger.ts",
+      "original_sha256": "f2baad87eff4b2f754d98a1825552beb1c54a629028e37d28b0a19113cc50ec4",
+      "patch_sha256": "8b59441ff5c7fbf628a7b4d3e48d7e613da7b2b47c9a00813259d01dcfb59927"
+    },
+    {
+      "path": "server/services/parties.ts",
+      "original_sha256": "a17cc2d5a0f3fc3cd3c52d00f602dad36ae3db92628561b1c91dc4a8a15fdf2d",
+      "patch_sha256": "ec5161f88ea8addefef14718f8c510b78fc015f77742fb81bc9fd1e0a58a728c"
+    },
+    {
+      "path": "server/services/payments.ts",
+      "original_sha256": "ce24c82b59e9335dae99691e73224027b2e2e3f1813249236b73c009d7f6baf8",
+      "patch_sha256": "ec34e696837251e886428d947d47ec64b7b75c58ef974414fc4c91b88b7c5698"
+    },
+    {
+      "path": "server/services/reports.ts",
+      "original_sha256": "297102237ee8d04d9078685c0bbf1623a37131ee00183dd1dbb3363ac9d170f8",
+      "patch_sha256": "595ee4402d5717aaf536b73f398a214b66b69f8753678e7f141c7bd19920b364"
+    },
+    {
+      "path": "src/features/payments/PaymentsPage.tsx",
+      "original_sha256": "c85a3440816fce5be9cd62dd07aa3faf588f4087a3673f12058f908fc6ef7d3f",
+      "patch_sha256": "f79f13fac92cf5625778eaf82bcce7dd213d4d33eed44fb9c81182be82cb96c3"
+    },
+    {
+      "path": "src/types/index.ts",
+      "original_sha256": "1f29a0d89ae30d924588a8271b44eecc24a37f86f245287be90849b4eb7efaa4",
+      "patch_sha256": "9ab7c37142cdb8b25d601f2f2f129dd2ee8dd57c1e7923c12a76f73ed52f7b3f"
+    },
+    {
+      "path": "tests/allocation.test.ts",
+      "original_sha256": null,
+      "patch_sha256": "88a0cdb088620196441e27cef1c645bfe8b71158b7484cc48b4f409c92b04ab6"
+    },
+    {
+      "path": "tests/backend-integration.test.ts",
+      "original_sha256": "a490cc8a3208997699c287fcf26b36085ec1988eb8c0a2b86d59c25c86d527c4",
+      "patch_sha256": "025c5fbd79b43a3e91bb936072d5725da9fe81586e41ce64db7cd1755e6f4f8f"
+    },
+    {
+      "path": "tests/helpers/allocationIntegration.ts",
+      "original_sha256": null,
+      "patch_sha256": "4f24075d7656145088dd9960867b213e442cb18945a908146ecd592499c574c1"
+    },
+    {
+      "path": "tests/helpers/botIntegration.ts",
+      "original_sha256": "660afaf5f171a19541d942caba65897c6e93382142aea932085d8ffa0cf8e88d",
+      "patch_sha256": "abc38a760ca3cc67b5b3d7a032c0cacbf0d074d355b1a28e3e81ad7b0270b0ae"
+    }
+  ]
+}

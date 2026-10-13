@@ -16,15 +16,17 @@ export function InvoiceDocument({
   party?: Party;
   summary?: boolean;
 }) {
+  const isBill = party?.kind === "Supplier";
+  const documentName = isBill ? "Bill" : "Invoice";
   return (
     <div className="page-stack invoice-document">
       <div className="invoice-info-grid">
         <Card>
-          <h2>Invoice Details</h2>
+          <h2>{documentName} Details</h2>
           <dl>
             {[
-              ["Invoice Number", invoice.displayId ?? invoice.id],
-              ["Invoice Date", formatMetadataDate(invoice.date)],
+              [`${documentName} Number`, invoice.displayId ?? invoice.id],
+              [`${documentName} Date`, formatMetadataDate(invoice.date)],
               ["Due Date", formatMetadataDate(invoice.dueDate)],
               ["Reference", invoice.reference || "—"],
             ].map(([k, v]) => (
@@ -42,7 +44,7 @@ export function InvoiceDocument({
           </dl>
         </Card>
         <Card>
-          <h2>Bill To</h2>
+          <h2>{isBill ? "Supplier" : "Bill To"}</h2>
           <strong>{party?.name || "Customer"}</strong>
           <p>{party?.phone || "—"}</p>
           <p>NTN: {party?.ntn || "—"}</p>
@@ -52,7 +54,7 @@ export function InvoiceDocument({
       <Card className="table-card">
         <Table
           className="finance-table invoice-items"
-          aria-label="Invoice items"
+          aria-label={`${documentName} items`}
         >
           <TableHeader>
             <TableRow>
@@ -88,7 +90,7 @@ export function InvoiceDocument({
       </Card>
       {summary && (
         <FinancialSummary
-          title="Invoice Summary"
+          title={`${documentName} Summary`}
           rows={invoiceSummaryRows(invoice)}
         />
       )}{" "}
