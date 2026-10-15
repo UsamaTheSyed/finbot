@@ -72,6 +72,14 @@ export async function prepareWrite(
 
     summary = `Record Payment?\nParty: ${party.name}\n${input.direction}: ${pkr(amountPaisa(e.amountText!))}\nMethod: ${input.method}\nDate: ${date}\nInvoice: ${invoice?.displayId ?? "On account (unallocated)"}`;
   } else {
+    if (e.intent !== "RECORD_SALE" && e.intent !== "RECORD_PURCHASE")
+      throw new ApiError(
+        400,
+        "UNSUPPORTED_WRITE",
+        "Unsupported financial action.",
+      );
+    const isPurchase = e.intent === "RECORD_PURCHASE";
+    const paidMinor = amountPaisa(e.initialPaidText!);
     const tax = Number(e.taxText?.replace(/%$/, ""));
     const input = invoiceInput.parse({
       partyId: state.partyId,
@@ -89,17 +97,21 @@ export async function prepareWrite(
         },
       ],
       discount: amountPaisa(e.discountText!) / 100,
-      amountPaid: amountPaisa(e.initialPaidText!) / 100,
-      method: e.method,
+      amountPaid: paidMinor / 100,
+      // Required by shared invoice schema; no payment row exists when paid is zero.
+      // Never store this fallback in conversation state or display it as a payment.
+      method: paidMinor === 0 ? "Cash" : e.method,
       notes: "Recorded through FinBot bot",
       terms: "",
       draft: false,
     });
-    if (party.kind !== "Customer")
+    if (party.kind !== (isPurchase ? "Supplier" : "Customer"))
       throw new ApiError(
         400,
-        "CUSTOMER_REQUIRED",
-        "Sale ke liye Customer choose karein.",
+        isPurchase ? "SUPPLIER_REQUIRED" : "CUSTOMER_REQUIRED",
+        isPurchase
+          ? "Purchase bill ke liye Supplier choose karein."
+          : "Sale ke liye Customer choose karein.",
       );
     const totals = calculateInvoice(input);
     if (e.amountText && amountPaisa(e.amountText) !== totals.totalMinor)
@@ -108,8 +120,8 @@ export async function prepareWrite(
         "TOTAL_MISMATCH",
         `Items ka total ${pkr(totals.totalMinor)} hai. Requested total se match nahi karta; rate/quantity/tax/discount edit karein.`,
       );
-    value = { kind: "sale", input };
-    summary = `Create sales invoice?\nParty: ${party.name}\n${input.items[0].item}: ${input.items[0].quantity} ${input.items[0].unit} × ${pkr(amountPaisa(e.rateText!))}\nTax: ${tax}% · Discount: ${pkr(totals.discountMinor)}\nTotal: ${pkr(totals.totalMinor)}\nPaid: ${pkr(totals.paidMinor)} (${input.method})\nDate: ${date}\nDue: ${input.dueDate}`;
+    value = { kind: isPurchase ? "purchase" : "sale", input };
+    summary = `Create ${isPurchase ? "supplier bill" : "sales invoice"}?\nParty: ${party.name}\n${input.items[0].item}: ${input.items[0].quantity} ${input.items[0].unit} × ${pkr(amountPaisa(e.rateText!))}\nTax: ${tax}% · Discount: ${pkr(totals.discountMinor)}\nTotal: ${pkr(totals.totalMinor)}\nPaid now: ${pkr(totals.paidMinor)}${totals.paidMinor > 0 ? ` (${isPurchase ? "Sent" : "Received"}, ${input.method})` : " — no new cash payment"}\nDate: ${date}\nDue: ${input.dueDate}\nExisting FIFO advance, if available, will be applied on issue; it does not create another cash payment.`;
   }
   return { value: proposal.parse(value), summary };
 }
@@ -153,6 +165,19 @@ export async function executeWrite(
       text: `Payment recorded: ${result.id}\n${pkr(result.amountMinor)} ${result.direction}\n${invoice ? `${invoice.displayId} remaining: ${pkr(invoice.balanceMinor)}` : "On-account payment saved. Party ledger updated."}`,
     };
   }
+  const party = await requireScopedRecord(
+    client,
+    "parties",
+    identity.business_id,
+    p.input.partyId,
+    true,
+  );
+  if (party.kind !== (p.kind === "purchase" ? "Supplier" : "Customer"))
+    throw new ApiError(
+      400,
+      "PARTY_KIND_MISMATCH",
+      "Party type changed or does not match this action. Review a new proposal.",
+    );
   const id = `INV-${randomUUID()}`,
     number = await allocateInvoiceNumber(client, identity.business_id);
   await insertInvoiceGraph(
@@ -166,6 +191,6 @@ export async function executeWrite(
   const invoice = await invoiceDto(client, identity.business_id, id);
   return {
     id,
-    text: `Sale saved: ${invoice.displayId}\nTotal: ${pkr(invoice.totalMinor)}\nBalance: ${pkr(invoice.balanceMinor)}\nStatus: ${invoice.status}`,
+    text: `${p.kind === "purchase" ? "Supplier bill" : "Sale"} saved: ${invoice.displayId}\nTotal: ${pkr(invoice.totalMinor)}\nPaid / settled: ${pkr(invoice.paidMinor)}\nBalance: ${pkr(invoice.balanceMinor)}\nStatus: ${invoice.status}`,
   };
 }

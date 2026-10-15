@@ -10,6 +10,7 @@ import {
   type InboundMessage,
   type OutgoingMessage,
 } from "../../server/bot/types";
+import { executePayment } from "../../server/services/payments";
 import { insertInvoiceGraph } from "../../server/services/invoices";
 import { allocateInvoiceNumber } from "../../server/services/invoiceNumber";
 import { invoiceDto } from "../../server/services/ledger";
@@ -425,7 +426,7 @@ export async function botIntegration(t: TestContext, pool: Pool) {
         taxText: "5",
         discountText: "0",
         initialPaidText: "0",
-        method: "Cash",
+        method: null,
         dateText: "2026-11-28",
         dueDateText: "2026-12-28",
       };
@@ -443,6 +444,7 @@ export async function botIntegration(t: TestContext, pool: Pool) {
         ).rows[0].count,
         before,
       );
+      assert.match(out.text, /no new cash payment/);
       const result = await send("", button(out, "Confirm"));
       assert.match(result.text, /Sale saved: INV-\d+/);
       assert.ok(result.text.includes("210.00"));
@@ -453,7 +455,171 @@ export async function botIntegration(t: TestContext, pool: Pool) {
     },
   );
   await t.test(
-    "low confidence, AI failure and unsupported purchases cannot write",
+    "purchase confirmation applies supplier advance once without new cash",
+    async () => {
+      await rates();
+      await send("/cancel");
+      await pool.query(
+        "insert into parties(id,business_id,name,kind) values('bot-supplier','business-1','Bot Supplier','Supplier')",
+      );
+      const c = await pool.connect();
+      try {
+        await c.query("begin");
+        await executePayment(c, "business-1", {
+          partyId: "bot-supplier",
+          invoiceId: "",
+          direction: "Sent",
+          amount: 1000,
+          allocationMode: "fifo",
+          method: "Cash",
+          date: "2026-11-28",
+          reference: "",
+          notes: "",
+        });
+        await c.query("commit");
+      } finally {
+        c.release();
+      }
+      next = {
+        ...blankExtraction(),
+        intent: "RECORD_PURCHASE",
+        partyName: "Bot Supplier",
+        description: "Rice",
+        quantity: 2,
+        unit: "Bag",
+        rateText: "400/Bag",
+        taxText: "0",
+        discountText: "0",
+        initialPaidText: "0",
+        method: null,
+        dateText: "2026-11-28",
+        dueDateText: "2026-12-28",
+      };
+      const out = await send("supplier purchase");
+      assert.match(out.text, /Create supplier bill/);
+      assert.match(out.text, /no new cash payment/);
+      assert.ok(!out.text.includes("(Cash)"));
+      assert.equal(
+        (
+          await pool.query(
+            "select count(*)::int n from invoices where party_id='bot-supplier'",
+          )
+        ).rows[0].n,
+        0,
+      );
+      const confirm = button(out, "Confirm");
+      const result = await send("", confirm);
+      assert.match(result.text, /Supplier bill saved: INV-/);
+      assert.match(result.text, /Balance: PKR 0.00/);
+      assert.match((await send("", confirm)).text, /already executed/);
+      const inv = (
+        await pool.query(
+          "select id from invoices where party_id='bot-supplier'",
+        )
+      ).rows;
+      assert.equal(inv.length, 1);
+      assert.equal(
+        (await invoiceDto(pool, "business-1", inv[0].id)).paidMinor,
+        80000,
+      );
+      assert.equal(
+        (
+          await pool.query(
+            "select count(*)::int n from payments where party_id='bot-supplier'",
+          )
+        ).rows[0].n,
+        1,
+      );
+      assert.equal(
+        (
+          await pool.query(
+            "select type from transactions where party_id='bot-supplier'",
+          )
+        ).rows[0].type,
+        "Purchase",
+      );
+    },
+  );
+  await t.test(
+    "purchase with initial paid amount asks method and shares remaining advance",
+    async () => {
+      await rates();
+      next = {
+        ...blankExtraction(),
+        intent: "RECORD_PURCHASE",
+        partyName: "Bot Supplier",
+        description: "Rice",
+        quantity: 1,
+        unit: "Bag",
+        rateText: "400",
+        taxText: "0",
+        discountText: "0",
+        initialPaidText: "100",
+        method: null,
+        dateText: "2026-11-28",
+        dueDateText: "2026-12-28",
+      };
+      const method = await send("supplier purchase paid 100");
+      assert.match(method.text, /Payment method/);
+      const out = await send("", button(method, "Bank Transfer"));
+      assert.match(out.text, /Sent, Bank Transfer/);
+      const result = await send("", button(out, "Confirm"));
+      assert.match(result.text, /Balance: PKR 100.00/);
+      const history = (
+        await pool.query(
+          "select amount_minor,direction,method from payments where party_id='bot-supplier' order by amount_minor",
+        )
+      ).rows;
+      assert.equal(history.length, 2);
+      assert.equal(Number(history[0].amount_minor), 10000);
+      assert.equal(history[0].direction, "Sent");
+      assert.equal(history[0].method, "Bank Transfer");
+    },
+  );
+  await t.test(
+    "purchase cancellation and confirmation party revalidation cannot create bills",
+    async () => {
+      await rates();
+      next = {
+        ...blankExtraction(),
+        intent: "RECORD_PURCHASE",
+        partyName: "Bot Supplier",
+        description: "Rice",
+        quantity: 1,
+        unit: "Bag",
+        rateText: "400",
+        taxText: "0",
+        discountText: "0",
+        initialPaidText: "0",
+        method: null,
+        dateText: "2026-11-28",
+        dueDateText: "2026-12-28",
+      };
+      const before = (await pool.query("select count(*)::int n from invoices"))
+        .rows[0].n;
+      const out = await send("supplier purchase");
+      await send("", button(out, "Cancel"));
+      await send("", button(out, "Confirm"));
+      assert.equal(
+        (await pool.query("select count(*)::int n from invoices")).rows[0].n,
+        before,
+      );
+      const again = await send("supplier purchase"),
+        confirm = button(again, "Confirm");
+      await pool.query(
+        "update bot_actions set payload=jsonb_set(payload,'{input,partyId}','\"bot-party\"') where id=$1",
+        [confirm.split(":")[1]],
+      );
+      assert.match((await send("", confirm)).text, /Party type/);
+      assert.equal(
+        (await pool.query("select count(*)::int n from invoices")).rows[0].n,
+        before,
+      );
+      await send("/cancel");
+    },
+  );
+  await t.test(
+    "low confidence, AI failure and incomplete purchases cannot write",
     async () => {
       await rates();
       const before = await count();
@@ -464,7 +630,8 @@ export async function botIntegration(t: TestContext, pool: Pool) {
       };
       assert.match((await send("unclear")).text, /clear nahi/);
       next = { ...blankExtraction(), intent: "RECORD_PURCHASE" };
-      assert.match((await send("purchase")).text, /supported nahi/);
+      assert.match((await send("purchase")).text, /Party ka naam/);
+      await send("/cancel");
       const broken = new BotEngine(pool, {
         interpret: async () => {
           throw new Error("AI_UNAVAILABLE");

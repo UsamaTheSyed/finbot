@@ -1,4 +1,5 @@
 import { validateWriteFields, recoverPreparation } from "./recovery.js";
+import { amountPaisa } from "./normalize.js";
 import { randomUUID } from "node:crypto";
 import type { PoolClient } from "pg";
 import type { Conversation, Identity, OutgoingMessage } from "../types.js";
@@ -8,7 +9,7 @@ import { prepareWrite } from "../tools/write.js";
 import { requireScopedRecord } from "../../services/ledger.js";
 
 export const help =
-  "FinBot: party balance/statement, invoices, daily summary, receivables/payables, monthly cash flow, record payment aur single-item sale. Har financial write pe confirmation zaroori hai. /unlink disconnect karta hai. AI ko bheje gaye text mein passwords ya secrets na likhein.";
+  "FinBot: party balance/statement, invoices, daily summary, receivables/payables, monthly cash flow, record payment aur single-item sale aur supplier bill. Har financial write pe confirmation zaroori hai. /unlink disconnect karta hai. AI ko bheje gaye text mein passwords ya secrets na likhein.";
 const prompts = {
   partyName: "Party ka naam?",
   amountText: "Kitni amount? Misal: 15k",
@@ -16,7 +17,7 @@ const prompts = {
   method: "Payment method choose karein.",
   direction:
     "Business ko paisay mile (Received), ya business ne diye (Sent)? Direction confirm karein.",
-  description: "Sale item/description?",
+  description: "Item/description?",
   quantity: "Quantity?",
   unit: "Unit? (Bag, Piece, etc.)",
   rateText: "Unit rate PKR?",
@@ -92,11 +93,9 @@ export async function advance(
     return { text: "Cash flow ke liye reporting month YYYY-MM dein." };
   }
   if (e.intent === "GREETING" || e.intent === "HELP") return { text: help };
-  if (e.intent === "RECORD_PURCHASE")
-    return {
-      text: "Purchase creation existing backend mein supported nahi hai. Bot purchase save nahi karega. Existing supplier payments aur payable queries available hain.",
-    };
-  const write = e.intent === "RECORD_PAYMENT" || e.intent === "RECORD_SALE";
+  const write = ["RECORD_PAYMENT", "RECORD_SALE", "RECORD_PURCHASE"].includes(
+    e.intent,
+  );
   const needsParty =
     write ||
     ["SEARCH_PARTY", "GET_PARTY_BALANCE", "GET_PARTY_STATEMENT"].includes(
@@ -169,6 +168,22 @@ export async function advance(
       identity.business_id,
       state.partyId,
     );
+    if (
+      (e.intent === "RECORD_SALE" && party.kind !== "Customer") ||
+      (e.intent === "RECORD_PURCHASE" && party.kind !== "Supplier")
+    ) {
+      delete state.partyId;
+      delete state.choices;
+      delete state.usePartyContext;
+      e.partyName = null;
+      state.awaiting = "partyName";
+      return {
+        text:
+          e.intent === "RECORD_PURCHASE"
+            ? "Purchase bill ke liye Supplier ka naam dein. Baqi details saved hain."
+            : "Sale ke liye Customer ka naam dein. Baqi details saved hain.",
+      };
+    }
     state.contextPartyId = state.partyId;
     delete state.usePartyContext;
     if (
@@ -191,7 +206,6 @@ export async function advance(
             "taxText",
             "discountText",
             "initialPaidText",
-            "method",
             "dateText",
             "dueDateText",
           ] as const);
@@ -199,6 +213,12 @@ export async function advance(
       if (e[field] === null) return ask(state, field);
     const correction = validateWriteFields(state, identity.timezone, now);
     if (correction) return correction;
+    if (
+      e.intent !== "RECORD_PAYMENT" &&
+      amountPaisa(e.initialPaidText!) > 0 &&
+      !e.method
+    )
+      return ask(state, "method");
     if (e.intent === "RECORD_PAYMENT" && state.invoiceId === undefined) {
       if (e.invoiceReference?.toLowerCase() === "on account")
         state.invoiceId = "";

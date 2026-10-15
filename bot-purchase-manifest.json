@@ -1,0 +1,45 @@
+{
+  "baseline": "b97cba6",
+  "files": [
+    {
+      "path": "server/bot/ai/prompt.ts",
+      "sha256": "1b1e41b2866ed6332ee485bbf59c9760d6012fe43cbcc516f50087f9fdaf7bd6"
+    },
+    {
+      "path": "server/bot/core/flow.ts",
+      "sha256": "7e27d55ac040d21abcbac70613bc59a5672dedca32705f4e5a8a05c57c765670"
+    },
+    {
+      "path": "server/bot/core/recovery.ts",
+      "sha256": "caa69db18a736e00cf159a9a5cf6100a44bd029fe1d7533818f7f3d03f67716e"
+    },
+    {
+      "path": "server/bot/tools/catalog.ts",
+      "sha256": "f17794b2bc76961a8958ab35869d24d9179c4a116c35ed825cb6eef1083c235d"
+    },
+    {
+      "path": "server/bot/tools/read.ts",
+      "sha256": "ba8b8b24e32ad77a318048d2b7117f2030f13c233936f93701e996af798bc036"
+    },
+    {
+      "path": "server/bot/tools/write.ts",
+      "sha256": "d8e367608e3c9c0098bd272e54a37080b18b0cc4df1471f20d3a5b0739f6920e"
+    },
+    {
+      "path": "server/bot/types.ts",
+      "sha256": "d50d3e730890ccfb2f37aa5a3255c385b360d8a88e33f686f64058bcf2a633d4"
+    },
+    {
+      "path": "tests/helpers/botIntegration.ts",
+      "sha256": "69962196b5bac9ad87e1d588786836c85925b98bcd36a8dd56938cd581f0814f"
+    },
+    {
+      "path": "tests/bot-purchase.test.ts",
+      "sha256": "ca15ecd7d4dba1c4e03191fa42af134d5210747f4d8715f30eb1bed717fbc8f3"
+    },
+    {
+      "path": "BOT-PURCHASE-APPLY.md",
+      "sha256": "477ece46ccdd9bc19be42f058141eeab093bddae2d384224d02a5143d2bfaccc"
+    }
+  ]
+}

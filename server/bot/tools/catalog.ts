@@ -12,5 +12,5 @@ export const toolCatalog = {
   GET_CASH_FLOW: "read",
   RECORD_PAYMENT: "prepare-and-confirm",
   RECORD_SALE: "prepare-and-confirm",
-  RECORD_PURCHASE: "unsupported-by-existing-domain",
+  RECORD_PURCHASE: "prepare-and-confirm",
 } as const;

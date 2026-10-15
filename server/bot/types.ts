@@ -72,6 +72,7 @@ export const proposal = z.discriminatedUnion("kind", [
     })
     .strict(),
   z.object({ kind: z.literal("sale"), input: invoiceInput }).strict(),
+  z.object({ kind: z.literal("purchase"), input: invoiceInput }).strict(),
 ]);
 export type Proposal = z.infer<typeof proposal>;
 export type InboundMessage = {

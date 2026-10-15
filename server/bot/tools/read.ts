@@ -157,5 +157,5 @@ export async function readTool(
         : "No cash activity for this month.")
     );
   }
-  return "Is request ko samajh nahi saka. Party balance, invoices, payment, sale ya daily summary poochein.";
+  return "Is request ko samajh nahi saka. Party balance, invoices, payment, sale, supplier bill ya daily summary poochein.";
 }

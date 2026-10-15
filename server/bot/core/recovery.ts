@@ -84,7 +84,11 @@ export function validateWriteFields(
   }
   let date: string | undefined;
   for (const field of ["dateText", "dueDateText"] as const) {
-    if (!e[field] || (field === "dueDateText" && e.intent !== "RECORD_SALE"))
+    if (
+      !e[field] ||
+      (field === "dueDateText" &&
+        !["RECORD_SALE", "RECORD_PURCHASE"].includes(e.intent))
+    )
       continue;
     try {
       const value = mutationDate(e[field]!, timezone, now);
