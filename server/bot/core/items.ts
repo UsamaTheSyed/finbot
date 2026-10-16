@@ -1,3 +1,4 @@
+import { applyItemEdit } from "./itemEdits.js";
 import { invoiceItemInput } from "../../domain/validation.js";
 import type {
   Conversation,
@@ -101,6 +102,7 @@ export function mergeInvoiceEdit(
   next: Extraction,
 ): OutgoingMessage | undefined {
   if (!["RECORD_SALE", "RECORD_PURCHASE"].includes(s.extraction.intent)) return;
+  if (next.itemEdit) return applyItemEdit(s, next);
   if (
     s.extraction.items &&
     !next.items &&
@@ -114,6 +116,8 @@ export function mergeInvoiceEdit(
       s.extraction[field] = null;
       next[field] = null;
     }
+    s.extraction.amountText = null;
     delete s.itemIndex;
+    delete s.pendingItemEdit;
   }
 }

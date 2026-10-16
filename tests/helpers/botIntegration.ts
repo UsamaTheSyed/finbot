@@ -1,3 +1,4 @@
+import { botItemEditIntegration } from "./botItemEditIntegration";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import type { TestContext } from "node:test";
@@ -802,6 +803,9 @@ export async function botIntegration(t: TestContext, pool: Pool) {
       },
     );
   }
+  await botItemEditIntegration(t, pool, send, (value) => {
+    next = value;
+  });
   await t.test(
     "low confidence, AI failure and incomplete purchases cannot write",
     async () => {

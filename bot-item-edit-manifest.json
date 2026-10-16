@@ -1,0 +1,45 @@
+{
+  "baseline": "0eb190f",
+  "files": [
+    {
+      "path": "server/bot/ai/openai.ts",
+      "sha256": "bb1bca815d059421ca7acd7b1dd844224a615558ce0872a8237143f5227ec5d3"
+    },
+    {
+      "path": "server/bot/ai/prompt.ts",
+      "sha256": "3d2a1a6b94b9211e825e0826bd9d40ea4926792ec71b994e9f820578f407571b"
+    },
+    {
+      "path": "server/bot/core/engine.ts",
+      "sha256": "88283373118e6baf78f37a8ad915a81b0afba4967c4a1ee908b2c4abeb1b79bf"
+    },
+    {
+      "path": "server/bot/core/items.ts",
+      "sha256": "c2d74dfd306b7dd40cd10846292b894e10065193b83b5eb5e24164db1ef3fc87"
+    },
+    {
+      "path": "server/bot/core/itemEdits.ts",
+      "sha256": "f4d357b345ac622d77817f9b7941cc23363046d3c1e33e8f1e1a05b95d837588"
+    },
+    {
+      "path": "server/bot/types.ts",
+      "sha256": "01765330babd056d6e64c84c11339fe64b5d57ab779627870b1d4aa82fe636c5"
+    },
+    {
+      "path": "tests/helpers/botIntegration.ts",
+      "sha256": "b121731739a41f538d54975475884885cf06d2d24006f1ee3a4acbcb3c02a647"
+    },
+    {
+      "path": "tests/helpers/botItemEditIntegration.ts",
+      "sha256": "bb079c2cf1759d7d51ca29dae7a833e509a7d51d4bee14cf4db48599892c9f3e"
+    },
+    {
+      "path": "tests/bot-item-edit.test.ts",
+      "sha256": "9144047f09804c0e73c879de008947d50461be5ef577cc94b5c40e874158eab1"
+    },
+    {
+      "path": "BOT-ITEM-EDIT-APPLY.md",
+      "sha256": "5031cfa8723e65bc30dbe4fa029ef1bc9b9123a50ab10ebdc096d63d73dbc593"
+    }
+  ]
+}

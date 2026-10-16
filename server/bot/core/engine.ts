@@ -1,3 +1,4 @@
+import { selectEditItem, normalizeItemEditIntent } from "./itemEdits.js";
 import { acceptItemReply, mergeInvoiceEdit } from "./items.js";
 import {
   refersToPreviousParty,
@@ -259,6 +260,7 @@ export class BotEngine {
         delete s.awaiting;
         delete s.choices;
         delete s.itemIndex;
+        delete s.pendingItemEdit;
       }
       return result;
     }
@@ -279,6 +281,7 @@ export class BotEngine {
         usePartyContext: undefined,
         directionConfirmed: undefined,
         itemIndex: undefined,
+        pendingItemEdit: undefined,
       });
       return { text: "Cancelled. No financial change." };
     }
@@ -286,6 +289,19 @@ export class BotEngine {
       return {
         text: "Pending proposal ke Confirm, Edit ya Cancel button use karein.",
       };
+    if (s.pendingItemEdit) {
+      const reply = selectEditItem(s, text);
+      if (reply) return reply;
+      const result = await advance(
+        client,
+        i,
+        s,
+        this.clock(),
+        this.expiryMinutes,
+      );
+      if (s.pendingId) delete s.editing;
+      return result;
+    }
     const newRequest =
       (s.awaiting === "partyName" || s.awaiting === "choice") &&
       looksLikeRequest(text) &&
@@ -346,9 +362,18 @@ export class BotEngine {
         return {
           text: "Request clear nahi hai. Party, amount, method aur date saaf likhein; koi change nahi hua.",
         };
+      normalizeItemEditIntent(s, next);
       if (["CONFIRM", "CANCEL", "EDIT_PENDING_ACTION"].includes(next.intent))
         return {
           text: "Exact Confirm/Edit/Cancel button use karein. AI financial action authorize nahi kar sakta.",
+        };
+      if (
+        next.itemEdit &&
+        (!s.editing ||
+          !["RECORD_SALE", "RECORD_PURCHASE"].includes(s.extraction.intent))
+      )
+        return {
+          text: "Pehle unsaved invoice/bill preview ka Edit button use karein. Saved records yahan edit nahi hote.",
         };
       if (s.editing && next.direction !== null) delete s.directionConfirmed;
       if (s.editing) {
@@ -378,6 +403,7 @@ export class BotEngine {
           next.partyName = null;
         s.extraction = next;
         delete s.itemIndex;
+        delete s.pendingItemEdit;
         delete s.partyId;
         delete s.invoiceId;
         delete s.directionConfirmed;

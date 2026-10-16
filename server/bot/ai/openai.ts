@@ -24,6 +24,27 @@ const properties = {
   method: { type: ["string", "null"], enum: [...methods, null] },
   direction: { type: ["string", "null"], enum: ["Received", "Sent", null] },
   quantity: { type: ["number", "null"] },
+  itemEdit: {
+    type: ["object", "null"],
+    additionalProperties: false,
+    properties: {
+      itemNumber: { type: ["integer", "null"] },
+      itemName: { type: ["string", "null"] },
+      changes: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          description: { type: ["string", "null"] },
+          quantity: { type: ["number", "null"] },
+          unit: { type: ["string", "null"] },
+          rateText: { type: ["string", "null"] },
+          taxText: { type: ["string", "null"] },
+        },
+        required: ["description", "quantity", "unit", "rateText", "taxText"],
+      },
+    },
+    required: ["itemNumber", "itemName", "changes"],
+  },
   items: {
     type: ["array", "null"],
     minItems: 1,

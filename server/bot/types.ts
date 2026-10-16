@@ -34,8 +34,17 @@ export const extractedItem = z
   })
   .strict();
 export type ExtractedItem = z.infer<typeof extractedItem>;
+export const itemEdit = z
+  .object({
+    itemNumber: z.number().int().nullable(),
+    itemName: field,
+    changes: extractedItem,
+  })
+  .strict();
+export type ItemEdit = z.infer<typeof itemEdit>;
 export const extraction = z
   .object({
+    itemEdit: itemEdit.nullable().default(null),
     items: z.array(extractedItem).min(1).max(10).nullable().default(null),
     intent: z.enum(intents),
     confidence: z.number().min(0).max(1),
@@ -57,6 +66,7 @@ export const extraction = z
   .strict();
 export type Extraction = z.infer<typeof extraction>;
 export const blankExtraction = (): Extraction => ({
+  itemEdit: null,
   items: null,
   intent: "UNKNOWN",
   confidence: 1,
@@ -142,6 +152,7 @@ export const conversation = z.object({
     )
     .max(12)
     .optional(),
+  pendingItemEdit: itemEdit.optional(),
   itemIndex: z.number().int().min(0).max(9).optional(),
   pendingId: z.string().uuid().optional(),
   editing: z.boolean().optional(),
