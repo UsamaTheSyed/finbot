@@ -24,8 +24,19 @@ export const intents = [
 ] as const;
 export const methods = paymentInput.shape.method.options;
 const field = z.string().trim().min(1).max(200).nullable();
+export const extractedItem = z
+  .object({
+    description: field,
+    quantity: z.number().finite().nullable(),
+    unit: field,
+    rateText: field,
+    taxText: field,
+  })
+  .strict();
+export type ExtractedItem = z.infer<typeof extractedItem>;
 export const extraction = z
   .object({
+    items: z.array(extractedItem).min(1).max(10).nullable().default(null),
     intent: z.enum(intents),
     confidence: z.number().min(0).max(1),
     partyName: field,
@@ -46,6 +57,7 @@ export const extraction = z
   .strict();
 export type Extraction = z.infer<typeof extraction>;
 export const blankExtraction = (): Extraction => ({
+  items: null,
   intent: "UNKNOWN",
   confidence: 1,
   partyName: null,
@@ -130,6 +142,7 @@ export const conversation = z.object({
     )
     .max(12)
     .optional(),
+  itemIndex: z.number().int().min(0).max(9).optional(),
   pendingId: z.string().uuid().optional(),
   editing: z.boolean().optional(),
 });

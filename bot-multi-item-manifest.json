@@ -1,0 +1,49 @@
+{
+  "baseline": "5a1e036",
+  "files": [
+    {
+      "path": "server/bot/ai/openai.ts",
+      "sha256": "755907b79ec297c8675a28ec0f6ca6308fcb54116ff5bdaa5b6b0b2c683f2418"
+    },
+    {
+      "path": "server/bot/ai/prompt.ts",
+      "sha256": "cf7039b756dd0f98f5401c86cf0fa044b1b80040f8bf9ea8b2851c3fe003c2a3"
+    },
+    {
+      "path": "server/bot/core/engine.ts",
+      "sha256": "9cd0189cba158a1d7a213547a916d28b9fd227d952178352ae1f908a0cddb63e"
+    },
+    {
+      "path": "server/bot/core/flow.ts",
+      "sha256": "b95498d7ffcb252745c3546961761b74e1842c3825e8a7b85da3d7a070b56f82"
+    },
+    {
+      "path": "server/bot/core/recovery.ts",
+      "sha256": "bdaa66e7598c7c22c23154dede9d78daf9b0747e4932768110c86fb33b7a5b61"
+    },
+    {
+      "path": "server/bot/tools/write.ts",
+      "sha256": "3d05032ef303a256f52324d5e68c9f0b9ba48a6211fd4f06e0012f56e1cf6a3d"
+    },
+    {
+      "path": "server/bot/types.ts",
+      "sha256": "d4ea6d39f9d0ecafae02669d6c5f6180746b87feb045a57a5a2d2af01a5f92a9"
+    },
+    {
+      "path": "tests/helpers/botIntegration.ts",
+      "sha256": "299bd5216a78d94c00d9cb1fdfaf2f169e769e38c5d5d6ad4cb6e4521b613703"
+    },
+    {
+      "path": "server/bot/core/items.ts",
+      "sha256": "bfccb9defda1cccf2c30671a9a2eab936e827989b27f012d6bfdc694ff6aa146"
+    },
+    {
+      "path": "tests/bot-multi-item.test.ts",
+      "sha256": "17b2b0b67ca18008f71f57fbf55afb6d5d8b4d00f6dca2fb4febfe179257df5f"
+    },
+    {
+      "path": "BOT-MULTI-ITEM-APPLY.md",
+      "sha256": "6dde5d5ce23c6b78a6cad00fbb377c0e180d3b08e4f7f85ac4d0c9015f006885"
+    }
+  ]
+}

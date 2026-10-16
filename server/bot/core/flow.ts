@@ -1,4 +1,5 @@
 import { validateWriteFields, recoverPreparation } from "./recovery.js";
+import { validateItems } from "./items.js";
 import { amountPaisa } from "./normalize.js";
 import { randomUUID } from "node:crypto";
 import type { PoolClient } from "pg";
@@ -9,7 +10,7 @@ import { prepareWrite } from "../tools/write.js";
 import { requireScopedRecord } from "../../services/ledger.js";
 
 export const help =
-  "FinBot: party balance/statement, invoices, daily summary, receivables/payables, monthly cash flow, record payment aur single-item sale aur supplier bill. Har financial write pe confirmation zaroori hai. /unlink disconnect karta hai. AI ko bheje gaye text mein passwords ya secrets na likhein.";
+  "FinBot: party balance/statement, invoices, daily summary, receivables/payables, monthly cash flow, record payment aur sale aur supplier bill (maximum 10 items). Har financial write pe confirmation zaroori hai. /unlink disconnect karta hai. AI ko bheje gaye text mein passwords ya secrets na likhein.";
 const prompts = {
   partyName: "Party ka naam?",
   amountText: "Kitni amount? Misal: 15k",
@@ -209,8 +210,21 @@ export async function advance(
             "dateText",
             "dueDateText",
           ] as const);
-    for (const field of required)
+    if (e.intent !== "RECORD_PAYMENT" && e.items) {
+      const correction = validateItems(state);
+      if (correction) return correction;
+    }
+    for (const field of required) {
+      if (
+        e.items &&
+        e.intent !== "RECORD_PAYMENT" &&
+        ["description", "quantity", "unit", "rateText", "taxText"].includes(
+          field,
+        )
+      )
+        continue;
       if (e[field] === null) return ask(state, field);
+    }
     const correction = validateWriteFields(state, identity.timezone, now);
     if (correction) return correction;
     if (

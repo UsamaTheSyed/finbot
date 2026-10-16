@@ -1,3 +1,4 @@
+import { invoiceLines } from "../core/items.js";
 import { previewAllocation } from "../../services/allocations.js";
 import { createHash, randomUUID } from "node:crypto";
 import type { PoolClient } from "pg";
@@ -80,22 +81,13 @@ export async function prepareWrite(
       );
     const isPurchase = e.intent === "RECORD_PURCHASE";
     const paidMinor = amountPaisa(e.initialPaidText!);
-    const tax = Number(e.taxText?.replace(/%$/, ""));
+
     const input = invoiceInput.parse({
       partyId: state.partyId,
       date,
       dueDate: mutationDate(e.dueDateText!, identity.timezone, now),
       reference: "",
-      items: [
-        {
-          item: e.description,
-          description: e.description,
-          quantity: e.quantity,
-          unit: e.unit,
-          rate: amountPaisa(e.rateText!) / 100,
-          taxPercent: tax,
-        },
-      ],
+      items: invoiceLines(e),
       discount: amountPaisa(e.discountText!) / 100,
       amountPaid: paidMinor / 100,
       // Required by shared invoice schema; no payment row exists when paid is zero.
@@ -121,7 +113,19 @@ export async function prepareWrite(
         `Items ka total ${pkr(totals.totalMinor)} hai. Requested total se match nahi karta; rate/quantity/tax/discount edit karein.`,
       );
     value = { kind: isPurchase ? "purchase" : "sale", input };
-    summary = `Create ${isPurchase ? "supplier bill" : "sales invoice"}?\nParty: ${party.name}\n${input.items[0].item}: ${input.items[0].quantity} ${input.items[0].unit} × ${pkr(amountPaisa(e.rateText!))}\nTax: ${tax}% · Discount: ${pkr(totals.discountMinor)}\nTotal: ${pkr(totals.totalMinor)}\nPaid now: ${pkr(totals.paidMinor)}${totals.paidMinor > 0 ? ` (${isPurchase ? "Sent" : "Received"}, ${input.method})` : " — no new cash payment"}\nDate: ${date}\nDue: ${input.dueDate}\nExisting FIFO advance, if available, will be applied on issue; it does not create another cash payment.`;
+    const lines = totals.items
+      .map(
+        (line, index) =>
+          `${index + 1}. ${line.item}: ${line.quantity} ${line.unit} × ${pkr(line.rateMinor)}\nTax ${line.taxPercent}%: ${pkr(line.taxMinor)} · Line total: ${pkr(line.baseMinor + line.taxMinor)}`,
+      )
+      .join("\n");
+    summary = `Create ${isPurchase ? "supplier bill" : "sales invoice"}?\nParty: ${party.name}\n${lines}\nSubtotal: ${pkr(totals.subtotalMinor)}\nTax: ${pkr(totals.taxMinor)} · Discount: ${pkr(totals.discountMinor)}\nTotal: ${pkr(totals.totalMinor)}\nPaid now: ${pkr(totals.paidMinor)}${totals.paidMinor > 0 ? ` (${isPurchase ? "Sent" : "Received"}, ${input.method})` : " — no new cash payment"}\nDate: ${date}\nDue: ${input.dueDate}\nExisting FIFO advance, if available, will be applied on issue; it does not create another cash payment.`;
+    if (summary.length > 3400)
+      throw new ApiError(
+        400,
+        "INVOICE_PREVIEW_TOO_LONG",
+        "Preview bohat lamba hai. Item names chhote karein ya web app use karein. Koi bill save nahi hua.",
+      );
   }
   return { value: proposal.parse(value), summary };
 }

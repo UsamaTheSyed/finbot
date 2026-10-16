@@ -1,3 +1,4 @@
+import { acceptItemReply, mergeInvoiceEdit } from "./items.js";
 import {
   refersToPreviousParty,
   looksLikeRequest,
@@ -257,6 +258,7 @@ export class BotEngine {
         delete s.editing;
         delete s.awaiting;
         delete s.choices;
+        delete s.itemIndex;
       }
       return result;
     }
@@ -276,6 +278,7 @@ export class BotEngine {
         contextPartyId: undefined,
         usePartyContext: undefined,
         directionConfirmed: undefined,
+        itemIndex: undefined,
       });
       return { text: "Cancelled. No financial change." };
     }
@@ -294,7 +297,10 @@ export class BotEngine {
       s.awaiting !== "method" &&
       s.awaiting !== "direction"
     ) {
-      if (s.awaiting === "quantity") {
+      if (s.itemIndex !== undefined && s.extraction.items) {
+        const correction = acceptItemReply(s, text);
+        if (correction) return correction;
+      } else if (s.awaiting === "quantity") {
         const parsed = extraction.shape.quantity.safeParse(Number(text));
         if (!parsed.success)
           return requestCorrection(
@@ -346,6 +352,8 @@ export class BotEngine {
         };
       if (s.editing && next.direction !== null) delete s.directionConfirmed;
       if (s.editing) {
+        const correction = mergeInvoiceEdit(s, next);
+        if (correction) return correction;
         if (next.partyName && next.partyName !== s.extraction.partyName) {
           delete s.partyId;
           delete s.invoiceId;
@@ -369,6 +377,7 @@ export class BotEngine {
         )
           next.partyName = null;
         s.extraction = next;
+        delete s.itemIndex;
         delete s.partyId;
         delete s.invoiceId;
         delete s.directionConfirmed;

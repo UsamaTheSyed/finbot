@@ -24,6 +24,23 @@ const properties = {
   method: { type: ["string", "null"], enum: [...methods, null] },
   direction: { type: ["string", "null"], enum: ["Received", "Sent", null] },
   quantity: { type: ["number", "null"] },
+  items: {
+    type: ["array", "null"],
+    minItems: 1,
+    maxItems: 10,
+    items: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        description: { type: ["string", "null"] },
+        quantity: { type: ["number", "null"] },
+        unit: { type: ["string", "null"] },
+        rateText: { type: ["string", "null"] },
+        taxText: { type: ["string", "null"] },
+      },
+      required: ["description", "quantity", "unit", "rateText", "taxText"],
+    },
+  },
 };
 const envelope = z.object({
   choices: z
@@ -62,7 +79,7 @@ export class OpenAIProvider implements AIProvider {
           body: JSON.stringify({
             model: this.model,
             store: false,
-            max_completion_tokens: 1000,
+            max_completion_tokens: 3000,
             messages: [
               { role: "system", content: systemPrompt },
               {

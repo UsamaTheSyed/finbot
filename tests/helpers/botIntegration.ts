@@ -618,6 +618,190 @@ export async function botIntegration(t: TestContext, pool: Pool) {
       await send("/cancel");
     },
   );
+  for (const kind of ["Customer", "Supplier"] as const) {
+    await t.test(
+      `multi-item ${kind}: recovery, edit, confirmation and shared settlement`,
+      async () => {
+        await rates();
+        await send("/cancel");
+        const partyId = `bot-multi-${kind}`;
+        const name = `Multi ${kind}`;
+        await pool.query(
+          "insert into parties(id,business_id,name,kind) values($1,'business-1',$2,$3)",
+          [partyId, name, kind],
+        );
+        if (kind === "Supplier") {
+          const c = await pool.connect();
+          try {
+            await c.query("begin");
+            await executePayment(c, "business-1", {
+              partyId,
+              invoiceId: "",
+              direction: "Sent",
+              amount: 1000,
+              allocationMode: "fifo",
+              method: "Cash",
+              date: "2026-11-28",
+              reference: "",
+              notes: "",
+            });
+            await c.query("commit");
+          } finally {
+            c.release();
+          }
+        }
+        next = {
+          ...blankExtraction(),
+          intent: kind === "Supplier" ? "RECORD_PURCHASE" : "RECORD_SALE",
+          partyName: name,
+          items: [
+            {
+              description: "Rice",
+              quantity: 2,
+              unit: "Bag",
+              rateText: "1000",
+              taxText: "5",
+            },
+            {
+              description: "Oil",
+              quantity: 1,
+              unit: "Carton",
+              rateText: null,
+              taxText: "0",
+            },
+          ],
+          discountText: "100",
+          initialPaidText: kind === "Supplier" ? "0" : "500",
+          dateText: "2026-11-28",
+          dueDateText: "2026-12-28",
+        };
+        assert.match((await send("multi item invoice")).text, /Item 2/);
+        // send() creates a new engine each time; the correction cursor must persist in DB.
+        let out = await send("500/Carton");
+        if (kind === "Customer") {
+          assert.match(out.text, /Payment method/);
+          out = await send("", button(out, "Cash"));
+        }
+        assert.match(out.text, /Total: PKR 2,500.00/);
+        const oldConfirm = button(out, "Confirm");
+        await send("", button(out, "Edit"));
+        next = {
+          ...blankExtraction(),
+          intent: kind === "Supplier" ? "RECORD_PURCHASE" : "RECORD_SALE",
+          rateText: "600",
+        };
+        assert.match(
+          (await send("change one rate")).text,
+          /poori replacement list/,
+        );
+        next = {
+          ...blankExtraction(),
+          intent: kind === "Supplier" ? "RECORD_PURCHASE" : "RECORD_SALE",
+          items: [
+            {
+              description: "Rice",
+              quantity: 2,
+              unit: "Bag",
+              rateText: "1000",
+              taxText: "5",
+            },
+            {
+              description: "Oil",
+              quantity: 1,
+              unit: "Carton",
+              rateText: "600",
+              taxText: "0",
+            },
+          ],
+        };
+        out = await send("full replacement list");
+        assert.match(out.text, /Total: PKR 2,600.00/);
+        assert.match((await send("", oldConfirm)).text, /already cancelled/);
+        assert.equal(
+          (
+            await pool.query(
+              "select count(*)::int n from invoices where party_id=$1",
+              [partyId],
+            )
+          ).rows[0].n,
+          0,
+        );
+        const confirm = button(out, "Confirm");
+        assert.match((await send("", confirm)).text, /saved: INV-/);
+        assert.match((await send("", confirm)).text, /already executed/);
+        const invoices = (
+          await pool.query("select id from invoices where party_id=$1", [
+            partyId,
+          ])
+        ).rows;
+        assert.equal(invoices.length, 1);
+        const invoice = await invoiceDto(pool, "business-1", invoices[0].id);
+        assert.equal(invoice.items.length, 2);
+        assert.equal(invoice.totalMinor, 260000);
+        assert.equal(invoice.paidMinor, kind === "Supplier" ? 100000 : 50000);
+        assert.equal(
+          invoice.balanceMinor,
+          kind === "Supplier" ? 160000 : 210000,
+        );
+        const payments = (
+          await pool.query(
+            "select amount_minor,direction from payments where party_id=$1",
+            [partyId],
+          )
+        ).rows;
+        assert.equal(payments.length, 1);
+        assert.equal(
+          Number(payments[0].amount_minor),
+          kind === "Supplier" ? 100000 : 50000,
+        );
+        assert.equal(
+          payments[0].direction,
+          kind === "Supplier" ? "Sent" : "Received",
+        );
+        // Cancelling another complete multi-item proposal must leave invoice count unchanged.
+        next = {
+          ...blankExtraction(),
+          intent: kind === "Supplier" ? "RECORD_PURCHASE" : "RECORD_SALE",
+          partyName: name,
+          items: [
+            {
+              description: "Rice",
+              quantity: 1,
+              unit: "Bag",
+              rateText: "10",
+              taxText: "0",
+            },
+            {
+              description: "Oil",
+              quantity: 1,
+              unit: "Carton",
+              rateText: "20",
+              taxText: "0",
+            },
+          ],
+          discountText: "0",
+          initialPaidText: "0",
+          dateText: "2026-11-28",
+          dueDateText: "2026-12-28",
+        };
+        out = await send("another multi item invoice");
+        await send("", button(out, "Cancel"));
+        assert.match(
+          (await send("", button(out, "Confirm"))).text,
+          /already cancelled/,
+        );
+        assert.equal(
+          (
+            await pool.query(
+              "select count(*)::int n from invoices where party_id=$1",
+              [partyId],
+            )
+          ).rows[0].n,
+          1,
+        );
+      },
+    );
+  }
   await t.test(
     "low confidence, AI failure and incomplete purchases cannot write",
     async () => {

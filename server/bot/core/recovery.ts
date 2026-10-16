@@ -59,7 +59,7 @@ export function validateWriteFields(
       ? (["amountText"] as const)
       : (["rateText", "discountText", "initialPaidText"] as const);
   for (const field of moneyFields) {
-    if (e[field] === null) continue;
+    if (e[field] === null || (field === "rateText" && e.items)) continue;
     try {
       const amount =
         field === "rateText"
@@ -134,6 +134,13 @@ export function recoverPreparation(
       description: "description",
     };
     const field = fields[key];
+    if (
+      field &&
+      path?.[0] === "items" &&
+      state.extraction.items &&
+      typeof path[1] === "number"
+    )
+      state.itemIndex = path[1];
     if (field)
       return requestCorrection(
         state,
