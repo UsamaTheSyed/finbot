@@ -63,6 +63,9 @@ function prepare(
   });
 }
 export const invoiceService = {
+  downloadPdf(businessId: string, id: string): Promise<Blob> {
+    return httpApi.blob(`${base(businessId)}/${encodeURIComponent(id)}/pdf`);
+  },
   list: getInvoices,
   getInvoices,
   getInvoiceById(businessId: string, id: string): Promise<Invoice> {

@@ -1,3 +1,4 @@
+import { verifyPdfAccess } from "./helpers/pdfIntegration";
 import { allocationIntegration } from "./helpers/allocationIntegration";
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -160,6 +161,14 @@ test(
       });
       assert.equal(afterPartial.json().status, "Partial");
       assert.equal(afterPartial.json().balanceMinor, 200000);
+      await verifyPdfAccess(app, headers, invoiceBody.id);
+      const afterDownload = await app.inject({
+        method: "GET",
+        url: `/api/businesses/business-1/invoices/${invoiceBody.id}`,
+        headers,
+      });
+      assert.deepEqual(afterDownload.json(), afterPartial.json());
+
       const beforeCount = await setup.pool.query(
         "select count(*)::int count from payments where business_id='business-1'",
       );

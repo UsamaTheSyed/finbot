@@ -1,3 +1,5 @@
+import { invoiceService } from "../../services/invoiceService";
+import { savePdfDownload } from "../../utils/pdfDownload";
 import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Download, Printer, Bell, MoreHorizontal } from "lucide-react";
@@ -25,11 +27,36 @@ export function InvoiceDetailPage() {
     payments = usePayments(),
     { updateInvoice } = useFinanceMutations(),
     notify = useToast();
+  const [downloading, setDownloading] = useState(false);
   const [payment, setPayment] = useState(false);
   if (!query.data || !parties.data || !payments.data)
     return <QueryState queries={[query, parties, payments]} back="/invoices" />;
   const invoice = query.data,
     party = parties.data.find((p) => p.id === invoice.partyId);
+  async function downloadPdf() {
+    if (downloading) return;
+    setDownloading(true);
+    try {
+      const blob = await invoiceService.downloadPdf(
+        invoice.businessId,
+        invoice.id,
+      );
+      const label = (invoice.displayId || invoice.id)
+        .replace(/[^a-zA-Z0-9_-]/g, "-")
+        .slice(0, 100);
+      savePdfDownload(
+        blob,
+        `finbot-${party?.kind === "Supplier" ? "bill" : "invoice"}-${label}.pdf`,
+      );
+    } catch (error) {
+      notify(
+        error instanceof Error ? error.message : "PDF download failed.",
+        "error",
+      );
+    } finally {
+      setDownloading(false);
+    }
+  }
   async function issueDraft() {
     try {
       await updateInvoice.mutateAsync({
@@ -76,11 +103,7 @@ export function InvoiceDetailPage() {
       />
       <Card className="invoice-action-bar">
         <div className="actions">
-          <Button
-            onClick={() =>
-              notify("PDF generation is planned for a later phase.")
-            }
-          >
+          <Button loading={downloading} onClick={() => void downloadPdf()}>
             <Download size={16} /> Download PDF
           </Button>
           <Button

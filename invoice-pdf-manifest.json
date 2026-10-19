@@ -1,0 +1,86 @@
+{
+  "baseline": "6ded97f",
+  "feature": "Invoice and supplier bill PDF download",
+  "files": [
+    {
+      "path": ".env.example",
+      "sha256": "cc2d980ebc6e3583234dfdd65ad930864c191d5467c4ee2ab84f418aeaf65b8b"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "32e3138ea203723249966f98ebff25b77cef3f78b5890e72e887abdc84a36a84"
+    },
+    {
+      "path": "package.json",
+      "sha256": "c992196c990852fc944c48924727fea34416f0f911d7a1fedb2c409c5273ab62"
+    },
+    {
+      "path": "server/app.ts",
+      "sha256": "bc322dd2b9da1fccac6952643abf517e4f4c9c8352e0da695474a6ca57139d46"
+    },
+    {
+      "path": "server/pdf/invoiceData.ts",
+      "sha256": "229f77877cae89efadf421597f46d3678441cae90d62c9c41ef3a4f00692da7f"
+    },
+    {
+      "path": "server/pdf/invoiceHtml.ts",
+      "sha256": "8425c10e0838717563bc71fdaec18017ebd9aa09ba2864af31a57dbf7129eb9f"
+    },
+    {
+      "path": "server/pdf/renderer.ts",
+      "sha256": "eb98c8ae7f093215b012ca2b8c9c52f72fc6e84ff808ca1fbe5a56f0d09844bb"
+    },
+    {
+      "path": "server/pdf/styles.ts",
+      "sha256": "6f34d9e5ba9652c08f266892d22a39ec47893c968f5aaad89f569e0f95fb9e6d"
+    },
+    {
+      "path": "server/routes/invoicePdf.ts",
+      "sha256": "43dd7b6f1c199171aa1f0876fcd8a74d0d43980d31365230953723cfde9d4faf"
+    },
+    {
+      "path": "src/features/invoices/InvoiceDetailPage.tsx",
+      "sha256": "560a599195e2d4541d1a8e23913c9ff1ea260d75a442d52426e307fa7386f4ba"
+    },
+    {
+      "path": "src/services/api.ts",
+      "sha256": "af1fb71158f1e3f76c46af46a47da0721aabfff990fc28bdf4d98a9caad0bfa3"
+    },
+    {
+      "path": "src/services/invoiceService.ts",
+      "sha256": "b4334749dd52d943d3428c4017fb8ad6e4c86350693e6b1f1d4403bce92ea66c"
+    },
+    {
+      "path": "src/utils/pdfDownload.ts",
+      "sha256": "d9c5efeddaccb32f84a2681fa6a63764965f74256c72759cb9dcd8ebf9c66b26"
+    },
+    {
+      "path": "tests/backend-integration.test.ts",
+      "sha256": "fd6e13b000bf598e87cdc99f67b1b0b4538140415c1ddeeb1493b3e4ddda3c6b"
+    },
+    {
+      "path": "tests/browser/invoice-pdf.spec.ts",
+      "sha256": "9111e2a914f3b44aef8ecbb15f2865c41a5d048b035820551e9d3b101c0f97b1"
+    },
+    {
+      "path": "tests/helpers/pdfFixture.ts",
+      "sha256": "def6fdc76b578b6748ca2c7596432489173dfea7c62ed97edfa7dbb037cd131d"
+    },
+    {
+      "path": "tests/helpers/pdfIntegration.ts",
+      "sha256": "ce86a49fbf16a9685aac152a8b5b85dbc8cbefc7e5ff4b7efb5e9aa2dc0d094a"
+    },
+    {
+      "path": "tests/invoice-pdf.test.ts",
+      "sha256": "2850bc3d40b9b85867078c31338e8f06a32211d069e605dbb9b73cda17907c5e"
+    },
+    {
+      "path": "tests/pdf-client.test.ts",
+      "sha256": "a135a4b6c77813c98c464197632ea0e912ba0bc0e836c7b92a278e6fd6f33107"
+    },
+    {
+      "path": "tests/pdf-renderer.test.ts",
+      "sha256": "1ffc412ab217c5063ef6cd2600ecea276cacb38fdebec07c763b552ecfd9309d"
+    }
+  ]
+}

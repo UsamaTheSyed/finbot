@@ -10,30 +10,36 @@ export class ApiError extends Error {
 }
 export interface ApiClient {
   get<T>(path: string): Promise<T>;
+  blob(path: string): Promise<Blob>;
   patch<T>(path: string, body: unknown): Promise<T>;
   post<T>(path: string, body: unknown): Promise<T>;
   delete<T>(path: string): Promise<T>;
 }
-export const createHttpClient = (baseUrl: string, extraHeaders: Record<string, string> = {}): ApiClient => {
+export const createHttpClient = (
+  baseUrl: string,
+  extraHeaders: Record<string, string> = {},
+): ApiClient => {
   async function request<T>(
     path: string,
     method: string,
     body?: unknown,
+    binary = false,
   ): Promise<T> {
     const response = await fetch(`${baseUrl}${path}`, {
       method,
-      headers: { ...extraHeaders, ...(body === undefined ? {} : { "Content-Type": "application/json" }) },
+      headers: {
+        ...extraHeaders,
+        ...(body === undefined ? {} : { "Content-Type": "application/json" }),
+      },
       credentials: "same-origin",
       body: body === undefined ? undefined : JSON.stringify(body),
     });
     if (!response.ok) {
-      const payload = (await response.json().catch(() => null)) as
-        | {
-            message?: string;
-            code?: string;
-            fieldErrors?: Record<string, string[]>;
-          }
-        | null;
+      const payload = (await response.json().catch(() => null)) as {
+        message?: string;
+        code?: string;
+        fieldErrors?: Record<string, string[]>;
+      } | null;
       if (response.status === 401 && typeof window !== "undefined")
         window.dispatchEvent(new Event("finbot:unauthorized"));
       throw new ApiError(
@@ -44,10 +50,16 @@ export const createHttpClient = (baseUrl: string, extraHeaders: Record<string, s
       );
     }
     if (response.status === 204) return undefined as T;
+    if (binary) {
+      if (!response.headers.get("content-type")?.includes("application/pdf"))
+        throw new ApiError("The server did not return a PDF.", 502);
+      return response.blob() as Promise<T>;
+    }
     return response.json() as Promise<T>;
   }
   return {
     get: (path) => request(path, "GET"),
+    blob: (path) => request<Blob>(path, "GET", undefined, true),
     post: (path, body) => request(path, "POST", body),
     patch: (path, body) => request(path, "PATCH", body),
     delete: (path) => request(path, "DELETE"),
