@@ -1,5 +1,18 @@
+import { useWorkspace } from "../../hooks/useWorkspace";
+import {
+  statementRangeSchema,
+  statementFilename,
+  type StatementRange,
+} from "../../domain/accountStatement";
+import { statementService } from "../../services/statementService";
+import { savePdfDownload } from "../../utils/pdfDownload";
 import { useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useParams,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { Download, Phone, Mail, FileText, MapPin, Plus } from "lucide-react";
 import { useParty } from "../finance/queries";
 import { QueryState } from "../../components/common/QueryState";
@@ -23,6 +36,29 @@ export function PartyDetailPage() {
     notify = useToast();
   const [edit, setEdit] = useState(false),
     [payment, setPayment] = useState(false);
+  const business = useWorkspace();
+  const [params] = useSearchParams();
+  const [statementRange, setStatementRange] = useState<StatementRange>({
+    from: params.get("from") || "",
+    to: params.get("to") || "",
+  });
+  const [downloading, setDownloading] = useState(false);
+  async function downloadStatement() {
+    const parsed = statementRangeSchema.safeParse(statementRange);
+    if (!parsed.success) {
+      notify(parsed.error.issues[0].message);
+      return;
+    }
+    setDownloading(true);
+    try {
+      const blob = await statementService.download(business, id, parsed.data);
+      savePdfDownload(blob, statementFilename(id, parsed.data));
+    } catch (error) {
+      notify((error as Error).message);
+    } finally {
+      setDownloading(false);
+    }
+  }
   if (!query.data) return <QueryState queries={[query]} back="/parties" />;
   const { party, transactions, invoices, payments } = query.data;
   const outstanding = invoices.filter(
@@ -83,9 +119,9 @@ export function PartyDetailPage() {
           </div>
           <div className="actions">
             <Button
-              onClick={() =>
-                notify("Statement download is planned for a later phase.")
-              }
+              loading={downloading}
+              disabled={!statementRangeSchema.safeParse(statementRange).success}
+              onClick={() => void downloadStatement()}
             >
               <Download size={16} /> Download Statement
             </Button>
@@ -166,7 +202,9 @@ export function PartyDetailPage() {
         </Button>
       </div>
       <Tabs
-        defaultValue="Overview"
+        defaultValue={
+          params.get("tab") === "Statement" ? "Statement" : "Overview"
+        }
         items={[
           ["Overview", overview],
           ["Transactions", <PartyTransactions transactions={transactions} />],
@@ -174,7 +212,11 @@ export function PartyDetailPage() {
           ["Payments", <PaymentHistory payments={payments} />],
           [
             "Statement",
-            <PartyStatement transactions={transactions} payments={payments} />,
+            <PartyStatement
+              partyId={id}
+              range={statementRange}
+              onRangeChange={setStatementRange}
+            />,
           ],
         ].map(([label, content]) => ({
           value: String(label),

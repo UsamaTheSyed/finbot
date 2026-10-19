@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Phone, Mail, FileText, Plus } from "lucide-react";
 import { Card, Badge } from "../../components/ui/Display";
 import { Tabs } from "../../components/navigation/Controls";
@@ -14,6 +14,10 @@ import type { Party } from "../../types";
 export function PartiesPage() {
   const query = useFinanceParties(),
     navigate = useNavigate();
+  const [params] = useSearchParams();
+  const statementMode = params.get("view") === "statement";
+  const partyPath = (id: string) =>
+    `/parties/${id}${statementMode ? `?${new URLSearchParams({ tab: "Statement", from: params.get("from") || "", to: params.get("to") || "" })}` : ""}`;
   const [editing, setEditing] = useState<Party | "new" | null>(null);
   if (query.isPending || query.error) return <QueryState queries={[query]} />;
   const rows = query.data || [];
@@ -25,7 +29,7 @@ export function PartiesPage() {
           <Card className="party-card" key={p.id}>
             <div className="party-card-header">
               <h2>
-                <Link to={`/parties/${p.id}`}>{p.name}</Link>
+                <Link to={partyPath(p.id)}>{p.name}</Link>
               </h2>
               <Badge tone={p.kind === "Customer" ? "success" : "info"}>
                 {p.kind}
@@ -60,7 +64,7 @@ export function PartiesPage() {
               </Badge>
             </div>
             <div className="actions">
-              <Button onClick={() => navigate(`/parties/${p.id}`)}>View</Button>
+              <Button onClick={() => navigate(partyPath(p.id))}>View</Button>
               <Button onClick={() => setEditing(p)}>Edit</Button>
             </div>
           </Card>
@@ -85,7 +89,8 @@ export function PartiesPage() {
         }
       />
       <Tabs
-        defaultValue="all"
+        key={statementMode ? "statement" : "all"}
+        defaultValue={statementMode ? "customers" : "all"}
         items={[
           { value: "all", label: `All (${rows.length})`, content: grid() },
           {

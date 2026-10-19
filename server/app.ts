@@ -1,3 +1,4 @@
+import { statementRoutes } from "./routes/statements.js";
 import { invoicePdfRoutes } from "./routes/invoicePdf.js";
 import Fastify from "fastify";
 import cookie from "@fastify/cookie";
@@ -50,6 +51,7 @@ export async function buildApp(
     });
   await authRoutes(app, db, security);
   await partyRoutes(app, pool, security);
+  await statementRoutes(app, pool, security);
   await transactionRoutes(app, pool, security);
   await invoiceRoutes(app, pool, security);
   await invoicePdfRoutes(app, pool, security);

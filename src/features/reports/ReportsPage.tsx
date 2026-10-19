@@ -16,6 +16,9 @@ export function ReportsPage() {
   const requested = params.get("period");
   const period = requested === previous ? previous : currentPeriod;
   const notify = useToast();
+  const periodEnd = new Date(`${period}-01T00:00:00Z`);
+  periodEnd.setUTCMonth(periodEnd.getUTCMonth() + 1, 0);
+  const statementPath = `/parties?view=statement&from=${period}-01&to=${periodEnd.toISOString().slice(0, 10)}`;
   return (
     <div className="page-stack report-overview">
       <PageHeader
@@ -44,7 +47,15 @@ export function ReportsPage() {
               <h2>{report.title}</h2>
             </div>
             <p>{report.description}</p>
-            {"path" in report ? (
+            {report.title === "Customer Statement" ? (
+              <Link
+                className="report-trigger"
+                aria-label="View Customer Statement"
+                to={statementPath}
+              >
+                View Report <ReportIcon name="arrow" />
+              </Link>
+            ) : "path" in report ? (
               <Link
                 className="report-trigger"
                 aria-label={`View ${report.title}`}
@@ -69,8 +80,8 @@ export function ReportsPage() {
         ))}
       </div>
       <p className="report-demo">
-        Figures derive from the persistent workspace ledger and
-        are not for tax filing.
+        Figures derive from the persistent workspace ledger and are not for tax
+        filing.
       </p>
     </div>
   );
