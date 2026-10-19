@@ -155,7 +155,11 @@ export function PartyDetailPage() {
         </Button>
         <Button
           onClick={() =>
-            notify("New sales entry is planned for a later phase.")
+            party.kind === "Customer"
+              ? navigate(
+                  `/invoices/new?party=${encodeURIComponent(party.id)}&kind=Customer`,
+                )
+              : notify("Use Create Bill to record a supplier purchase.")
           }
         >
           Record Sale

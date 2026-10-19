@@ -151,9 +151,11 @@ export function DashboardPage() {
               onClick={() =>
                 label === "Payment"
                   ? navigate("/payments?action=record")
-                  : notify(
-                      "New transaction creation is scheduled for a later phase.",
-                    )
+                  : label === "Sale"
+                    ? navigate("/invoices/new?kind=Customer")
+                    : notify(
+                        "New transaction creation is scheduled for a later phase.",
+                      )
               }
             >
               <Plus size={16} />+ {label}
