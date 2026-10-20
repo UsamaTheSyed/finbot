@@ -19,6 +19,8 @@ import {
 } from "../domain/reportCalculations";
 import { sumMinor, toMinor } from "../utils/money";
 
+import { mockLedgerReport } from "../domain/mockLedgerReports";
+
 const initialAnchorNet = new Map(
   businesses.map((business) => [
     business.id,
@@ -66,6 +68,17 @@ function openingCash(businessId: string, period: string) {
 function buildReport(businessId: string, kind: ReportKind, period: string) {
   if (!businesses.some((business) => business.id === businessId)) return null;
   switch (kind) {
+    case "sales":
+    case "ap-aging":
+      return mockLedgerReport(
+        businessId,
+        kind,
+        period,
+        transactions,
+        invoices,
+        parties,
+        payments,
+      );
     case "daily":
       return dailySummary(businessId, period, transactions, payments);
     case "ar-aging":

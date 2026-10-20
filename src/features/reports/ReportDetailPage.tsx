@@ -17,7 +17,10 @@ import { ReportActions, ReportTabs } from "./ReportControls";
 import { Statement, AgingTable, ReportChart, CashTable } from "./ReportVisuals";
 import { demoDate } from "../../lib/demo";
 import "../../styles/phase-three.css";
+import { SalesTable } from "./SalesTable";
 const titles = {
+  sales: "Sales Report",
+  "ap-aging": "A/P Aging",
   daily: "Reports",
   "ar-aging": "Reports",
   "profit-loss": "Profit & Loss Statement",
@@ -55,11 +58,15 @@ export function ReportDetailPage({ kind }: { kind: ReportKind }) {
       <PageHeader
         title={titles[kind]}
         subtitle={
-          kind === "profit-loss"
-            ? `Accrual Basis • ${period}`
-            : kind === "cash-flow"
-              ? `Cash movements • ${period}`
-              : undefined
+          kind === "sales"
+            ? `Posted sales • ${period} • Includes tax; excludes drafts and cash receipts`
+            : kind === "ap-aging"
+              ? `Outstanding supplier bills at month-end • ${period}`
+              : kind === "profit-loss"
+                ? `Accrual Basis • ${period}`
+                : kind === "cash-flow"
+                  ? `Cash movements • ${period}`
+                  : undefined
         }
         actions={
           kind === "ar-aging" ? (
@@ -117,7 +124,9 @@ export function ReportDetailPage({ kind }: { kind: ReportKind }) {
           title="No report data for this period"
           description="There is no qualifying ledger activity for the selected period."
           action={
-            <Button onClick={() => setPeriod(daily ? demoDate : demoDate.slice(0, 7))}>
+            <Button
+              onClick={() => setPeriod(daily ? demoDate : demoDate.slice(0, 7))}
+            >
               Show current period
             </Button>
           }
@@ -131,7 +140,15 @@ export function ReportDetailPage({ kind }: { kind: ReportKind }) {
               daily
             />
           )}
-          {kind === "ar-aging" && <AgingTable report={report} />}
+          {(kind === "ar-aging" || kind === "ap-aging") && (
+            <AgingTable report={report} />
+          )}
+          {kind === "sales" && (
+            <>
+              <Statement title="Sales Summary" lines={report.lines} daily />
+              <SalesTable report={report} />
+            </>
+          )}
           {kind === "profit-loss" && (
             <div className="report-columns">
               <Statement title="Statement of Accounts" lines={report.lines} />
@@ -166,8 +183,8 @@ export function ReportDetailPage({ kind }: { kind: ReportKind }) {
       )}
       {daily && <ReportActions report={report} daily />}
       <p className="report-demo">
-        Workspace ledger report · {period} · PKR. Values update from persisted data and
-        are not for tax filing.
+        Workspace ledger report · {period} · PKR. Values update from persisted
+        data and are not for tax filing.
       </p>
     </div>
   );

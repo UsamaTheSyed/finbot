@@ -1,10 +1,12 @@
-export type ReportKind = "daily" | "ar-aging" | "profit-loss" | "cash-flow";
+export type ReportKind =
+  "daily" | "ar-aging" | "profit-loss" | "cash-flow" | "sales" | "ap-aging";
 export interface ReportLine {
   label: string;
   amount: number;
   emphasis?: "success" | "danger" | "net";
 }
 export interface AgingRow {
+  partyId?: string;
   party: string;
   current: number;
   thirty: number;
@@ -20,7 +22,19 @@ export interface CashRow {
   outgoing: number;
   balance: number;
 }
+export interface SalesRow {
+  id: string;
+  displayId: string;
+  invoiceId?: string;
+  date: string;
+  party: string;
+  subtotal: number;
+  discount: number;
+  tax: number;
+  total: number;
+}
 export interface FinancialReport {
+  sales?: SalesRow[];
   kind: ReportKind;
   period: string;
   lines: ReportLine[];

@@ -9,10 +9,11 @@ export const reportCatalog = [
   },
   {
     title: "Sales Report",
+    path: "sales",
     icon: "sales",
     tone: "success",
     description:
-      "Detailed sales analysis by period, customer ledger values, and product performance.",
+      "Posted sales by month and customer, with discounts, tax, and totals.",
   },
   {
     title: "Purchase Report",
@@ -31,6 +32,7 @@ export const reportCatalog = [
   },
   {
     title: "A/P Aging",
+    path: "ap-aging",
     icon: "payable",
     tone: "danger",
     description: "Outstanding supplier payables and vendor transaction delays.",

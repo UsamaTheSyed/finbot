@@ -6,15 +6,20 @@ export function csvCell(value: string | number) {
 }
 export function reportCsv(report: FinancialReport) {
   const rows: (string | number)[][] = [
-    ["FinBot workspace report — not for filing", report.kind, report.period, "PKR"],
+    [
+      "FinBot workspace report — not for filing",
+      report.kind,
+      report.period,
+      "PKR",
+    ],
   ];
-  if (report.kind === "ar-aging") {
+  if (report.kind === "ar-aging" || report.kind === "ap-aging") {
     rows.push([
       "Party",
       "Current",
-      "30+ Days",
-      "60+ Days",
-      "90+ Days",
+      ...(report.kind === "ap-aging"
+        ? ["1–30 Days", "31–60 Days", "61+ Days"]
+        : ["30+ Days", "60+ Days", "90+ Days"]),
       "Total Outstanding",
     ]);
     rows.push(
@@ -32,6 +37,28 @@ export function reportCsv(report: FinancialReport) {
       ["Description", "Amount (PKR)"],
       ...report.lines.map((r) => [r.label, r.amount]),
     );
+    if (report.sales?.length)
+      rows.push(
+        [],
+        [
+          "Date",
+          "Document",
+          "Customer",
+          "Subtotal",
+          "Discount",
+          "Tax",
+          "Total",
+        ],
+        ...report.sales.map((r) => [
+          r.date,
+          r.displayId,
+          r.party,
+          r.subtotal,
+          r.discount,
+          r.tax,
+          r.total,
+        ]),
+      );
     if (report.cash.length)
       rows.push(
         [],

@@ -61,15 +61,17 @@ export function AgingTable({ report }: { report: FinancialReport }) {
   );
   return (
     <Card className="report-table">
-      <Table aria-label="A/R Aging">
+      <Table
+        aria-label={report.kind === "ap-aging" ? "A/P Aging" : "A/R Aging"}
+      >
         <TableHeader>
           <TableRow>
             {[
               "Party",
               "Current",
-              "30+ Days",
-              "60+ Days",
-              "90+ Days",
+              ...(report.kind === "ap-aging"
+                ? ["1–30 Days", "31–60 Days", "61+ Days"]
+                : ["30+ Days", "60+ Days", "90+ Days"]),
               "Total Outstanding",
             ].map((label) => (
               <th key={label} scope="col">
@@ -80,7 +82,7 @@ export function AgingTable({ report }: { report: FinancialReport }) {
         </TableHeader>
         <tbody>
           {report.aging.slice(0, -1).map((row) => (
-            <TableRow key={row.party}>{cells(row)}</TableRow>
+            <TableRow key={row.partyId || row.party}>{cells(row)}</TableRow>
           ))}
         </tbody>
         {total && (

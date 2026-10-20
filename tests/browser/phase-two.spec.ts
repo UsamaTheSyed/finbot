@@ -75,9 +75,21 @@ test("party create, edit, invoice creation and linked payment update the account
     .click();
   await expect(page.getByText("PKR 0").first()).toBeVisible();
   await page.getByRole("tab", { name: "Statement", exact: true }).click();
+  const statement = page.getByRole("table", {
+    name: "Account statement",
+    exact: true,
+  });
+
+  await expect(statement.getByRole("row")).toHaveCount(5);
+
+  // Invoice aur payment: dono ki ek-ek entry.
   await expect(
-    page.getByRole("table", { name: "Account statement" }).getByRole("row"),
-  ).toHaveCount(3);
+    statement.getByRole("row").filter({ has: page.getByRole("link") }),
+  ).toHaveCount(2);
+
+  await expect(
+    statement.getByRole("row").filter({ hasText: "Closing Balance" }),
+  ).toContainText("PKR 0");
   await page.screenshot({
     path: testInfo.outputPath("party-detail.png"),
     fullPage: true,

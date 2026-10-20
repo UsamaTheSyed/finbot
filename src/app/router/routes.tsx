@@ -129,16 +129,23 @@ export const routes: RouteObject[] = [
             .ReportsPage,
         }),
       },
-      ...(["daily", "ar-aging", "profit-loss", "cash-flow"] as const).map(
-        (kind) => ({
-          path: `reports/${kind}`,
-          lazy: async () => {
-            const { ReportDetailPage } =
-              await import("../../features/reports/ReportDetailPage");
-            return { Component: () => <ReportDetailPage kind={kind} /> };
-          },
-        }),
-      ),
+      ...(
+        [
+          "daily",
+          "ar-aging",
+          "profit-loss",
+          "cash-flow",
+          "sales",
+          "ap-aging",
+        ] as const
+      ).map((kind) => ({
+        path: `reports/${kind}`,
+        lazy: async () => {
+          const { ReportDetailPage } =
+            await import("../../features/reports/ReportDetailPage");
+          return { Component: () => <ReportDetailPage kind={kind} /> };
+        },
+      })),
       {
         path: "settings",
         lazy: async () => ({
