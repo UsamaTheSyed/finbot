@@ -28,6 +28,7 @@ export interface SaleRecord {
 export function salesReport(
   period: string,
   source: SaleRecord[],
+  kind: "sales" | "purchases" = "sales",
 ): FinancialReport | null {
   const { start, end } = reportMonthBounds(period);
   const records = source
@@ -49,17 +50,23 @@ export function salesReport(
     key: "subtotalMinor" | "discountMinor" | "taxMinor" | "totalMinor",
   ) => fromMinor(sumMinor(records.map((r) => r[key])));
   return {
-    kind: "sales",
+    kind,
     period,
     aging: [],
     cash: [],
     chart: [],
-    sales,
+    ...(kind === "sales" ? { sales } : { purchases: sales }),
     lines: [
       { label: "Subtotal", amount: totals("subtotalMinor") },
       { label: "Discounts", amount: totals("discountMinor") },
       { label: "Tax", amount: totals("taxMinor") },
-      { label: "Sales Total (including tax)", amount: totals("totalMinor") },
+      {
+        label:
+          kind === "sales"
+            ? "Sales Total (including tax)"
+            : "Purchases Total (including tax)",
+        amount: totals("totalMinor"),
+      },
     ],
   };
 }

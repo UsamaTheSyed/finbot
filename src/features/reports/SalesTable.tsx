@@ -4,15 +4,17 @@ import { Table, TableHeader, TableRow } from "../../components/ui/Table";
 import type { FinancialReport } from "../../types/financialReports";
 import { formatDate } from "../../utils/format";
 export function SalesTable({ report }: { report: FinancialReport }) {
+  const purchase = report.kind === "purchases";
+  const rows = purchase ? report.purchases : report.sales;
   return (
     <Card className="report-table">
-      <Table aria-label="Sales Report">
+      <Table aria-label={purchase ? "Purchase Report" : "Sales Report"}>
         <TableHeader>
           <TableRow>
             {[
               "Date",
               "Document",
-              "Customer",
+              purchase ? "Supplier" : "Customer",
               "Subtotal",
               "Discount",
               "Tax",
@@ -25,7 +27,7 @@ export function SalesTable({ report }: { report: FinancialReport }) {
           </TableRow>
         </TableHeader>
         <tbody>
-          {report.sales?.map((r) => (
+          {rows?.map((r) => (
             <TableRow key={r.id}>
               <td>{formatDate(r.date)}</td>
               <td>

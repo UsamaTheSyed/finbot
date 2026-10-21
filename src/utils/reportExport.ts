@@ -37,19 +37,21 @@ export function reportCsv(report: FinancialReport) {
       ["Description", "Amount (PKR)"],
       ...report.lines.map((r) => [r.label, r.amount]),
     );
-    if (report.sales?.length)
+    const documents =
+      report.kind === "purchases" ? report.purchases : report.sales;
+    if (documents?.length)
       rows.push(
         [],
         [
           "Date",
           "Document",
-          "Customer",
+          report.kind === "purchases" ? "Supplier" : "Customer",
           "Subtotal",
           "Discount",
           "Tax",
           "Total",
         ],
-        ...report.sales.map((r) => [
+        ...documents.map((r) => [
           r.date,
           r.displayId,
           r.party,

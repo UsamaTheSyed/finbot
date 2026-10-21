@@ -3,7 +3,7 @@ import { payableAging, reportMonthBounds, salesReport } from "./ledgerReports";
 import { sumMinor, toMinor } from "../utils/money";
 export function mockLedgerReport(
   businessId: string,
-  kind: "sales" | "ap-aging",
+  kind: "sales" | "ap-aging" | "purchases",
   period: string,
   transactions: Transaction[],
   invoices: Invoice[],
@@ -13,11 +13,15 @@ export function mockLedgerReport(
   const names = new Map(
     parties.filter((p) => p.businessId === businessId).map((p) => [p.id, p]),
   );
-  if (kind === "sales")
+  if (kind === "sales" || kind === "purchases")
     return salesReport(
       period,
       transactions
-        .filter((t) => t.businessId === businessId && t.type === "Sale")
+        .filter(
+          (t) =>
+            t.businessId === businessId &&
+            t.type === (kind === "sales" ? "Sale" : "Purchase"),
+        )
         .map((t) => {
           const invoice = invoices.find(
             (i) => i.businessId === businessId && i.transactionId === t.id,
@@ -34,6 +38,7 @@ export function mockLedgerReport(
             totalMinor: toMinor(t.total),
           };
         }),
+      kind,
     );
   const { end } = reportMonthBounds(period);
   return payableAging(

@@ -31,6 +31,7 @@ export function Header({ onSearch }: { onSearch: () => void }) {
     "ar-aging": "A/R Aging",
     "ap-aging": "A/P Aging",
     sales: "Sales Report",
+    purchases: "Purchase Report",
     "profit-loss": "Profit & Loss",
     "cash-flow": "Cash Flow",
   };

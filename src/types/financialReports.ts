@@ -1,5 +1,11 @@
 export type ReportKind =
-  "daily" | "ar-aging" | "profit-loss" | "cash-flow" | "sales" | "ap-aging";
+  | "daily"
+  | "ar-aging"
+  | "profit-loss"
+  | "cash-flow"
+  | "sales"
+  | "ap-aging"
+  | "purchases";
 export interface ReportLine {
   label: string;
   amount: number;
@@ -35,6 +41,7 @@ export interface SalesRow {
 }
 export interface FinancialReport {
   sales?: SalesRow[];
+  purchases?: SalesRow[];
   kind: ReportKind;
   period: string;
   lines: ReportLine[];

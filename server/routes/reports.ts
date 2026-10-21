@@ -38,11 +38,12 @@ export async function reportRoutes(
           "profit-loss",
           "cash-flow",
           "sales",
+          "purchases",
           "ap-aging",
         ])
         .parse(request.params.kind);
       const { period } = periodQuery.parse(request.query);
-      if (kind === "sales" || kind === "ap-aging") {
+      if (kind === "sales" || kind === "ap-aging" || kind === "purchases") {
         reportMonth.parse(period);
         return salesApReport(pool, businessId, kind, period);
       }

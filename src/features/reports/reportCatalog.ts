@@ -17,10 +17,11 @@ export const reportCatalog = [
   },
   {
     title: "Purchase Report",
+    path: "purchases",
     icon: "purchases",
     tone: "info",
     description:
-      "Track all purchase transactions, supplier invoice adjustments, and raw material costs.",
+      "Posted purchases by month and supplier, with discounts, tax, and totals.",
   },
   {
     title: "A/R Aging",

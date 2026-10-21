@@ -69,6 +69,7 @@ function buildReport(businessId: string, kind: ReportKind, period: string) {
   if (!businesses.some((business) => business.id === businessId)) return null;
   switch (kind) {
     case "sales":
+    case "purchases":
     case "ap-aging":
       return mockLedgerReport(
         businessId,

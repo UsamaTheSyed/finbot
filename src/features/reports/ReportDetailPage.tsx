@@ -20,6 +20,7 @@ import "../../styles/phase-three.css";
 import { SalesTable } from "./SalesTable";
 const titles = {
   sales: "Sales Report",
+  purchases: "Purchase Report",
   "ap-aging": "A/P Aging",
   daily: "Reports",
   "ar-aging": "Reports",
@@ -60,13 +61,15 @@ export function ReportDetailPage({ kind }: { kind: ReportKind }) {
         subtitle={
           kind === "sales"
             ? `Posted sales • ${period} • Includes tax; excludes drafts and cash receipts`
-            : kind === "ap-aging"
-              ? `Outstanding supplier bills at month-end • ${period}`
-              : kind === "profit-loss"
-                ? `Accrual Basis • ${period}`
-                : kind === "cash-flow"
-                  ? `Cash movements • ${period}`
-                  : undefined
+            : kind === "purchases"
+              ? `Posted purchases • ${period} • Includes tax; excludes drafts and supplier payments`
+              : kind === "ap-aging"
+                ? `Outstanding supplier bills at month-end • ${period}`
+                : kind === "profit-loss"
+                  ? `Accrual Basis • ${period}`
+                  : kind === "cash-flow"
+                    ? `Cash movements • ${period}`
+                    : undefined
         }
         actions={
           kind === "ar-aging" ? (
@@ -143,9 +146,15 @@ export function ReportDetailPage({ kind }: { kind: ReportKind }) {
           {(kind === "ar-aging" || kind === "ap-aging") && (
             <AgingTable report={report} />
           )}
-          {kind === "sales" && (
+          {(kind === "sales" || kind === "purchases") && (
             <>
-              <Statement title="Sales Summary" lines={report.lines} daily />
+              <Statement
+                title={
+                  kind === "purchases" ? "Purchase Summary" : "Sales Summary"
+                }
+                lines={report.lines}
+                daily
+              />
               <SalesTable report={report} />
             </>
           )}

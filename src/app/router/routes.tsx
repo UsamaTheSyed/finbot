@@ -136,6 +136,7 @@ export const routes: RouteObject[] = [
           "profit-loss",
           "cash-flow",
           "sales",
+          "purchases",
           "ap-aging",
         ] as const
       ).map((kind) => ({
