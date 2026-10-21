@@ -109,6 +109,13 @@ export const routes: RouteObject[] = [
         }),
       },
       {
+        path: "invoices/:id/edit",
+        lazy: async () => ({
+          Component: (await import("../../features/invoices/EditInvoicePage"))
+            .EditInvoicePage,
+        }),
+      },
+      {
         path: "invoices/:id",
         lazy: async () => ({
           Component: (await import("../../features/invoices/InvoiceDetailPage"))

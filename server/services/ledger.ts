@@ -103,7 +103,7 @@ export async function invoiceDto(
   id: string,
 ) {
   const result = await client.query(
-    `select i.*,
+    `select i.*, max(i.xmin::text) as revision,
        coalesce(sum(pa.amount_minor) filter (where p.status = 'Completed'), 0)::bigint as paid_minor
      from invoices i
      left join payment_allocations pa on pa.invoice_id = i.id
@@ -125,6 +125,7 @@ export async function invoiceDto(
   return {
     id: row.id,
     displayId: row.display_id,
+    revision: row.revision,
     businessId: row.business_id,
     transactionId: row.transaction_id || undefined,
     partyId: row.party_id,

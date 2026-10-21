@@ -1,3 +1,4 @@
+import { fromMinor } from "../../utils/money";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { FormProvider, useForm } from "react-hook-form";
@@ -31,33 +32,56 @@ import { FinancialSummary } from "../finance/components";
 import { InvoiceItemFields, blankInvoiceItem } from "./InvoiceItemFields";
 import { InvoiceDocument, invoiceSummaryRows } from "./InvoiceDocument";
 export function CreateInvoicePage() {
+  return <InvoiceForm />;
+}
+export function InvoiceForm({ initialInvoice }: { initialInvoice?: Invoice }) {
+  // Capture the revision with the form's initial values; background refetches must
+  // never silently make stale user edits look current.
+  const [editing] = useState(initialInvoice);
   const parties = useFinanceParties(),
-    { createInvoice } = useFinanceMutations(),
+    { createInvoice, editDraft } = useFinanceMutations(),
     navigate = useNavigate(),
     [search] = useSearchParams(),
     notify = useToast();
-  const isBill =
-    search.get("kind") === "Supplier" ||
-    parties.data?.find((p) => p.id === search.get("party"))?.kind ===
-      "Supplier";
+  const isBill = editing
+    ? parties.data?.find((p) => p.id === editing.partyId)?.kind === "Supplier"
+    : search.get("kind") === "Supplier" ||
+      parties.data?.find((p) => p.id === search.get("party"))?.kind ===
+        "Supplier";
   const partyKind = isBill ? "Supplier" : "Customer";
   const [preview, setPreview] = useState<Invoice>();
   const defaultDueDate = new Date(`${demoDate}T00:00:00Z`);
   defaultDueDate.setUTCDate(defaultDueDate.getUTCDate() + 30);
   const form = useForm<InvoiceInput>({
     resolver: zodResolver(invoiceSchema),
-    defaultValues: {
-      partyId: search.get("party") || "",
-      date: demoDate,
-      dueDate: defaultDueDate.toISOString().slice(0, 10),
-      reference: "",
-      items: [{ ...blankInvoiceItem }],
-      discount: 0,
-      amountPaid: 0,
-      method: "Cash",
-      notes: "",
-      terms: "",
-    },
+    defaultValues: editing
+      ? {
+          partyId: editing.partyId,
+          date: editing.date,
+          dueDate: editing.dueDate,
+          reference: editing.reference,
+          items: editing.items.map((item) => ({
+            ...item,
+            rate: fromMinor(item.rateMinor),
+          })),
+          discount: fromMinor(editing.discountMinor),
+          amountPaid: 0,
+          method: "Cash",
+          notes: editing.notes,
+          terms: editing.terms,
+        }
+      : {
+          partyId: search.get("party") || "",
+          date: demoDate,
+          dueDate: defaultDueDate.toISOString().slice(0, 10),
+          reference: "",
+          items: [{ ...blankInvoiceItem }],
+          discount: 0,
+          amountPaid: 0,
+          method: "Cash",
+          notes: "",
+          terms: "",
+        },
   });
   const {
     register,
@@ -68,7 +92,9 @@ export function CreateInvoicePage() {
   } = form;
   const values = watch(),
     calculated = tryInvoicePreview(values);
+  const busy = createInvoice.isPending || editDraft.isPending;
   async function save(data: InvoiceInput, draft: boolean) {
+    if (busy) return;
     if (
       !parties.data?.some((p) => p.id === data.partyId && p.kind === partyKind)
     ) {
@@ -76,7 +102,13 @@ export function CreateInvoicePage() {
       return;
     }
     try {
-      const invoice = await createInvoice.mutateAsync({ data, draft });
+      const invoice = editing
+        ? await editDraft.mutateAsync({
+            id: editing.id,
+            data: { ...data, amountPaid: 0 },
+            revision: editing.revision ?? "0",
+          })
+        : await createInvoice.mutateAsync({ data, draft });
       notify(
         draft ? "Draft saved." : isBill ? "Bill created." : "Invoice created.",
         "success",
@@ -90,18 +122,32 @@ export function CreateInvoicePage() {
   return (
     <div className="page-stack finance-page create-invoice-page">
       <PageHeader
-        title={isBill ? "New Bill" : "New Invoice"}
+        title={
+          editing
+            ? isBill
+              ? "Edit Bill Draft"
+              : "Edit Invoice Draft"
+            : isBill
+              ? "New Bill"
+              : "New Invoice"
+        }
         subtitle={
           isBill
             ? "Record a supplier bill and track amounts payable"
             : "Draft and dispatch customer ledger values"
         }
       />
+      {editing && (
+        <Alert tone="info">
+          Editing {editing.displayId ?? editing.id}. Saving keeps this document
+          as a draft and does not post a balance or payment.
+        </Alert>
+      )}
       <FormProvider {...form}>
         <form
           className="page-stack"
           noValidate
-          onSubmit={handleSubmit((data) => save(data, false))}
+          onSubmit={handleSubmit((data) => save(data, !!editing))}
         >
           <div className="invoice-bottom-grid">
             <Card className="invoice-form-card">
@@ -158,24 +204,26 @@ export function CreateInvoicePage() {
           <InvoiceItemFields />
           <div className="invoice-bottom-grid">
             <div className="page-stack">
-              <Card className="invoice-form-card">
-                <h2>Payment</h2>
-                <div className="form-grid">
-                  <Input
-                    label="Amount Paid (PKR)"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    {...register("amountPaid", { valueAsNumber: true })}
-                    error={errors.amountPaid?.message}
-                  />
-                  <Select label="Payment Method" {...register("method")}>
-                    {paymentMethods.map((m) => (
-                      <option key={m}>{m}</option>
-                    ))}
-                  </Select>
-                </div>
-              </Card>
+              {!editing && (
+                <Card className="invoice-form-card">
+                  <h2>Payment</h2>
+                  <div className="form-grid">
+                    <Input
+                      label="Amount Paid (PKR)"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      {...register("amountPaid", { valueAsNumber: true })}
+                      error={errors.amountPaid?.message}
+                    />
+                    <Select label="Payment Method" {...register("method")}>
+                      {paymentMethods.map((m) => (
+                        <option key={m}>{m}</option>
+                      ))}
+                    </Select>
+                  </div>
+                </Card>
+              )}
               <Card className="invoice-form-card">
                 <Textarea
                   label="Notes"
@@ -216,29 +264,45 @@ export function CreateInvoicePage() {
           {errors.root && <Alert>{errors.root.message}</Alert>}
           <Card className="invoice-action-bar">
             <div className="actions">
+              {editing ? (
+                <Button
+                  disabled={busy}
+                  onClick={() => navigate(`/invoices/${editing.id}`)}
+                >
+                  Cancel
+                </Button>
+              ) : (
+                <Button
+                  disabled={busy}
+                  onClick={() =>
+                    void handleSubmit((data) => save(data, true))()
+                  }
+                >
+                  Save Draft
+                </Button>
+              )}
               <Button
-                disabled={createInvoice.isPending}
-                onClick={() => void handleSubmit((data) => save(data, true))()}
-              >
-                Save Draft
-              </Button>
-              <Button
-                disabled={createInvoice.isPending}
+                disabled={busy}
                 onClick={() =>
                   void handleSubmit((data) =>
-                    setPreview(buildInvoicePreview(data)),
+                    setPreview({
+                      ...buildInvoicePreview(data),
+                      ...(editing
+                        ? { id: editing.id, displayId: editing.displayId }
+                        : {}),
+                    }),
                   )()
                 }
               >
                 Preview
               </Button>
             </div>
-            <Button
-              variant="primary"
-              type="submit"
-              loading={createInvoice.isPending}
-            >
-              {isBill ? "Create Bill" : "Create Invoice"}
+            <Button variant="primary" type="submit" loading={busy}>
+              {editing
+                ? "Save Changes"
+                : isBill
+                  ? "Create Bill"
+                  : "Create Invoice"}
             </Button>
           </Card>
         </form>

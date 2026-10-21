@@ -62,6 +62,7 @@ export function InvoiceDetailPage() {
       await updateInvoice.mutateAsync({
         id: invoice.id,
         draft: false,
+        revision: invoice.revision,
         data: {
           partyId: invoice.partyId,
           date: invoice.date,
@@ -129,6 +130,11 @@ export function InvoiceDetailPage() {
               {
                 label: "View Party",
                 onSelect: () => navigate(`/parties/${invoice.partyId}`),
+              },
+              {
+                label: "Edit Draft",
+                disabled: invoice.status !== "Draft" || updateInvoice.isPending,
+                onSelect: () => navigate(`/invoices/${invoice.id}/edit`),
               },
               {
                 label: "Issue Draft",

@@ -75,17 +75,32 @@ export function useFinanceMutations() {
       id,
       data,
       draft,
+      revision,
     }: {
       id: string;
       data: InvoiceInput;
       draft: boolean;
-    }) => invoiceService.updateInvoice(business, id, data, draft),
+      revision?: string;
+    }) => invoiceService.updateInvoice(business, id, data, draft, revision),
     onSuccess: refresh,
+  });
+  const editDraft = useMutation({
+    mutationFn: ({
+      id,
+      data,
+      revision,
+    }: {
+      id: string;
+      data: InvoiceInput;
+      revision: string;
+    }) => invoiceService.saveDraft(business, id, data, revision),
+    onSuccess: refresh,
+    onError: refresh,
   });
   const recordPayment = useMutation({
     mutationFn: (data: RecordPaymentInput) =>
       paymentService.createPayment(business, data),
     onSuccess: refresh,
   });
-  return { saveParty, createInvoice, updateInvoice, recordPayment };
+  return { saveParty, createInvoice, updateInvoice, editDraft, recordPayment };
 }

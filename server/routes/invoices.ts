@@ -1,3 +1,5 @@
+import { z } from "zod";
+import { editDraft } from "../services/editDraft.js";
 import { randomUUID } from "node:crypto";
 import type { FastifyInstance } from "fastify";
 import type { DatabasePool } from "../db/client.js";
@@ -127,12 +129,36 @@ export async function invoiceRoutes(
     },
   );
   app.patch<{ Params: Params }>(
+    "/api/businesses/:businessId/invoices/:id/draft",
+    async (request) => {
+      const businessId = id.parse(request.params.businessId);
+      const invoiceId = id.parse(request.params.id);
+      await auth.requireMembership(request, businessId);
+      const { data, revision } = z
+        .object({
+          data: invoiceInput,
+          revision: z.string().regex(/^\d+$/),
+        })
+        .strict()
+        .parse(request.body);
+      await editDraft(pool, businessId, invoiceId, data, revision);
+      return invoiceDto(pool, businessId, invoiceId);
+    },
+  );
+  app.patch<{ Params: Params }>(
     "/api/businesses/:businessId/invoices/:id",
     async (request) => {
       const businessId = id.parse(request.params.businessId);
       const invoiceId = id.parse(request.params.id);
       const membership = await auth.requireMembership(request, businessId);
       const input = invoiceInput.parse(request.body);
+      const { revision } = z
+        .object({ revision: z.string().regex(/^\d+$/).optional() })
+        .parse(request.body);
+      if (input.draft) {
+        await editDraft(pool, businessId, invoiceId, input, revision);
+        return invoiceDto(pool, businessId, invoiceId);
+      }
       const client = await pool.connect();
       try {
         await client.query("begin");
@@ -162,6 +188,27 @@ export async function invoiceRoutes(
             "INVOICE_NOT_DRAFT",
             "Only drafts can be edited.",
           );
+        if (
+          current.party_id !== draft.party_id ||
+          input.partyId !== current.party_id
+        )
+          throw new ApiError(
+            409,
+            "DRAFT_CHANGED",
+            "Save party changes before issuing this draft.",
+          );
+        if (revision !== undefined) {
+          const version = await client.query(
+            "select xmin::text as revision from invoices where id=$1 and business_id=$2",
+            [invoiceId, businessId],
+          );
+          if (version.rows[0].revision !== revision)
+            throw new ApiError(
+              409,
+              "DRAFT_CHANGED",
+              "This draft changed. Refresh its details before issuing.",
+            );
+        }
         await client.query("delete from invoice_items where invoice_id=$1", [
           invoiceId,
         ]);

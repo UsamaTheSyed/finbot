@@ -126,11 +126,45 @@ export const invoiceService = {
         })
       : httpApi.post(base(businessId), { ...value, draft });
   },
+  saveDraft(
+    businessId: string,
+    id: string,
+    input: InvoiceInput,
+    revision: string,
+  ): Promise<Invoice> {
+    const value = invoiceSchema.parse(input);
+    return useMock
+      ? mockResponse(() => {
+          const current = requireInvoice(businessId, id);
+          if (current.status !== "Draft" || current.transactionId)
+            throw new Error("Only drafts can be edited.");
+          if ((current.revision ?? "0") !== revision)
+            throw new Error(
+              "This draft changed. Reopen Edit Draft before saving.",
+            );
+          if (
+            requireParty(businessId, current.partyId).kind !==
+            requireParty(businessId, value.partyId).kind
+          )
+            throw new Error("Choose a party of the same kind.");
+          const updated = prepare(businessId, value, true, id);
+          Object.assign(current, updated, {
+            displayId: current.displayId,
+            revision: String(Number(revision) + 1),
+          });
+          return { ...current };
+        })
+      : httpApi.patch(`${base(businessId)}/${encodeURIComponent(id)}/draft`, {
+          data: { ...value, draft: true },
+          revision,
+        });
+  },
   updateInvoice(
     businessId: string,
     id: string,
     input: InvoiceInput,
     draft = true,
+    revision?: string,
   ): Promise<Invoice> {
     const value = invoiceSchema.parse(input);
     return useMock
@@ -140,7 +174,11 @@ export const invoiceService = {
             throw new Error("Only drafts can be edited in this phase.");
           if (value.amountPaid > 0)
             throw new Error("Issue the draft first, then record its payment.");
+          if (revision !== undefined && (current.revision ?? "0") !== revision)
+            throw new Error("This draft changed. Refresh before issuing.");
           const updated = prepare(businessId, value, draft, id);
+          updated.displayId = current.displayId;
+          updated.revision = String(Number(current.revision ?? "0") + 1);
           const transaction = draft
             ? undefined
             : transactionFromInvoice(updated);
@@ -154,6 +192,7 @@ export const invoiceService = {
       : httpApi.patch(`${base(businessId)}/${encodeURIComponent(id)}`, {
           ...value,
           draft,
+          revision,
         });
   },
 };

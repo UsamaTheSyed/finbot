@@ -62,6 +62,7 @@ export interface InvoiceItem {
   taxPercent: number;
 }
 export interface Invoice {
+  revision?: string;
   /** Human-readable number. Optional for existing mock fixtures/previews. */
   displayId?: string;
   id: string;
