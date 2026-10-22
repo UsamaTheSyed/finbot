@@ -1,3 +1,4 @@
+import { correctionRoutes } from "./routes/corrections.js";
 import { statementRoutes } from "./routes/statements.js";
 import { invoicePdfRoutes } from "./routes/invoicePdf.js";
 import Fastify from "fastify";
@@ -54,6 +55,7 @@ export async function buildApp(
   await statementRoutes(app, pool, security);
   await transactionRoutes(app, pool, security);
   await invoiceRoutes(app, pool, security);
+  await correctionRoutes(app, pool, security);
   await invoicePdfRoutes(app, pool, security);
   await paymentRoutes(app, pool, security);
   await workspaceRoutes(app, pool, security);

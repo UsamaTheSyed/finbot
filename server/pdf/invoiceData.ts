@@ -12,6 +12,7 @@ export interface Contact {
   kind?: string;
 }
 export interface InvoicePdfData {
+  corrections?: { date: string; reason: string; deltaMinor: number }[];
   invoice: Awaited<ReturnType<typeof invoiceDto>>;
   business: Contact;
   party: Contact;
@@ -60,9 +61,18 @@ export async function loadInvoicePdf(
       group by p.id order by p.date,p.id`,
       [id, businessId],
     );
+    const corrections = await client.query(
+      "select date,reason,total_delta from invoice_corrections where business_id=$1 and invoice_id=$2 order by created_at,id",
+      [businessId, id],
+    );
     await client.query("commit");
     return {
       invoice,
+      corrections: corrections.rows.map((c) => ({
+        date: c.date,
+        reason: c.reason,
+        deltaMinor: Number(c.total_delta),
+      })),
       party: contact(party),
       business: contact(business.rows[0]),
       payments: payments.rows.map((p) => ({

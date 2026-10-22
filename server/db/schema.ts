@@ -1,4 +1,5 @@
 import {
+  foreignKey,
   bigint,
   boolean,
   check,
@@ -548,5 +549,69 @@ export const paymentTransactionAllocations = pgTable(
       "payment_transaction_allocations_amount_minor_check",
       sql`${table.amountMinor} > 0`,
     ),
+  ],
+);
+
+// Append-only via application APIs. Snapshots retain the original document and
+// every confirmed revision; references prevent deleting corrected ledger records.
+export const invoiceCorrections = pgTable(
+  "invoice_corrections",
+  {
+    id: text("id").primaryKey(),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "restrict" }),
+    invoiceId: text("invoice_id")
+      .notNull()
+      .references(() => invoices.id, { onDelete: "restrict" }),
+    transactionId: text("transaction_id")
+      .notNull()
+      .references(() => transactions.id, { onDelete: "restrict" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    date: date("date").notNull(),
+    reason: text("reason").notNull(),
+    before: jsonb("before").notNull(),
+    after: jsonb("after").notNull(),
+    subtotalDelta: bigint("subtotal_delta", { mode: "number" }).notNull(),
+    taxDelta: bigint("tax_delta", { mode: "number" }).notNull(),
+    discountDelta: bigint("discount_delta", { mode: "number" }).notNull(),
+    totalDelta: bigint("total_delta", { mode: "number" }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("invoice_corrections_invoice_date_idx").on(t.invoiceId, t.date),
+    check(
+      "invoice_corrections_delta_valid",
+      sql`${t.totalDelta} = ${t.subtotalDelta} + ${t.taxDelta} - ${t.discountDelta}`,
+    ),
+  ],
+);
+
+export const paymentAllocationEvents = pgTable(
+  "payment_allocation_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    paymentId: text("payment_id").notNull(),
+    transactionId: text("transaction_id").notNull(),
+    amountMinor: bigint("amount_minor", { mode: "number" }).notNull(),
+    effectiveDate: date("effective_date").notNull(),
+  },
+  (t) => [
+    foreignKey({
+      columns: [t.paymentId, t.transactionId],
+      foreignColumns: [
+        paymentTransactionAllocations.paymentId,
+        paymentTransactionAllocations.transactionId,
+      ],
+    }).onDelete("cascade"),
+    index("allocation_events_transaction_date_idx").on(
+      t.transactionId,
+      t.effectiveDate,
+    ),
+    check("allocation_events_amount_positive", sql`${t.amountMinor} > 0`),
   ],
 );

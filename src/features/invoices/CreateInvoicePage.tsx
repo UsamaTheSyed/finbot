@@ -1,5 +1,5 @@
 import { fromMinor } from "../../utils/money";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,7 +34,19 @@ import { InvoiceDocument, invoiceSummaryRows } from "./InvoiceDocument";
 export function CreateInvoicePage() {
   return <InvoiceForm />;
 }
-export function InvoiceForm({ initialInvoice }: { initialInvoice?: Invoice }) {
+export function InvoiceForm({
+  initialInvoice,
+  correction,
+  extraFields,
+}: {
+  initialInvoice?: Invoice;
+  extraFields?: ReactNode;
+  correction?: {
+    onReview: (data: InvoiceInput) => void;
+    pending: boolean;
+    today: string;
+  };
+}) {
   // Capture the revision with the form's initial values; background refetches must
   // never silently make stale user edits look current.
   const [editing] = useState(initialInvoice);
@@ -92,9 +104,19 @@ export function InvoiceForm({ initialInvoice }: { initialInvoice?: Invoice }) {
   } = form;
   const values = watch(),
     calculated = tryInvoicePreview(values);
-  const busy = createInvoice.isPending || editDraft.isPending;
+  if (correction && editing && calculated.invoice) {
+    calculated.invoice.paidMinor = editing.paidMinor;
+    calculated.invoice.balanceMinor =
+      calculated.invoice.totalMinor - editing.paidMinor;
+  }
+  const busy =
+    createInvoice.isPending || editDraft.isPending || !!correction?.pending;
   async function save(data: InvoiceInput, draft: boolean) {
     if (busy) return;
+    if (correction) {
+      correction.onReview(data);
+      return;
+    }
     if (
       !parties.data?.some((p) => p.id === data.partyId && p.kind === partyKind)
     ) {
@@ -123,26 +145,34 @@ export function InvoiceForm({ initialInvoice }: { initialInvoice?: Invoice }) {
     <div className="page-stack finance-page create-invoice-page">
       <PageHeader
         title={
-          editing
+          correction
             ? isBill
-              ? "Edit Bill Draft"
-              : "Edit Invoice Draft"
-            : isBill
-              ? "New Bill"
-              : "New Invoice"
+              ? "Correct Supplier Bill"
+              : "Correct Invoice"
+            : editing
+              ? isBill
+                ? "Edit Bill Draft"
+                : "Edit Invoice Draft"
+              : isBill
+                ? "New Bill"
+                : "New Invoice"
         }
         subtitle={
-          isBill
-            ? "Record a supplier bill and track amounts payable"
-            : "Draft and dispatch customer ledger values"
+          correction
+            ? "Record a dated correction with revision history"
+            : isBill
+              ? "Record a supplier bill and track amounts payable"
+              : "Draft and dispatch customer ledger values"
         }
       />
       {editing && (
         <Alert tone="info">
-          Editing {editing.displayId ?? editing.id}. Saving keeps this document
-          as a draft and does not post a balance or payment.
+          {correction
+            ? "Review the corrected values, provide a reason, then confirm. The original document and payment history are retained."
+            : `Editing ${editing.displayId ?? editing.id}. Saving keeps this document as a draft and does not post a balance or payment.`}
         </Alert>
       )}
+      {extraFields}
       <FormProvider {...form}>
         <form
           className="page-stack"
@@ -159,6 +189,7 @@ export function InvoiceForm({ initialInvoice }: { initialInvoice?: Invoice }) {
               <div className="form-grid">
                 <Select
                   label={partyKind}
+                  disabled={!!correction}
                   {...register("partyId")}
                   error={errors.partyId?.message}
                 >
@@ -178,11 +209,13 @@ export function InvoiceForm({ initialInvoice }: { initialInvoice?: Invoice }) {
                 />
                 <DatePicker
                   label={isBill ? "Bill Date" : "Invoice Date"}
+                  readOnly={!!correction}
                   {...register("date")}
                   error={errors.date?.message}
                 />
                 <DatePicker
                   label="Due Date"
+                  readOnly={!!correction}
                   {...register("dueDate")}
                   error={errors.dueDate?.message}
                 />
@@ -288,7 +321,27 @@ export function InvoiceForm({ initialInvoice }: { initialInvoice?: Invoice }) {
                     setPreview({
                       ...buildInvoicePreview(data),
                       ...(editing
-                        ? { id: editing.id, displayId: editing.displayId }
+                        ? {
+                            id: editing.id,
+                            displayId: editing.displayId,
+                            ...(correction
+                              ? {
+                                  paidMinor: editing.paidMinor,
+                                  balanceMinor:
+                                    buildInvoicePreview(data).totalMinor -
+                                    editing.paidMinor,
+                                  status:
+                                    buildInvoicePreview(data).totalMinor ===
+                                    editing.paidMinor
+                                      ? "Paid"
+                                      : editing.paidMinor > 0
+                                        ? "Partial"
+                                        : editing.dueDate < correction.today
+                                          ? "Overdue"
+                                          : "Sent",
+                                }
+                              : {}),
+                          }
                         : {}),
                     }),
                   )()
@@ -298,11 +351,13 @@ export function InvoiceForm({ initialInvoice }: { initialInvoice?: Invoice }) {
               </Button>
             </div>
             <Button variant="primary" type="submit" loading={busy}>
-              {editing
-                ? "Save Changes"
-                : isBill
-                  ? "Create Bill"
-                  : "Create Invoice"}
+              {correction
+                ? "Review Correction"
+                : editing
+                  ? "Save Changes"
+                  : isBill
+                    ? "Create Bill"
+                    : "Create Invoice"}
             </Button>
           </Card>
         </form>

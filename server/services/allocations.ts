@@ -35,7 +35,7 @@ export async function allocationTargets(
     );
   const result = await client.query(
     `
-    select t.id, coalesce(i.display_id,t.display_id) display_id, i.id invoice_id, t.date,
+    select t.id, coalesce(i.display_id,t.display_id) display_id, i.id invoice_id, greatest(t.date,coalesce((select max(c.date) from invoice_corrections c where c.transaction_id=t.id),t.date)) as date,
       t.total_minor-coalesce((select sum(s.amount_minor) from ledger_settlements s where s.transaction_id=t.id),0) balance_minor
     from transactions t left join invoices i on i.transaction_id=t.id and i.business_id=t.business_id
     where t.business_id=$1 and t.party_id=$2 and t.type=$3 and (i.id is null or i.status<>'Draft')
@@ -92,7 +92,7 @@ export async function applyAdvance(
       await client.query(
         `insert into payment_transaction_allocations(payment_id,transaction_id,amount_minor,effective_date)
         values($1,$2,$3,$4) on conflict(payment_id,transaction_id) do update
-        set amount_minor=payment_transaction_allocations.amount_minor+excluded.amount_minor`,
+        set amount_minor=payment_transaction_allocations.amount_minor+excluded.amount_minor,effective_date=excluded.effective_date`,
         [
           payment.id,
           allocation.transactionId,

@@ -29,6 +29,13 @@
       "when": 1791829261205,
       "tag": "0003_fifo_allocations",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792622174825,
+      "tag": "0004_invoice_corrections",
+      "breakpoints": true
     }
   ]
 }

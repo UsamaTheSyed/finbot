@@ -105,6 +105,16 @@ export async function validatePayment(
       "Payment direction does not match the linked record.",
     );
   if (transaction) {
+    const correction = await client.query(
+      "select max(date) date from invoice_corrections where business_id=$1 and transaction_id=$2",
+      [businessId, transaction.id],
+    );
+    if (correction.rows[0]?.date && input.date < correction.rows[0].date)
+      throw new ApiError(
+        400,
+        "PAYMENT_DATE_INVALID",
+        "Payment date cannot precede the latest financial correction.",
+      );
     const transactionDate =
       transaction.date instanceof Date
         ? transaction.date.toISOString().slice(0, 10)

@@ -132,6 +132,16 @@ export async function transactionRoutes(
           transactionId,
           true,
         );
+        const corrections = await client.query(
+          "select 1 from invoice_corrections where business_id=$1 and transaction_id=$2 limit 1",
+          [businessId, transactionId],
+        );
+        if (corrections.rowCount)
+          throw new ApiError(
+            409,
+            "CORRECTED_DOCUMENT",
+            "This document has correction history. Use its financial correction workflow; direct editing or deletion is locked.",
+          );
         const conflict = await client.query(
           `select exists(select 1 from invoices where business_id=$1 and transaction_id=$2 and due_date < $3)
         or exists(select 1 from payments where business_id=$1 and transaction_id=$2 and date < $3)
@@ -222,6 +232,16 @@ export async function transactionRoutes(
           transactionId,
           true,
         );
+        const corrections = await client.query(
+          "select 1 from invoice_corrections where business_id=$1 and transaction_id=$2 limit 1",
+          [businessId, transactionId],
+        );
+        if (corrections.rowCount)
+          throw new ApiError(
+            409,
+            "CORRECTED_DOCUMENT",
+            "This document has correction history. Use its financial correction workflow; direct editing or deletion is locked.",
+          );
         const allocated = await client.query(
           "select 1 from payment_transaction_allocations where transaction_id=$1 limit 1",
           [transactionId],

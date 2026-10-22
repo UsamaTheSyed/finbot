@@ -109,6 +109,14 @@ export const routes: RouteObject[] = [
         }),
       },
       {
+        path: "invoices/:id/correct",
+        lazy: async () => ({
+          Component: (
+            await import("../../features/invoices/CorrectInvoicePage")
+          ).CorrectInvoicePage,
+        }),
+      },
+      {
         path: "invoices/:id/edit",
         lazy: async () => ({
           Component: (await import("../../features/invoices/EditInvoicePage"))

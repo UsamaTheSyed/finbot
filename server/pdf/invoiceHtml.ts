@@ -63,6 +63,7 @@ export function invoiceHtml(data: InvoicePdfData, fonts: string) {
     <title>${escapeHtml(name)} ${escapeHtml(i.displayId || i.id)}</title><style>${fonts}${invoicePdfStyles(tokens)}</style></head><body>
     <header>${logo}<div>${details(business)}</div><div class="document-title"><h1>${name}</h1><strong>${escapeHtml(i.displayId || i.id)}</strong><p class="status">${escapeHtml(i.status)}</p></div></header>
     ${i.status === "Draft" ? '<p class="draft">DRAFT - Not issued. No amount is due from this draft.</p>' : ""}
+    ${data.corrections?.length ? `<h2>Corrected document</h2><p>Current values include the following adjustments. Original revisions remain available in FinBot.</p><table><thead><tr><th>Date</th><th>Reason</th><th>Adjustment</th></tr></thead><tbody>${data.corrections.map((c) => `<tr><td>${escapeHtml(c.date)}</td><td>${escapeHtml(c.reason)}</td><td>${money(c.deltaMinor)}</td></tr>`).join("")}</tbody></table>` : ""}
     <div class="info"><section><h2>${name} Details</h2><dl>${[
       [`${name} Date`, i.date],
       ["Due Date", i.dueDate],

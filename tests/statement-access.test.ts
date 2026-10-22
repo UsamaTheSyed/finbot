@@ -90,7 +90,7 @@ test("statement snapshot reads scoped movements once and never allocation rows",
             assert.deepEqual(params, ["business-1"]);
             return { rows: [{ name: "Business" }] };
           }
-          if (sql.includes("from transactions")) {
+          if (sql.includes("from ledger_movements")) {
             assert.deepEqual(params, ["business-1", "party-1"]);
             return {
               rows: [

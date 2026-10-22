@@ -40,7 +40,7 @@ export async function financialReport(
       `select
           coalesce(sum(total_minor) filter(where type='Sale'),0)::bigint sales,
           coalesce(sum(total_minor) filter(where type='Purchase'),0)::bigint purchases
-         from transactions where business_id=$1 and date=$2`,
+         from ledger_movements where business_id=$1 and date=$2`,
       [businessId, period],
     );
     const payments = await pool.query(
@@ -76,12 +76,13 @@ export async function financialReport(
   const { start, end } = monthBounds(period);
   if (kind === "ar-aging") {
     const result = await pool.query(
-      `select party.name, i.due_date, i.total_minor-coalesce(sum(pa.amount_minor) filter(where p.status='Completed' and coalesce(fa.effective_date,p.date)<=$2),0) balance_minor
+      `select party.name,i.due_date,
+         i.total_minor-coalesce(c.future_delta,0)-coalesce(s.paid,0) balance_minor
          from invoices i join parties party on party.id=i.party_id
-         left join payment_allocations pa on pa.invoice_id=i.id left join payments p on p.id=pa.payment_id
-         left join payment_transaction_allocations fa on fa.payment_id=p.id and fa.transaction_id=i.transaction_id
+         left join (select invoice_id,sum(total_delta) future_delta from invoice_corrections where date>$2 group by invoice_id) c on c.invoice_id=i.id
+         left join (select transaction_id,sum(amount_minor) paid from ledger_settlements where effective_date<=$2 group by transaction_id) s on s.transaction_id=i.transaction_id
          where i.business_id=$1 and i.status<>'Draft' and i.date<=$2 and party.kind='Customer'
-         group by i.id,party.name having i.total_minor-coalesce(sum(pa.amount_minor) filter(where p.status='Completed' and coalesce(fa.effective_date,p.date)<=$2),0)>0`,
+         and i.total_minor-coalesce(c.future_delta,0)-coalesce(s.paid,0)>0`,
       [businessId, end],
     );
     if (!result.rows.length) return null;
@@ -134,7 +135,7 @@ export async function financialReport(
     const result = await pool.query(
       `select coalesce(sum(total_minor) filter(where type='Sale'),0)::bigint revenue,
                 coalesce(sum(total_minor) filter(where type='Purchase'),0)::bigint expenses,count(*)::int count
-         from transactions where business_id=$1 and date between $2 and $3`,
+         from ledger_movements where business_id=$1 and date between $2 and $3`,
       [businessId, start, end],
     );
     if (!result.rows[0].count) return null;
@@ -144,7 +145,7 @@ export async function financialReport(
       `select to_char(date_trunc('month', date), 'YYYY-MM') AS "month",
           coalesce(sum(total_minor) filter(where type='Sale'),0)::bigint revenue,
           coalesce(sum(total_minor) filter(where type='Purchase'),0)::bigint expenses
-         from transactions where business_id=$1 and date >= ($2::date - interval '5 months') and date <= $3
+         from ledger_movements where business_id=$1 and date >= ($2::date - interval '5 months') and date <= $3
          group by 1 order by 1`,
       [businessId, start, end],
     );

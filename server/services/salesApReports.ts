@@ -16,11 +16,11 @@ export async function salesApReport(
   if (kind === "sales" || kind === "purchases") {
     // One posted transaction per row; payment and item joins would duplicate sales.
     const result = await pool.query(
-      `select t.id,t.display_id,t.date,party.name,
+      `select t.id,t.display_id,t.date,party.name,t.is_correction,
       t.subtotal_minor,t.discount_minor,t.tax_minor,t.total_minor,
       i.id invoice_id,i.display_id invoice_display_id
-      from transactions t join parties party on party.id=t.party_id and party.business_id=t.business_id
-      left join invoices i on i.transaction_id=t.id and i.business_id=t.business_id
+      from ledger_movements t join parties party on party.id=t.party_id and party.business_id=t.business_id
+      left join invoices i on i.transaction_id=t.transaction_id and i.business_id=t.business_id
       where t.business_id=$1 and t.type=$4 and t.date between $2 and $3
       order by t.date desc,t.id`,
       [businessId, start, end, kind === "sales" ? "Sale" : "Purchase"],
@@ -29,7 +29,9 @@ export async function salesApReport(
       period,
       result.rows.map((r) => ({
         id: r.display_id,
-        displayId: r.invoice_display_id || r.display_id,
+        displayId: r.is_correction
+          ? `Correction ${r.invoice_display_id || r.display_id}`
+          : r.invoice_display_id || r.display_id,
         invoiceId: r.invoice_id || undefined,
         date: r.date,
         party: r.name,
@@ -44,13 +46,13 @@ export async function salesApReport(
   // The settlement view includes manual and FIFO payments once, with the allocation's effective date.
   const result = await pool.query(
     `select party.id party_id,party.name,i.date,i.due_date,
-    i.total_minor-coalesce(s.paid_minor,0) balance_minor
+    (i.total_minor-coalesce((select sum(c.total_delta) from invoice_corrections c where c.invoice_id=i.id and c.date>$2),0))-coalesce(s.paid_minor,0) balance_minor
     from invoices i join parties party on party.id=i.party_id and party.business_id=i.business_id
     left join (select transaction_id,business_id,sum(amount_minor) paid_minor
       from ledger_settlements where business_id=$1 and effective_date<=$2
       group by transaction_id,business_id) s on s.transaction_id=i.transaction_id and s.business_id=i.business_id
     where i.business_id=$1 and party.kind='Supplier' and i.status<>'Draft' and i.date<=$2
-      and i.total_minor-coalesce(s.paid_minor,0)>0`,
+      and (i.total_minor-coalesce((select sum(c.total_delta) from invoice_corrections c where c.invoice_id=i.id and c.date>$2),0))-coalesce(s.paid_minor,0)>0`,
     [businessId, end],
   );
   return payableAging(

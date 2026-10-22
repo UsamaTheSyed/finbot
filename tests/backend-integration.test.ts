@@ -1,3 +1,4 @@
+import { correctionIntegration } from "./helpers/correctionIntegration";
 import { draftEditIntegration } from "./helpers/draftEditIntegration";
 import { verifyPdfAccess } from "./helpers/pdfIntegration";
 import { allocationIntegration } from "./helpers/allocationIntegration";
@@ -391,6 +392,7 @@ test(
       await botIntegration(t, setup.pool);
       await allocationIntegration(t, setup.pool);
       await draftEditIntegration(t, app, setup.pool, headers);
+      await correctionIntegration(t, app, setup.pool, headers);
     } finally {
       await app.close();
       await setup.pool.end();

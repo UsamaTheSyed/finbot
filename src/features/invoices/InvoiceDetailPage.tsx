@@ -1,3 +1,4 @@
+import { CorrectionHistory } from "./CorrectionHistory";
 import { invoiceService } from "../../services/invoiceService";
 import { savePdfDownload } from "../../utils/pdfDownload";
 import { useState } from "react";
@@ -137,6 +138,11 @@ export function InvoiceDetailPage() {
                 onSelect: () => navigate(`/invoices/${invoice.id}/edit`),
               },
               {
+                label: "Correct Document",
+                disabled: invoice.status === "Draft" || updateInvoice.isPending,
+                onSelect: () => navigate(`/invoices/${invoice.id}/correct`),
+              },
+              {
                 label: "Issue Draft",
                 disabled: invoice.status !== "Draft" || updateInvoice.isPending,
                 onSelect: () => void issueDraft(),
@@ -177,6 +183,9 @@ export function InvoiceDetailPage() {
         />
         <FinancialSummary rows={invoiceSummaryRows(invoice)} />
       </div>
+      {invoice.status !== "Draft" && (
+        <CorrectionHistory id={invoice.id} party={party} />
+      )}
       {payment && (
         <RecordPaymentDialog
           partyId={invoice.partyId}

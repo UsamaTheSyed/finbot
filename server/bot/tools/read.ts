@@ -59,8 +59,8 @@ export async function readTool(
     const summary = `${party.name} (${party.kind})\nLedger balance: ${pkr(party.balanceMinor)}\nPositive = receivable; negative = payable/credit.`;
     if (e.intent !== "GET_PARTY_STATEMENT") return summary;
     const rows = await client.query(
-      `select date,display_id,type as label,total_minor as amount from transactions where business_id=$1 and party_id=$2
-      union all select date,display_id,direction as label,amount_minor as amount from payments where business_id=$1 and party_id=$2 and status='Completed'
+      `select date,display_id,case when is_correction then type::text || ' correction' else type::text end as label,total_minor as amount from ledger_movements where business_id=$1 and party_id=$2
+      union all select date,display_id,direction::text as label,amount_minor as amount from payments where business_id=$1 and party_id=$2 and status='Completed'
       order by date desc,display_id limit 20`,
       [businessId, party.id],
     );

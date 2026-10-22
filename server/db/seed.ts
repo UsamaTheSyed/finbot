@@ -44,6 +44,10 @@ export async function seedDevelopment(pool: Pool) {
   const client = await pool.connect();
   try {
     await client.query("begin");
+    // Explicit demo/test reset includes its correction history.
+    await client.query(
+      "delete from invoice_corrections where business_id='business-1'",
+    );
 
     await client.query(
       "delete from payment_transaction_allocations where payment_id in (select id from payments where business_id='business-1')",
