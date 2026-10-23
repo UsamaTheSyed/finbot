@@ -1,3 +1,4 @@
+import { CreditPanel } from "../credits/CreditPanel";
 import { useWorkspace } from "../../hooks/useWorkspace";
 import {
   statementRangeSchema,
@@ -201,6 +202,7 @@ export function PartyDetailPage() {
           Record Sale
         </Button>
       </div>
+      <CreditPanel partyId={party.id} />
       <Tabs
         defaultValue={
           params.get("tab") === "Statement" ? "Statement" : "Overview"

@@ -12,6 +12,12 @@ export interface Contact {
   kind?: string;
 }
 export interface InvoicePdfData {
+  creditHistory?: {
+    date: string;
+    kind: string;
+    amountMinor: number;
+    reason: string;
+  }[];
   corrections?: { date: string; reason: string; deltaMinor: number }[];
   invoice: Awaited<ReturnType<typeof invoiceDto>>;
   business: Contact;
@@ -65,9 +71,20 @@ export async function loadInvoicePdf(
       "select date,reason,total_delta from invoice_corrections where business_id=$1 and invoice_id=$2 order by created_at,id",
       [businessId, id],
     );
+    const credits = await client.query(
+      `select date,'Credit note' as kind,total_minor amount_minor,reason from credit_notes where business_id=$1 and invoice_id=$2
+    union all select x.date,case when x.kind='refund' then 'Refund' else 'Credit applied' end,x.amount_minor,x.reason from credit_uses x join credit_notes n on n.id=x.credit_id where x.business_id=$1 and (x.transaction_id=$3 or (x.kind='refund' and n.invoice_id=$2)) order by date`,
+      [businessId, id, invoice.transactionId || null],
+    );
     await client.query("commit");
     return {
       invoice,
+      creditHistory: credits.rows.map((c) => ({
+        date: c.date,
+        kind: c.kind,
+        amountMinor: Number(c.amount_minor),
+        reason: c.reason,
+      })),
       corrections: corrections.rows.map((c) => ({
         date: c.date,
         reason: c.reason,

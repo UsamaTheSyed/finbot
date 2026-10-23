@@ -1,3 +1,4 @@
+import { creditRoutes } from "./routes/credits.js";
 import { correctionRoutes } from "./routes/corrections.js";
 import { statementRoutes } from "./routes/statements.js";
 import { invoicePdfRoutes } from "./routes/invoicePdf.js";
@@ -56,6 +57,7 @@ export async function buildApp(
   await transactionRoutes(app, pool, security);
   await invoiceRoutes(app, pool, security);
   await correctionRoutes(app, pool, security);
+  await creditRoutes(app, pool, security);
   await invoicePdfRoutes(app, pool, security);
   await paymentRoutes(app, pool, security);
   await workspaceRoutes(app, pool, security);

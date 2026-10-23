@@ -159,7 +159,20 @@ export function TransactionDetailPage() {
                 transaction.tax,
               ],
               ["Total Amount", transaction.total],
-              ["Paid Amount", transaction.paid],
+              ...(transaction.credited
+                ? [
+                    ["Credits", -transaction.credited],
+                    [
+                      "Net Total",
+                      transaction.netTotal ??
+                        transaction.total - transaction.credited,
+                    ],
+                  ]
+                : []),
+              [
+                transaction.credited ? "Allocated after credit" : "Paid Amount",
+                transaction.paid,
+              ],
               ["Balance Outstanding", transaction.balance],
             ].map(([label, amount]) => (
               <div key={label}>

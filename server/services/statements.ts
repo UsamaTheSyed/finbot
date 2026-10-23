@@ -30,7 +30,7 @@ export async function loadStatement(
     const business = businessResult.rows[0];
     if (!business) throw new ApiError(404, "NOT_FOUND", "Workspace not found.");
     const transactions = await client.query(
-      `select t.id,t.date,t.type,t.total_minor,t.is_correction,
+      `select t.id,t.date,t.type,t.total_minor,t.is_correction,t.movement_kind,
       i.id as invoice_id,i.display_id from ledger_movements t
       left join invoices i on i.transaction_id=t.transaction_id and i.business_id=t.business_id
       where t.business_id=$1 and t.party_id=$2`,
@@ -46,10 +46,18 @@ export async function loadStatement(
       ...transactions.rows.map((t) => ({
         id: `transaction:${t.id}`,
         date: t.date,
-        reference: t.is_correction
-          ? `Correction ${t.display_id || t.id}`
-          : t.display_id || t.id,
-        label: t.is_correction ? `${t.type} correction` : t.type,
+        reference:
+          t.movement_kind === "credit"
+            ? `Credit ${t.id}`
+            : t.is_correction
+              ? `Correction ${t.display_id || t.id}`
+              : t.display_id || t.id,
+        label:
+          t.movement_kind === "credit"
+            ? `${t.type} credit`
+            : t.is_correction
+              ? `${t.type} correction`
+              : t.type,
         amountMinor:
           safeMinor(Number(t.total_minor)) * (t.type === "Sale" ? 1 : -1),
         href: t.invoice_id

@@ -615,3 +615,94 @@ export const paymentAllocationEvents = pgTable(
     check("allocation_events_amount_positive", sql`${t.amountMinor} > 0`),
   ],
 );
+
+export const creditNotes = pgTable(
+  "credit_notes",
+  {
+    id: text("id").primaryKey(),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "restrict" }),
+    partyId: text("party_id")
+      .notNull()
+      .references(() => parties.id, { onDelete: "restrict" }),
+    invoiceId: text("invoice_id")
+      .notNull()
+      .references(() => invoices.id, { onDelete: "restrict" }),
+    transactionId: text("transaction_id")
+      .notNull()
+      .references(() => transactions.id, { onDelete: "restrict" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    date: date("date").notNull(),
+    reason: text("reason").notNull(),
+    subtotalMinor: bigint("subtotal_minor", { mode: "number" }).notNull(),
+    taxMinor: bigint("tax_minor", { mode: "number" }).notNull(),
+    discountMinor: bigint("discount_minor", { mode: "number" }).notNull(),
+    totalMinor: bigint("total_minor", { mode: "number" }).notNull(),
+    fundedMinor: bigint("funded_minor", { mode: "number" }).notNull(),
+    before: jsonb("before").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("credit_notes_party_idx").on(t.businessId, t.partyId),
+    index("credit_notes_invoice_idx").on(t.invoiceId),
+    check(
+      "credit_note_money",
+      sql`${t.subtotalMinor}>=0 and ${t.taxMinor}>=0 and ${t.discountMinor}>=0 and ${t.discountMinor}<=${t.subtotalMinor} and ${t.totalMinor}=${t.subtotalMinor}+${t.taxMinor}-${t.discountMinor} and ${t.totalMinor}>0 and ${t.fundedMinor}>=0 and ${t.fundedMinor}<=${t.totalMinor}`,
+    ),
+  ],
+);
+export const creditUses = pgTable(
+  "credit_uses",
+  {
+    id: text("id").primaryKey(),
+    creditId: text("credit_id")
+      .notNull()
+      .references(() => creditNotes.id, { onDelete: "restrict" }),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "restrict" }),
+    transactionId: text("transaction_id").references(() => transactions.id, {
+      onDelete: "restrict",
+    }),
+    paymentId: text("payment_id").references(() => payments.id, {
+      onDelete: "restrict",
+    }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    kind: text("kind").notNull(),
+    amountMinor: bigint("amount_minor", { mode: "number" }).notNull(),
+    date: date("date").notNull(),
+    reason: text("reason").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("credit_uses_note_idx").on(t.creditId),
+    check(
+      "credit_use_valid",
+      sql`${t.amountMinor}>0 and ((${t.kind}='application' and ${t.transactionId} is not null and ${t.paymentId} is null) or (${t.kind}='refund' and ${t.paymentId} is not null and ${t.transactionId} is null))`,
+    ),
+  ],
+);
+export const creditOperations = pgTable("credit_operations", {
+  id: text("id").primaryKey(),
+  businessId: text("business_id")
+    .notNull()
+    .references(() => businesses.id, { onDelete: "restrict" }),
+  partyId: text("party_id")
+    .notNull()
+    .references(() => parties.id, { onDelete: "restrict" }),
+  kind: text("kind").notNull(),
+  payload: jsonb("payload").notNull(),
+  response: jsonb("response").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});

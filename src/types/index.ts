@@ -33,6 +33,8 @@ export interface TransactionItem {
   rate: number;
 }
 export interface Transaction {
+  credited?: number;
+  netTotal?: number;
   id: string;
   businessId: string;
   date: string;
@@ -62,6 +64,8 @@ export interface InvoiceItem {
   taxPercent: number;
 }
 export interface Invoice {
+  creditedMinor?: number;
+  netTotalMinor?: number;
   revision?: string;
   /** Human-readable number. Optional for existing mock fixtures/previews. */
   displayId?: string;

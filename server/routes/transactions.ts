@@ -62,7 +62,7 @@ export async function transactionRoutes(
         case
           when t.total_minor - coalesce(paid.paid_minor, 0) = 0
             then 'Completed'
-          when coalesce(paid.paid_minor, 0) > 0
+          when coalesce(paid.paid_minor, 0) - coalesce((select sum(c.total_minor) from credit_notes c where c.transaction_id=t.id),0) > 0
             then 'Partial'
           when t.due_date < ${businessDateParameter}
             then 'Overdue'
@@ -133,7 +133,7 @@ export async function transactionRoutes(
           true,
         );
         const corrections = await client.query(
-          "select 1 from invoice_corrections where business_id=$1 and transaction_id=$2 limit 1",
+          "select 1 from invoice_corrections where business_id=$1 and transaction_id=$2 union all select 1 from credit_notes where business_id=$1 and transaction_id=$2 union all select 1 from credit_uses where business_id=$1 and transaction_id=$2 limit 1",
           [businessId, transactionId],
         );
         if (corrections.rowCount)
@@ -233,7 +233,7 @@ export async function transactionRoutes(
           true,
         );
         const corrections = await client.query(
-          "select 1 from invoice_corrections where business_id=$1 and transaction_id=$2 limit 1",
+          "select 1 from invoice_corrections where business_id=$1 and transaction_id=$2 union all select 1 from credit_notes where business_id=$1 and transaction_id=$2 union all select 1 from credit_uses where business_id=$1 and transaction_id=$2 limit 1",
           [businessId, transactionId],
         );
         if (corrections.rowCount)

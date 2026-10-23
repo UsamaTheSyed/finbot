@@ -51,7 +51,21 @@ export function invoiceHtml(data: InvoicePdfData, fonts: string) {
     ["Tax", i.taxMinor, ""],
     ["Discount", -i.discountMinor, ""],
     ["Grand Total", i.totalMinor, "total"],
-    ["Amount Paid", i.paidMinor, "paid"],
+    ...(i.creditedMinor
+      ? ([
+          ["Credits", -i.creditedMinor, ""],
+          [
+            "Net Total",
+            i.netTotalMinor ?? i.totalMinor - i.creditedMinor,
+            "total",
+          ],
+        ] as [string, number, string][])
+      : []),
+    [
+      i.creditedMinor ? "Allocated after credit" : "Amount Paid",
+      i.paidMinor,
+      "paid",
+    ],
     [
       i.status === "Draft" ? "Projected Balance" : "Balance Due",
       i.balanceMinor,
@@ -75,6 +89,7 @@ export function invoiceHtml(data: InvoicePdfData, fonts: string) {
     <section><h2>${name === "Bill" ? "Supplier" : "Bill To"}</h2>${details(party)}</section></div>
     <table aria-label="${name} items"><colgroup><col style="width:35%"><col style="width:13%"><col style="width:18%"><col style="width:16%"><col style="width:18%"></colgroup><thead><tr>${["Description", "Qty / Unit", "Rate", "Tax", "Amount"].map((v) => `<th>${v}</th>`).join("")}</tr></thead><tbody>${calculated.items.map((l) => `<tr><td><strong dir="auto">${escapeHtml(l.item)}</strong>${l.description ? `<small dir="auto">${escapeHtml(l.description)}</small>` : ""}</td><td>${l.quantity}<small>${escapeHtml(l.unit)}</small></td><td>${money(l.rateMinor)}</td><td>${money(l.taxMinor)}<small>${l.taxPercent}%</small></td><td><strong>${money(l.baseMinor + l.taxMinor)}</strong></td></tr>`).join("")}</tbody></table>
     <section class="summary"><h2>${name} Summary</h2><dl>${summary.map(([k, v, c]) => `<div class="${c}"><dt>${k}</dt><dd>${money(v)}</dd></div>`).join("")}</dl></section>
+    ${data.creditHistory?.length ? `<h2>Credit and Refund History</h2><table><thead><tr><th>Date</th><th>Event</th><th>Amount</th><th>Reason</th></tr></thead><tbody>${data.creditHistory.map((c) => `<tr><td>${escapeHtml(c.date)}</td><td>${escapeHtml(c.kind)}</td><td>${money(c.amountMinor)}</td><td>${escapeHtml(c.reason)}</td></tr>`).join("")}</tbody></table><p class="caption">Credits reduce the original document total. Original payment allocations below remain in history; the summary shows the current net allocation. Refunds affect party cash, not the original receipt amount.</p>` : ""}
     ${payments.length ? `<h2>Payment History</h2><p class="caption">Amounts allocated to this ${name.toLowerCase()} only; includes applied advances.</p><table><thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Reference</th></tr></thead><tbody>${payments.map((p) => `<tr><td>${escapeHtml(p.date)}</td><td>${money(p.amountMinor)}</td><td>${escapeHtml(p.method)}</td><td>${escapeHtml(p.reference || "-")}</td></tr>`).join("")}</tbody></table>` : ""}
     ${[
       ["Notes", i.notes],

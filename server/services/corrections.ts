@@ -88,6 +88,16 @@ export async function correctInvoice(
         "The document changed. Reopen the correction.",
       );
     const before = await invoiceDto(client, businessId, invoiceId);
+    const credits = await client.query(
+      "select 1 from credit_notes where invoice_id=$1 union all select 1 from credit_uses where transaction_id=$2 limit 1",
+      [invoiceId, before.transactionId],
+    );
+    if (credits.rowCount)
+      throw new ApiError(
+        409,
+        "CREDIT_HISTORY",
+        "This document has credit history. Use another credit note; financial corrections are locked.",
+      );
     const context = await correctionContext(client, businessId, invoiceId);
     const plan = correctionPlan(before, input, context.today);
     await requireScopedRecord(

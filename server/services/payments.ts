@@ -5,7 +5,7 @@ import type { DatabasePool } from "../db/client.js";
 import { paymentInput, type PaymentInput } from "../domain/validation.js";
 import { toMinor } from "../domain/money.js";
 import { ApiError } from "../lib/errors.js";
-import { paymentDto, requireScopedRecord } from "./ledger.js";
+import { paymentDto, invoiceDto, requireScopedRecord } from "./ledger.js";
 
 export async function validatePayment(
   client: PoolClient,
@@ -14,7 +14,19 @@ export async function validatePayment(
   forcedTransactionId?: string,
 ) {
   const input = paymentInput.parse(raw);
-  await requireScopedRecord(client, "parties", businessId, input.partyId, true);
+  const party = await requireScopedRecord(
+    client,
+    "parties",
+    businessId,
+    input.partyId,
+    true,
+  );
+  if (input.direction !== (party.kind === "Customer" ? "Received" : "Sent"))
+    throw new ApiError(
+      400,
+      "DIRECTION_MISMATCH",
+      "Use Record Refund to return or recover funded credit.",
+    );
   if (input.allocationMode === "fifo") {
     if (input.invoiceId || forcedTransactionId)
       throw new ApiError(
@@ -106,14 +118,14 @@ export async function validatePayment(
     );
   if (transaction) {
     const correction = await client.query(
-      "select max(date) date from invoice_corrections where business_id=$1 and transaction_id=$2",
+      "select max(date) date from (select date from ledger_movements where business_id=$1 and transaction_id=$2 union all select effective_date from ledger_settlements where business_id=$1 and transaction_id=$2) activity",
       [businessId, transaction.id],
     );
     if (correction.rows[0]?.date && input.date < correction.rows[0].date)
       throw new ApiError(
         400,
         "PAYMENT_DATE_INVALID",
-        "Payment date cannot precede the latest financial correction.",
+        "Payment date cannot precede the latest financial activity.",
       );
     const transactionDate =
       transaction.date instanceof Date
@@ -131,14 +143,8 @@ export async function validatePayment(
 
   const amountMinor = toMinor(input.amount);
   if (invoice) {
-    const allocations = await client.query(
-      `select coalesce(sum(pa.amount_minor),0)::bigint as paid_minor
-         from payment_allocations pa join payments p on p.id=pa.payment_id
-         where pa.invoice_id=$1 and p.status='Completed'`,
-      [invoice.id],
-    );
-    const outstanding =
-      Number(invoice.total_minor) - Number(allocations.rows[0].paid_minor);
+    const current = await invoiceDto(client, businessId, String(invoice.id));
+    const outstanding = current.balanceMinor;
     if (amountMinor > outstanding)
       throw new ApiError(
         409,
@@ -218,15 +224,8 @@ export async function executePayment(
       "insert into payment_allocations (payment_id, invoice_id, amount_minor) values ($1,$2,$3)",
       [paymentId, invoice.id, amountMinor],
     );
-    const paid = await client.query(
-      `select coalesce(sum(pa.amount_minor),0)::bigint as paid_minor
-         from payment_allocations pa join payments p on p.id=pa.payment_id
-         where pa.invoice_id=$1 and p.status='Completed'`,
-      [invoice.id],
-    );
-    const paidMinor = Number(paid.rows[0].paid_minor);
-    const status =
-      paidMinor >= Number(invoice.total_minor) ? "Paid" : "Partial";
+    const current = await invoiceDto(client, businessId, String(invoice.id));
+    const status = current.status;
     await client.query(
       "update invoices set status=$2, updated_at=now() where id=$1",
       [invoice.id, status],

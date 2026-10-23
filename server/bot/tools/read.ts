@@ -29,7 +29,7 @@ export async function searchInvoice(
     `select i.id from invoices i where i.business_id=$1
     and ($2::text is null or i.party_id=$2)
     and ($3::text is null or lower(i.display_id)=lower($3) or lower(i.reference)=lower($3))
-    and (not $4::boolean or (i.status<>'Draft' and i.total_minor>coalesce((select sum(a.amount_minor) from payment_allocations a join payments p on p.id=a.payment_id where a.invoice_id=i.id and p.status='Completed'),0)))
+    and (not $4::boolean or (i.status<>'Draft' and i.total_minor>coalesce((select sum(a.amount_minor) from ledger_settlements a where a.transaction_id=i.transaction_id and a.business_id=i.business_id),0)))
     order by i.date desc,i.display_id limit 11`,
     [businessId, partyId ?? null, reference ?? null, outstanding],
   );
@@ -59,7 +59,7 @@ export async function readTool(
     const summary = `${party.name} (${party.kind})\nLedger balance: ${pkr(party.balanceMinor)}\nPositive = receivable; negative = payable/credit.`;
     if (e.intent !== "GET_PARTY_STATEMENT") return summary;
     const rows = await client.query(
-      `select date,display_id,case when is_correction then type::text || ' correction' else type::text end as label,total_minor as amount from ledger_movements where business_id=$1 and party_id=$2
+      `select date,display_id,case when movement_kind='credit' then type::text || ' credit' when is_correction then type::text || ' correction' else type::text end as label,total_minor as amount from ledger_movements where business_id=$1 and party_id=$2
       union all select date,display_id,direction::text as label,amount_minor as amount from payments where business_id=$1 and party_id=$2 and status='Completed'
       order by date desc,display_id limit 20`,
       [businessId, party.id],

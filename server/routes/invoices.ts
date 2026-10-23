@@ -30,15 +30,9 @@ export async function invoiceRoutes(
 
       const result = await pool.query(
         `select
-          i.*,
-          coalesce((
-            select sum(pa.amount_minor)
-            from payment_allocations pa
-            join payments p
-              on p.id = pa.payment_id
-              and p.status = 'Completed'
-            where pa.invoice_id = i.id
-          ), 0)::bigint as paid_minor
+          i.*, i.xmin::text as revision,
+          coalesce((select sum(s.amount_minor) from ledger_settlements s where s.transaction_id=i.transaction_id and s.business_id=i.business_id),0)::bigint settled_minor,
+          coalesce((select sum(c.total_minor) from credit_notes c where c.invoice_id=i.id),0)::bigint credited_minor
         from invoices i
         where i.business_id = $1
         order by i.date desc, i.display_id desc`,
@@ -47,11 +41,12 @@ export async function invoiceRoutes(
 
       return result.rows.map((row) => {
         const totalMinor = Number(row.total_minor);
-        const paidMinor = Number(row.paid_minor);
-        const balanceMinor = totalMinor - paidMinor;
+        const creditedMinor = Number(row.credited_minor || 0);
+        const paidMinor = Number(row.settled_minor) - creditedMinor;
+        const balanceMinor = totalMinor - creditedMinor - paidMinor;
         const status = invoiceStatus(
           row.status,
-          totalMinor,
+          totalMinor - creditedMinor,
           paidMinor,
           row.due_date,
         );
@@ -59,6 +54,7 @@ export async function invoiceRoutes(
         return {
           id: row.id,
           displayId: row.display_id,
+          revision: row.revision,
           businessId: row.business_id,
           transactionId: row.transaction_id || undefined,
           partyId: row.party_id,
@@ -70,6 +66,9 @@ export async function invoiceRoutes(
           taxMinor: Number(row.tax_minor),
           discountMinor: Number(row.discount_minor),
           totalMinor,
+          ...(creditedMinor
+            ? { creditedMinor, netTotalMinor: totalMinor - creditedMinor }
+            : {}),
           paidMinor,
           balanceMinor,
           status,

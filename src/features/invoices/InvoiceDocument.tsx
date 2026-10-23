@@ -119,7 +119,13 @@ export function invoiceSummaryRows(i: Invoice): [string, number][] {
     ["Tax", i.taxMinor],
     ["Discount", -i.discountMinor],
     ["Grand Total", i.totalMinor],
-    ["Paid", i.paidMinor],
+    ...(i.creditedMinor
+      ? ([
+          ["Credits", -i.creditedMinor],
+          ["Net Total", i.netTotalMinor ?? i.totalMinor - i.creditedMinor],
+        ] as [string, number][])
+      : []),
+    [i.creditedMinor ? "Allocated after credit" : "Paid", i.paidMinor],
     ["Balance Due", i.balanceMinor],
   ];
 }

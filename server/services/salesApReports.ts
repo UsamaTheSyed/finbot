@@ -16,7 +16,7 @@ export async function salesApReport(
   if (kind === "sales" || kind === "purchases") {
     // One posted transaction per row; payment and item joins would duplicate sales.
     const result = await pool.query(
-      `select t.id,t.display_id,t.date,party.name,t.is_correction,
+      `select t.id,t.display_id,t.date,party.name,t.is_correction,t.movement_kind,
       t.subtotal_minor,t.discount_minor,t.tax_minor,t.total_minor,
       i.id invoice_id,i.display_id invoice_display_id
       from ledger_movements t join parties party on party.id=t.party_id and party.business_id=t.business_id
@@ -29,9 +29,12 @@ export async function salesApReport(
       period,
       result.rows.map((r) => ({
         id: r.display_id,
-        displayId: r.is_correction
-          ? `Correction ${r.invoice_display_id || r.display_id}`
-          : r.invoice_display_id || r.display_id,
+        displayId:
+          r.movement_kind === "credit"
+            ? `Credit ${r.display_id}`
+            : r.is_correction
+              ? `Correction ${r.invoice_display_id || r.display_id}`
+              : r.invoice_display_id || r.display_id,
         invoiceId: r.invoice_id || undefined,
         date: r.date,
         party: r.name,

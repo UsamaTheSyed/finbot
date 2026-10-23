@@ -1,3 +1,5 @@
+import { CreditDialog } from "../credits/CreditDialog";
+import { CreditPanel } from "../credits/CreditPanel";
 import { CorrectionHistory } from "./CorrectionHistory";
 import { invoiceService } from "../../services/invoiceService";
 import { savePdfDownload } from "../../utils/pdfDownload";
@@ -30,6 +32,7 @@ export function InvoiceDetailPage() {
     notify = useToast();
   const [downloading, setDownloading] = useState(false);
   const [payment, setPayment] = useState(false);
+  const [credit, setCredit] = useState(false);
   if (!query.data || !parties.data || !payments.data)
     return <QueryState queries={[query, parties, payments]} back="/invoices" />;
   const invoice = query.data,
@@ -129,6 +132,13 @@ export function InvoiceDetailPage() {
             }
             items={[
               {
+                label: "Record Credit Note",
+                disabled:
+                  invoice.status === "Draft" ||
+                  (invoice.netTotalMinor ?? invoice.totalMinor) <= 0,
+                onSelect: () => setCredit(true),
+              },
+              {
                 label: "View Party",
                 onSelect: () => navigate(`/parties/${invoice.partyId}`),
               },
@@ -185,6 +195,17 @@ export function InvoiceDetailPage() {
       </div>
       {invoice.status !== "Draft" && (
         <CorrectionHistory id={invoice.id} party={party} />
+      )}
+      {invoice.status !== "Draft" && (
+        <CreditPanel partyId={invoice.partyId} invoiceId={invoice.id} />
+      )}
+      {credit && (
+        <CreditDialog
+          kind="note"
+          partyId={invoice.partyId}
+          invoice={invoice}
+          onClose={() => setCredit(false)}
+        />
       )}
       {payment && (
         <RecordPaymentDialog

@@ -49,6 +49,7 @@ export function useFinanceMutations() {
   const refresh = () =>
     Promise.all(
       [
+        "credits",
         "parties",
         "party",
         "invoices",

@@ -5,7 +5,7 @@ export async function partySummaries(pool: Queryable, businessId: string) {
     [businessId],
   );
   const transactionRows = await pool.query(
-    "select party_id,type,total_minor from transactions where business_id=$1",
+    "select party_id,type,total_minor from ledger_movements where business_id=$1",
     [businessId],
   );
   const paymentRows = await pool.query(
