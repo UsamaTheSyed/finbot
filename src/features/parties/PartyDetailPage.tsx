@@ -190,17 +190,17 @@ export function PartyDetailPage() {
           <Plus size={16} />{" "}
           {party.kind === "Supplier" ? "Create Bill" : "Create Invoice"}
         </Button>
-        <Button
-          onClick={() =>
-            party.kind === "Customer"
-              ? navigate(
-                  `/invoices/new?party=${encodeURIComponent(party.id)}&kind=Customer`,
-                )
-              : notify("Use Create Bill to record a supplier purchase.")
-          }
-        >
-          Record Sale
-        </Button>
+        {party.kind === "Customer" && (
+          <Button
+            onClick={() =>
+              navigate(
+                `/invoices/new?party=${encodeURIComponent(party.id)}&kind=Customer`,
+              )
+            }
+          >
+            Record Sale
+          </Button>
+        )}
       </div>
       <CreditPanel partyId={party.id} />
       <Tabs

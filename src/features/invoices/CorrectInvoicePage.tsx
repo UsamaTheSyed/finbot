@@ -21,6 +21,16 @@ export function CorrectInvoicePage() {
     return (
       <QueryState queries={[invoice, parties, context]} back="/invoices" />
     );
+  if (invoice.data.hasCreditHistory)
+    return (
+      <div className="page-stack">
+        <Alert tone="info">
+          Corrections are unavailable because this document has credit history.
+          Existing records are preserved.
+        </Alert>
+        <Link to={`/invoices/${id}`}>Back to document</Link>
+      </div>
+    );
   if (invoice.data.status === "Draft")
     return (
       <div className="page-stack">

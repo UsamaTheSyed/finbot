@@ -112,16 +112,13 @@ export function InvoiceDetailPage() {
             <Download size={16} /> Download PDF
           </Button>
           <Button
-            onClick={() =>
-              notify("Invoice printing is planned for a later phase.")
-            }
+            disabled
+            title="Printing is not available yet. Use Download PDF."
           >
-            <Printer size={16} /> Print
+            <Printer size={16} /> Print (coming later)
           </Button>
-          <Button
-            onClick={() => notify("Messaging is planned for a later phase.")}
-          >
-            <Bell size={16} /> Send Reminder
+          <Button disabled title="Reminder delivery is not available yet.">
+            <Bell size={16} /> Send Reminder (coming later)
           </Button>
           <Dropdown
             label="More Actions"
@@ -149,7 +146,10 @@ export function InvoiceDetailPage() {
               },
               {
                 label: "Correct Document",
-                disabled: invoice.status === "Draft" || updateInvoice.isPending,
+                disabled:
+                  invoice.status === "Draft" ||
+                  !!invoice.hasCreditHistory ||
+                  updateInvoice.isPending,
                 onSelect: () => navigate(`/invoices/${invoice.id}/correct`),
               },
               {
@@ -168,6 +168,12 @@ export function InvoiceDetailPage() {
           Record Payment
         </Button>
       </Card>
+      {invoice.hasCreditHistory && (
+        <p role="note">
+          Corrections are unavailable because this document has credit history.
+          Existing records are preserved.
+        </p>
+      )}
       <Link id="invoice-party-link" to={`/parties/${invoice.partyId}`}>
         View {party?.name}'s account
       </Link>

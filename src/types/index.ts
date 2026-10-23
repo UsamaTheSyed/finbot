@@ -64,6 +64,7 @@ export interface InvoiceItem {
   taxPercent: number;
 }
 export interface Invoice {
+  hasCreditHistory?: boolean;
   creditedMinor?: number;
   netTotalMinor?: number;
   revision?: string;

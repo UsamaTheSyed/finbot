@@ -99,9 +99,9 @@ export function InvoicesPage() {
                           onSelect: () => navigate(`/invoices/${i.id}`),
                         },
                         {
-                          label: "Send Reminder",
-                          onSelect: () =>
-                            notify("Messaging is planned for a later phase."),
+                          label: "Send Reminder (coming later)",
+                          disabled: true,
+                          onSelect: () => {},
                         },
                         {
                           label: "Mark Paid",

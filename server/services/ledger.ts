@@ -112,6 +112,8 @@ export async function invoiceDto(
 ) {
   const result = await client.query(
     `select i.*, i.xmin::text as revision,
+       (exists(select 1 from credit_notes c where c.invoice_id=i.id and c.business_id=i.business_id)
+        or exists(select 1 from credit_uses c where c.transaction_id=i.transaction_id and c.business_id=i.business_id)) as has_credit_history,
        coalesce((select sum(s.amount_minor) from ledger_settlements s where s.transaction_id=i.transaction_id and s.business_id=i.business_id),0)::bigint settled_minor,
        coalesce((select sum(c.total_minor) from credit_notes c where c.invoice_id=i.id),0)::bigint credited_minor
      from invoices i where i.id=$1 and i.business_id=$2`,
@@ -137,6 +139,7 @@ export async function invoiceDto(
     id: row.id,
     displayId: row.display_id,
     revision: row.revision,
+    hasCreditHistory: Boolean(row.has_credit_history),
     businessId: row.business_id,
     transactionId: row.transaction_id || undefined,
     partyId: row.party_id,

@@ -96,7 +96,7 @@ export async function correctInvoice(
       throw new ApiError(
         409,
         "CREDIT_HISTORY",
-        "This document has credit history. Use another credit note; financial corrections are locked.",
+        "This document has credit history. Financial corrections are locked to preserve the recorded history.",
       );
     const context = await correctionContext(client, businessId, invoiceId);
     const plan = correctionPlan(before, input, context.today);

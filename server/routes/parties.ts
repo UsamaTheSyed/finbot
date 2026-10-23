@@ -103,41 +103,51 @@ export async function partyRoutes(
       const partyId = id.parse(request.params.id);
       await auth.requireMembership(request, businessId);
       const value = partyInput.parse(request.body);
-      const current = await pool.query(
-        "select * from parties where id = $1 and business_id = $2",
-        [partyId, businessId],
-      );
-      if (!current.rows[0])
-        throw new ApiError(404, "PARTY_NOT_FOUND", "Party not found.");
-      if (current.rows[0].kind !== value.kind) {
-        const linked = await pool.query(
-          `select exists(select 1 from transactions where business_id=$1 and party_id=$2)
+      const client = await pool.connect();
+      try {
+        await client.query("begin");
+        const current = await client.query(
+          "select * from parties where id = $1 and business_id = $2 for update",
+          [partyId, businessId],
+        );
+        if (!current.rows[0])
+          throw new ApiError(404, "PARTY_NOT_FOUND", "Party not found.");
+        if (current.rows[0].kind !== value.kind) {
+          const linked = await client.query(
+            `select exists(select 1 from transactions where business_id=$1 and party_id=$2)
           or exists(select 1 from invoices where business_id=$1 and party_id=$2)
           or exists(select 1 from payments where business_id=$1 and party_id=$2) as linked`,
-          [businessId, partyId],
-        );
-        if (linked.rows[0].linked)
-          throw new ApiError(
-            400,
-            "PARTY_KIND_LOCKED",
-            "Party type cannot change after financial records exist.",
+            [businessId, partyId],
           );
-      }
-      await pool.query(
-        `update parties set name=$3, kind=$4, phone=$5, email=$6, ntn=$7, address=$8, payment_terms=$9, updated_at=now()
+          if (linked.rows[0].linked)
+            throw new ApiError(
+              400,
+              "PARTY_KIND_LOCKED",
+              "Party type cannot change after financial records exist.",
+            );
+        }
+        await client.query(
+          `update parties set name=$3, kind=$4, phone=$5, email=$6, ntn=$7, address=$8, payment_terms=$9, updated_at=now()
        where id=$1 and business_id=$2`,
-        [
-          partyId,
-          businessId,
-          value.name,
-          value.kind,
-          value.phone,
-          value.email,
-          value.ntn,
-          value.address,
-          value.paymentTerms,
-        ],
-      );
+          [
+            partyId,
+            businessId,
+            value.name,
+            value.kind,
+            value.phone,
+            value.email,
+            value.ntn,
+            value.address,
+            value.paymentTerms,
+          ],
+        );
+        await client.query("commit");
+      } catch (error) {
+        await client.query("rollback");
+        throw error;
+      } finally {
+        client.release();
+      }
       return { ...value, id: partyId, businessId };
     },
   );

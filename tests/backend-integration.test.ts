@@ -1,3 +1,4 @@
+import { safetyIntegration } from "./helpers/safetyIntegration";
 import { creditIntegration } from "./helpers/creditIntegration";
 import { correctionIntegration } from "./helpers/correctionIntegration";
 import { draftEditIntegration } from "./helpers/draftEditIntegration";
@@ -395,6 +396,7 @@ test(
       await draftEditIntegration(t, app, setup.pool, headers);
       await correctionIntegration(t, app, setup.pool, headers);
       await creditIntegration(t, app, setup.pool, headers);
+      await safetyIntegration(t, app, setup.pool, headers);
     } finally {
       await app.close();
       await setup.pool.end();

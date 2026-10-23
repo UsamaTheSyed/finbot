@@ -140,7 +140,7 @@ export async function transactionRoutes(
           throw new ApiError(
             409,
             "CORRECTED_DOCUMENT",
-            "This document has correction history. Use its financial correction workflow; direct editing or deletion is locked.",
+            "This document has correction or credit history. Direct editing and deletion are locked to preserve that history.",
           );
         const conflict = await client.query(
           `select exists(select 1 from invoices where business_id=$1 and transaction_id=$2 and due_date < $3)
@@ -240,7 +240,7 @@ export async function transactionRoutes(
           throw new ApiError(
             409,
             "CORRECTED_DOCUMENT",
-            "This document has correction history. Use its financial correction workflow; direct editing or deletion is locked.",
+            "This document has correction or credit history. Direct editing and deletion are locked to preserve that history.",
           );
         const allocated = await client.query(
           "select 1 from payment_transaction_allocations where transaction_id=$1 limit 1",
@@ -252,14 +252,18 @@ export async function transactionRoutes(
             "ALLOCATED_TRANSACTION",
             "This transaction has allocated payments. Reverse allocations before deletion; no payment was deleted.",
           );
-        await client.query(
-          "delete from payment_allocations where payment_id in (select id from payments where business_id=$1 and transaction_id=$2)",
+        const payments = await client.query(
+          `select 1 from payments where business_id=$1 and transaction_id=$2
+           union all select 1 from payment_allocations a join invoices i on i.id=a.invoice_id
+           where i.business_id=$1 and i.transaction_id=$2 limit 1`,
           [businessId, transactionId],
         );
-        await client.query(
-          "delete from payments where business_id=$1 and transaction_id=$2",
-          [businessId, transactionId],
-        );
+        if (payments.rowCount)
+          throw new ApiError(
+            409,
+            "TRANSACTION_HAS_PAYMENTS",
+            "This transaction has payment history and cannot be deleted. No payment or cash record was changed.",
+          );
         await client.query(
           "delete from invoices where business_id=$1 and transaction_id=$2",
           [businessId, transactionId],

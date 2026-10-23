@@ -76,7 +76,7 @@ test("dashboard, filters, pagination and transaction navigation", async ({
   expect(errors).toEqual([]);
 });
 
-test("edit, validate payment, settle balance, and confirm deletion", async ({
+test("edit, validate payment, settle balance, and protect paid history", async ({
   page,
 }) => {
   // page.on("response", async (response) => {
@@ -130,10 +130,21 @@ test("edit, validate payment, settle balance, and confirm deletion", async ({
   await confirmation
     .getByRole("button", { name: "Delete", exact: true })
     .click();
-  await expect(page).toHaveURL(/\/transactions$/);
   await expect(
-    page.getByRole("link", { name: "View SALE-000128 for Ahmed Khan" }),
-  ).toHaveCount(0);
+    page.getByText(
+      "This transaction has payment history and cannot be deleted. No payment or cash record was changed.",
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await expect(page).toHaveURL(/\/transactions\/SALE-000128/);
+  await confirmation
+    .getByRole("button", { name: "Cancel", exact: true })
+    .click();
+  const retained = await page.request.get(
+    "/api/businesses/business-1/transactions/SALE-000128",
+  );
+  expect(retained.status()).toBe(200);
+  expect((await retained.json()).balance).toBe(0);
 });
 
 test("keyboard search, notifications, workspace and empty states", async ({

@@ -44,6 +44,15 @@ for (const kind of ["Customer", "Supplier"] as const)
     expect(result.status()).toBe(201);
     const invoice = await result.json();
     await page.goto(`/invoices/${invoice.id}`);
+    await expect(
+      page.getByRole("button", { name: "Print (coming later)", exact: true }),
+    ).toBeDisabled();
+    await expect(
+      page.getByRole("button", {
+        name: "Send Reminder (coming later)",
+        exact: true,
+      }),
+    ).toBeDisabled();
     await page
       .getByRole("button", { name: "More Actions", exact: true })
       .click();
@@ -94,7 +103,19 @@ for (const kind of ["Customer", "Supplier"] as const)
       paidMinor: 50000,
       balanceMinor: 0,
     });
+    await page.goto(`/invoices/${invoice.id}/correct`);
+    await expect(
+      page.getByText(
+        "Corrections are unavailable because this document has credit history. Existing records are preserved.",
+        { exact: true },
+      ),
+    ).toBeVisible();
+    await expect(page.getByLabel("Correction reason")).toHaveCount(0);
     await page.goto(`/parties/${party.id}`);
+    if (kind === "Supplier")
+      await expect(
+        page.getByRole("button", { name: "Record Sale", exact: true }),
+      ).toHaveCount(0);
     await page
       .getByRole("button", { name: "Record Refund", exact: true })
       .click();
@@ -169,6 +190,14 @@ for (const kind of ["Customer", "Supplier"] as const)
           p.amountMinor === 10000,
       ),
     ).toBe(true);
+    await page.goto(`/invoices/${target.id}`);
+    await page
+      .getByRole("button", { name: "More Actions", exact: true })
+      .click();
+    await expect(
+      page.getByRole("menuitem", { name: "Correct Document", exact: true }),
+    ).toBeDisabled();
+    await page.keyboard.press("Escape");
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,
