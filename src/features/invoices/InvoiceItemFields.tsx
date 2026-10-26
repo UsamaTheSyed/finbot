@@ -1,7 +1,8 @@
+import { useProducts } from "../inventory/queries";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { Plus, Trash2 } from "lucide-react";
 import type { InvoiceInput } from "../../domain/validation";
-import { Input } from "../../components/ui/Fields";
+import { Input, Select } from "../../components/ui/Fields";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Display";
 import { Table, TableHeader, TableRow } from "../../components/ui/Table";
@@ -17,7 +18,9 @@ export const blankInvoiceItem = {
   taxPercent: 0,
 };
 export function InvoiceItemFields() {
+  const products = useProducts();
   const {
+      setValue,
       control,
       register,
       watch,
@@ -60,6 +63,42 @@ export function InvoiceItemFields() {
             return (
               <TableRow key={field.id}>
                 <td>
+                  <Select
+                    label={`Product ${index + 1}`}
+                    value={items[index]?.productId || ""}
+                    onChange={(e) => {
+                      const p = products.data?.find(
+                        (p) => p.id === e.target.value,
+                      );
+                      setValue(`items.${index}.productId`, p?.id || "");
+                      if (p) {
+                        setValue(`items.${index}.item`, p.name);
+                        setValue(`items.${index}.unit`, p.unit);
+                      }
+                    }}
+                  >
+                    <option value="">Untracked item</option>
+                    {products.data
+                      ?.filter(
+                        (p) => p.active || p.id === items[index]?.productId,
+                      )
+                      .map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.sku} · {p.name}
+                        </option>
+                      ))}
+                  </Select>
+                  {products.error && (
+                    <span role="alert">
+                      Products unavailable.{" "}
+                      <button
+                        type="button"
+                        onClick={() => void products.refetch()}
+                      >
+                        Retry
+                      </button>
+                    </span>
+                  )}
                   <Input
                     label={`Item ${index + 1}`}
                     {...register(`items.${index}.item`)}

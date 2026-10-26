@@ -1,0 +1,209 @@
+{
+  "base_commit": "913dece",
+  "files": [
+    {
+      "path": "INVENTORY-REMINDERS-APPLY.md",
+      "sha256": "731e7c87873b1a629fec55b2acc1813a8aacb65513090740a297fbf1d44c5412"
+    },
+    {
+      "path": "package.json",
+      "sha256": "a027151a50ac2bc7eadd4eb629e0e60945ba63c12446d136ef42a9e0c23f64c3"
+    },
+    {
+      "path": "server/app.ts",
+      "sha256": "9ef6d28c5ab270caf5a6708775c1f2616cf892699922a087307883d6ececa976"
+    },
+    {
+      "path": "server/bot/channels/telegram.ts",
+      "sha256": "b3800a71582aa9fcbfcea51f72aa8c3b1e1667d7a61d0c61670e862e9e20a162"
+    },
+    {
+      "path": "server/bot/telegram.ts",
+      "sha256": "1dce5732dfbcf2ce4fc3a827f0a947bf71779f501bde5e882bab9b4de82ee4f8"
+    },
+    {
+      "path": "server/db/migrations/0006_inventory_reminders.sql",
+      "sha256": "3b76d7f3b47b33b8a8f798477dc7c33d6c446aa2a9ddbc2e18a939e73cd37c29"
+    },
+    {
+      "path": "server/db/migrations/meta/0006_snapshot.json",
+      "sha256": "f935725721d493a85ebdaa19bab2bf7de8b838d0a5f02330915dc9c1784726b9"
+    },
+    {
+      "path": "server/db/migrations/meta/_journal.json",
+      "sha256": "689e41952db660fbcdc5a62c6b58acfe8db31065f33635fceff5f4c62c94de30"
+    },
+    {
+      "path": "server/db/schema.ts",
+      "sha256": "2f9e82615f4c89a1cc228ce0da0f34a4600eb39ed70ef10c7314e25cfb79b31e"
+    },
+    {
+      "path": "server/db/seed.ts",
+      "sha256": "2ba483e90c4d5eb59447aca23af5a9185d28eb7882dd08fa991ef472ee550645"
+    },
+    {
+      "path": "server/domain/inventory.ts",
+      "sha256": "89b828a3d29ac6be640fc729b284d9ca9fd2ff43eb86b25448a9718843ab1a83"
+    },
+    {
+      "path": "server/domain/reminders.ts",
+      "sha256": "d82df337401e31eb386d1a7612061065e5ddb59febeeaef9a4900514d847ad5c"
+    },
+    {
+      "path": "server/domain/validation.ts",
+      "sha256": "d57f0ff51969ea732d7f8c40bb9ae7d00d9e44b3a0cd300ee8bf79b98e61d9c7"
+    },
+    {
+      "path": "server/reminderWorker.ts",
+      "sha256": "53ab166b34448d65024205b4dede41cfa0117fd4a318631edf0ef98c9f28947a"
+    },
+    {
+      "path": "server/routes/bot.ts",
+      "sha256": "c06a728bd2f766dcf3fab98e67010bf0334df60a86e7685f9bf76b7e8f66a311"
+    },
+    {
+      "path": "server/routes/inventory.ts",
+      "sha256": "7689936cf231ef45cca29fea257bad0378a1202505f59d0c81d49b8f860f75c1"
+    },
+    {
+      "path": "server/routes/reminders.ts",
+      "sha256": "5e9304bb5b2aef96ccc43ee392d06aa3bbd310fb4cfeb2c25b3ed8385e403a29"
+    },
+    {
+      "path": "server/routes/transactions.ts",
+      "sha256": "8de63c906268afcbd1ef997862cefaf72ca96f28e7849a3c5044e24a892ee423"
+    },
+    {
+      "path": "server/services/corrections.ts",
+      "sha256": "af290cf92223281cac54e51a29ba7e388f7de80a524cb40a98eeaddb329d3092"
+    },
+    {
+      "path": "server/services/editDraft.ts",
+      "sha256": "d28358faad5cb27bb718b065f15744ee49f51e58c035d9a3c592af359aaefe16"
+    },
+    {
+      "path": "server/services/inventory.ts",
+      "sha256": "bbfa680f3bea4cc7161a856bd090f4a43d77ef406dfbfec6b57431fdedf3347d"
+    },
+    {
+      "path": "server/services/invoices.ts",
+      "sha256": "a719af7012b0a388e30c6eb1d798b7155ff94e5a1c761e5a7b6e1d992a24fa18"
+    },
+    {
+      "path": "server/services/ledger.ts",
+      "sha256": "52ff447421cbf2f3e3209eabfa441672c9cf7154a8b33cf850d75c4470ad6194"
+    },
+    {
+      "path": "server/services/reminderRecipients.ts",
+      "sha256": "d95173eba334bb471232b353303f6157269606e18236d942868fdfe13c263ddd"
+    },
+    {
+      "path": "server/services/reminders.ts",
+      "sha256": "9da621b82ca0b7644138b6420dbd05d9c7cfe899cf3bcb842a377d5a97472323"
+    },
+    {
+      "path": "src/app/router/routes.tsx",
+      "sha256": "23d819701327e17a696e4154e9df506d569380665b1a05cc1107f9acfd495e66"
+    },
+    {
+      "path": "src/components/navigation/Header.tsx",
+      "sha256": "dddf80ecdc12239a153a52d14e0450777c797605ba82c973cfdcb14ddc813574"
+    },
+    {
+      "path": "src/components/navigation/Sidebar.tsx",
+      "sha256": "cee7a46ccd753acfbc3ced2a088580f49ce08ff6f8b39444ea3e57ace8a8a4e9"
+    },
+    {
+      "path": "src/domain/validation.ts",
+      "sha256": "641a6205456775ba5869824f973e004e7e8c8560268cbce50c4734fc470751b1"
+    },
+    {
+      "path": "src/features/finance/queries.ts",
+      "sha256": "1c0169dfa864081cd6af89d2a536f144abf99cfb038fd2a5db907ac29de4cb5e"
+    },
+    {
+      "path": "src/features/inventory/InventoryPage.tsx",
+      "sha256": "5307d0192dfbe13d9e9981b6e70cc42cf4bcb916c7d9334b5e4ca58602b14bb8"
+    },
+    {
+      "path": "src/features/inventory/ProductDetailPage.tsx",
+      "sha256": "d6ab2858e98bd5a03c433731564030c413c36115088cbd64addd10dc6f7eb68b"
+    },
+    {
+      "path": "src/features/inventory/ProductEditDialog.tsx",
+      "sha256": "3d88e32b1dca5fe22f331af465f1220901f9f130e729b218837efa1e0f9dc096"
+    },
+    {
+      "path": "src/features/inventory/queries.ts",
+      "sha256": "1289235b07691c041023bf6c0f714292906ef0fc0941ef4051511a182455a930"
+    },
+    {
+      "path": "src/features/invoices/CorrectInvoicePage.tsx",
+      "sha256": "02d123dc1fe11381f175dcf7182ff74988b35388b4e20eaed193f7aebb30ab5d"
+    },
+    {
+      "path": "src/features/invoices/InvoiceDetailPage.tsx",
+      "sha256": "6a8acd60762c1606f7008b384ea85c1bd8e1820b332ae8021c5f6a766d42be7f"
+    },
+    {
+      "path": "src/features/invoices/InvoiceItemFields.tsx",
+      "sha256": "ee4126dc4b582bf0e572166be1e6745905abc6e45b963d434cb546d043ee7a1d"
+    },
+    {
+      "path": "src/features/invoices/InvoicesPage.tsx",
+      "sha256": "82939cf9a625733f87b22fff1e8fb75dacb44dae2b058801a92095070936188f"
+    },
+    {
+      "path": "src/features/notifications/NotificationPopover.tsx",
+      "sha256": "76b72717bdd7fa92edd2844ee05baa65e4c9fe7d3e004b50f7fe3f4eeb32183d"
+    },
+    {
+      "path": "src/features/notifications/NotificationsPage.tsx",
+      "sha256": "1cb07930c162043e88017773ed38fa6a842ed9a8d032378e9a359c5edd6de295"
+    },
+    {
+      "path": "src/features/reminders/RemindersPage.tsx",
+      "sha256": "6baa7144d3f7cd5e189afa1fbb3bb8171cf52df6740c7e85caaca5dbada178ce"
+    },
+    {
+      "path": "src/services/inventoryService.ts",
+      "sha256": "eeccd9d96e5bf21f2b274325c5b5af0c21e5f368a9026fd1bad7b08f838d5f4a"
+    },
+    {
+      "path": "src/services/reminderService.ts",
+      "sha256": "4d4683b624b530b1e1de856f041986c54561302a3217165dae7ee8036a586f63"
+    },
+    {
+      "path": "src/styles/global.css",
+      "sha256": "aaf7a3b7852916dfaae0d55b0cf340e3a5218d14a85c853443a7ef1b5609ed35"
+    },
+    {
+      "path": "src/types/index.ts",
+      "sha256": "8c33122ff45c9b08f71b2e874f9f839c75c7e210935c4b3a0daec45c62ff79fd"
+    },
+    {
+      "path": "tests/backend-integration.test.ts",
+      "sha256": "389a3239024b5ddebc9de2463227006b2eee598e5a52d7d6cd49adcda2f054c6"
+    },
+    {
+      "path": "tests/browser/credits.spec.ts",
+      "sha256": "b8dd133b262b5a4144726d2861a6a1659469b5cb9361d7b17b835ca9e6386fd7"
+    },
+    {
+      "path": "tests/browser/inventory.spec.ts",
+      "sha256": "4a5ed500147ea9e90425651a88820a87e117cc34e80801ef8be6dabb686c06d5"
+    },
+    {
+      "path": "tests/browser/reminders.spec.ts",
+      "sha256": "21edb967361f7d241f4fe4c9008005b1dd34831a0b42bcf0c299400067918198"
+    },
+    {
+      "path": "tests/helpers/inventoryReminderIntegration.ts",
+      "sha256": "2da6f8ec3aad5bf1696f880efeb89f17d244fca2fe16f23af10c2ca2ff90b3ed"
+    },
+    {
+      "path": "tests/inventory-reminders.test.ts",
+      "sha256": "820ceec3c82a7f9b55a602026158e9fa6424a1ee7dbe3fab104172736cd1c1da"
+    }
+  ]
+}

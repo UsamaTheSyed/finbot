@@ -17,6 +17,7 @@ export function NotificationPopover() {
   const query = useQuery({
     queryKey: ["notifications", business],
     queryFn: () => notificationService.list(business),
+    refetchInterval: 15000,
   });
   const read = useMutation({
     mutationFn: (id: string) => notificationService.markRead(business, id),

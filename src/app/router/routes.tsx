@@ -56,6 +56,9 @@ export const routes: RouteObject[] = [
     hydrateFallbackElement: <LoadingSkeleton />,
     errorElement: <RouteError />,
     children: [
+      {path:"inventory",lazy:async()=>({Component:(await import("../../features/inventory/InventoryPage")).InventoryPage})},
+      {path:"inventory/:id",lazy:async()=>({Component:(await import("../../features/inventory/ProductDetailPage")).ProductDetailPage})},
+      {path:"reminders",lazy:async()=>({Component:(await import("../../features/reminders/RemindersPage")).RemindersPage})},
       { index: true, element: <Navigate to="/dashboard" replace /> },
       {
         path: "dashboard",

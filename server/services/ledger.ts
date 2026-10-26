@@ -152,6 +152,7 @@ export async function invoiceDto(
       description: item.description,
       quantity: Number(item.quantity_milli) / 1000,
       unit: item.unit,
+      productId: item.product_id || undefined,
       rateMinor: Number(item.rate_minor),
       taxPercent: Number(item.tax_basis_points) / 100,
     })),

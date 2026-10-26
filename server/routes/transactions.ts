@@ -132,6 +132,16 @@ export async function transactionRoutes(
           transactionId,
           true,
         );
+        const tracked = await client.query(
+          "select 1 from stock_movements s join invoices i on i.id=s.invoice_id where i.business_id=$1 and i.transaction_id=$2 limit 1",
+          [businessId, transactionId],
+        );
+        if (tracked.rowCount)
+          throw new ApiError(
+            409,
+            "STOCK_HISTORY",
+            "Stock-linked documents cannot be edited directly. Use a credit note and a separate stock adjustment.",
+          );
         const corrections = await client.query(
           "select 1 from invoice_corrections where business_id=$1 and transaction_id=$2 union all select 1 from credit_notes where business_id=$1 and transaction_id=$2 union all select 1 from credit_uses where business_id=$1 and transaction_id=$2 limit 1",
           [businessId, transactionId],
@@ -263,6 +273,18 @@ export async function transactionRoutes(
             409,
             "TRANSACTION_HAS_PAYMENTS",
             "This transaction has payment history and cannot be deleted. No payment or cash record was changed.",
+          );
+        const reminders=await client.query("select 1 from reminders r join invoices i on i.id=r.invoice_id where i.business_id=$1 and i.transaction_id=$2 limit 1",[businessId,transactionId]);
+        if(reminders.rowCount)throw new ApiError(409,"REMINDER_HISTORY","This document has reminder history and cannot be deleted. Use a credit note if the balance needs to be reduced.");
+        const stock = await client.query(
+          "select 1 from stock_movements s join invoices i on i.id=s.invoice_id where i.business_id=$1 and i.transaction_id=$2 limit 1",
+          [businessId, transactionId],
+        );
+        if (stock.rowCount)
+          throw new ApiError(
+            409,
+            "STOCK_HISTORY",
+            "Stock-linked documents cannot be deleted. Use a credit note and an explicit stock return.",
           );
         await client.query(
           "delete from invoices where business_id=$1 and transaction_id=$2",

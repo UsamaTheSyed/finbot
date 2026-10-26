@@ -55,6 +55,7 @@ export interface Transaction {
 }
 export type InvoiceStatus = "Draft" | "Sent" | "Paid" | "Partial" | "Overdue";
 export interface InvoiceItem {
+  productId?: string;
   id: string;
   item: string;
   description: string;

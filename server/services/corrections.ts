@@ -87,6 +87,8 @@ export async function correctInvoice(
         "DOCUMENT_CHANGED",
         "The document changed. Reopen the correction.",
       );
+    const tracked = await client.query("select 1 from stock_movements where invoice_id=$1 limit 1",[invoiceId]);
+    if (tracked.rowCount || input.data.items.some(i=>i.productId)) throw new ApiError(409,"STOCK_HISTORY","Stock-linked documents cannot be rewritten. Record a credit note for money and a separate stock return/adjustment for physical goods.");
     const before = await invoiceDto(client, businessId, invoiceId);
     const credits = await client.query(
       "select 1 from credit_notes where invoice_id=$1 union all select 1 from credit_uses where transaction_id=$2 limit 1",

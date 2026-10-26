@@ -1,3 +1,4 @@
+import { validateProducts,  } from "./inventory.js";
 import type { DatabasePool } from "../db/client.js";
 import { invoiceInput, type InvoiceInput } from "../domain/validation.js";
 import { calculateInvoice } from "../domain/money.js";
@@ -79,6 +80,7 @@ export async function editDraft(
         "PARTY_KIND_MISMATCH",
         "Keep the same document type: choose a party of the same kind.",
       );
+    await validateProducts(client, businessId, input.items);
     await client.query(
       `update invoices set party_id=$3,date=$4,due_date=$5,reference=$6,
        subtotal_minor=$7,tax_minor=$8,discount_minor=$9,total_minor=$10,
@@ -103,8 +105,8 @@ export async function editDraft(
     ]);
     for (const [position, item] of totals.items.entries()) {
       await client.query(
-        `insert into invoice_items (id,invoice_id,position,item,description,quantity_milli,unit,rate_minor,tax_basis_points)
-         values ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+        `insert into invoice_items (id,invoice_id,position,item,description,quantity_milli,unit,rate_minor,tax_basis_points,product_id)
+         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
         [
           `${invoiceId}-line-${position + 1}`,
           invoiceId,
@@ -115,6 +117,7 @@ export async function editDraft(
           item.unit,
           item.rateMinor,
           item.taxBasisPoints,
+          item.productId || null,
         ],
       );
     }

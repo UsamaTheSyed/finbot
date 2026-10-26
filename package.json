@@ -23,7 +23,9 @@
     "dev:bot": "tsx server/bot/telegram.ts",
     "bot:prune": "tsx server/bot/prune.ts",
     "test:bot": "node --import tsx --test tests/bot.test.ts",
-    "pdf:install": "playwright install chromium"
+    "pdf:install": "playwright install chromium",
+    "dev:reminders": "tsx server/reminderWorker.ts",
+    "start:reminders": "node server-dist/server/reminderWorker.js"
   },
   "dependencies": {
     "@fastify/cookie": "^11.1.2",

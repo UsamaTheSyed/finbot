@@ -1,3 +1,4 @@
+import { customerReminderCommand } from "../services/reminderRecipients.js";
 import { timingSafeEqual } from "node:crypto";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import type { Pool } from "pg";
@@ -131,7 +132,7 @@ export async function botRoutes(
         )
           return reply.status(403).send({ code: "WEBHOOK_UNAUTHORIZED" });
         try {
-          await dispatchTelegram(request.body, engine, transport);
+          await dispatchTelegram(request.body, engine, transport, m=>customerReminderCommand(pool,m));
           return { ok: true };
         } catch {
           return reply.status(503).send({ code: "BOT_RETRY" });

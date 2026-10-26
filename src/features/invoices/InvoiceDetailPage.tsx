@@ -117,8 +117,8 @@ export function InvoiceDetailPage() {
           >
             <Printer size={16} /> Print (coming later)
           </Button>
-          <Button disabled title="Reminder delivery is not available yet.">
-            <Bell size={16} /> Send Reminder (coming later)
+          <Button disabled={invoice.status === "Draft" || invoice.balanceMinor <= 0 || party?.kind !== "Customer"} onClick={()=>navigate(`/reminders?invoice=${invoice.id}`)}>
+            <Bell size={16} /> Send Reminder
           </Button>
           <Dropdown
             label="More Actions"
@@ -148,7 +148,7 @@ export function InvoiceDetailPage() {
                 label: "Correct Document",
                 disabled:
                   invoice.status === "Draft" ||
-                  !!invoice.hasCreditHistory ||
+                  !!invoice.hasCreditHistory || invoice.items.some(i=>i.productId) ||
                   updateInvoice.isPending,
                 onSelect: () => navigate(`/invoices/${invoice.id}/correct`),
               },
@@ -168,9 +168,9 @@ export function InvoiceDetailPage() {
           Record Payment
         </Button>
       </Card>
-      {invoice.hasCreditHistory && (
+      {(invoice.hasCreditHistory || invoice.items.some(i=>i.productId)) && (
         <p role="note">
-          Corrections are unavailable because this document has credit history.
+          Corrections are unavailable because this document has credit or stock history.
           Existing records are preserved.
         </p>
       )}

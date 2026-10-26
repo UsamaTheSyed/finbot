@@ -392,10 +392,35 @@ export const invoices = pgTable(
   ],
 );
 
+export const products = pgTable(
+  "products",
+  {
+    id: text("id").primaryKey(),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    sku: text("sku").notNull(),
+    name: text("name").notNull(),
+    unit: text("unit").notNull(),
+    stockMilli: bigint("stock_milli", { mode: "number" }).notNull().default(0),
+    minimumMilli: bigint("minimum_milli", { mode: "number" })
+      .notNull()
+      .default(0),
+    active: boolean("active").notNull().default(true),
+  },
+  (t) => [
+    uniqueIndex("products_workspace_sku").on(t.businessId, t.sku),
+    check(
+      "stock_nonnegative",
+      sql`${t.stockMilli}>=0 and ${t.minimumMilli}>=0`,
+    ),
+  ],
+);
 export const invoiceItems = pgTable(
   "invoice_items",
   {
     id: text("id").primaryKey(),
+    productId: text("product_id").references(() => products.id),
     invoiceId: text("invoice_id")
       .notNull()
       .references(() => invoices.id, { onDelete: "cascade" }),
@@ -706,3 +731,98 @@ export const creditOperations = pgTable("credit_operations", {
     .notNull()
     .defaultNow(),
 });
+
+export const stockMovements = pgTable(
+  "stock_movements",
+  {
+    id: text("id").primaryKey(),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    productId: text("product_id")
+      .notNull()
+      .references(() => products.id),
+    invoiceId: text("invoice_id").references(() => invoices.id),
+    deltaMilli: bigint("delta_milli", { mode: "number" }).notNull(),
+    date: date("date").notNull(),
+    kind: text("kind").notNull(),
+    reason: text("reason").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id),
+    requestId: text("request_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("stock_request_unique").on(t.businessId, t.requestId),
+    index("stock_product_date").on(t.productId, t.date),
+  ],
+);
+export const reminderRecipients = pgTable(
+  "reminder_recipients",
+  {
+    partyId: text("party_id")
+      .primaryKey()
+      .references(() => parties.id),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    chatId: text("chat_id"),
+    state: text("state").notNull().default("Disconnected"),
+    tokenHash: text("token_hash"),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    version: text("version").notNull(),
+    consentedAt: timestamp("consented_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("reminder_recipient_token").on(t.tokenHash),
+    check(
+      "reminder_recipient_state",
+      sql`${t.state} in ('Disconnected','Invited','Pending approval','Connected')`,
+    ),
+  ],
+);
+export const reminders = pgTable(
+  "reminders",
+  {
+    id: text("id").primaryKey(),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    invoiceId: text("invoice_id")
+      .notNull()
+      .references(() => invoices.id),
+    partyId: text("party_id")
+      .notNull()
+      .references(() => parties.id),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id),
+    recipientVersion: text("recipient_version").notNull(),
+    text: text("text").notNull(),
+    balanceMinor: bigint("balance_minor", { mode: "number" }).notNull(),
+    status: text("status").notNull().default("Queued"),
+    attempts: integer("attempts").notNull().default(0),
+    nextAttempt: timestamp("next_attempt", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    errorCode: text("error_code"),
+    messageId: text("message_id"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("reminder_queue").on(t.status, t.nextAttempt),
+    index("reminder_invoice_time").on(t.businessId, t.invoiceId, t.createdAt),
+    check(
+      "reminder_valid",
+      sql`${t.balanceMinor}>0 and ${t.attempts}>=0 and ${t.status} in ('Queued','Retry','Sending','Sent','Failed','Unknown','Cancelled')`,
+    ),
+  ],
+);

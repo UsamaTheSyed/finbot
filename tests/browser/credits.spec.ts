@@ -47,12 +47,9 @@ for (const kind of ["Customer", "Supplier"] as const)
     await expect(
       page.getByRole("button", { name: "Print (coming later)", exact: true }),
     ).toBeDisabled();
-    await expect(
-      page.getByRole("button", {
-        name: "Send Reminder (coming later)",
-        exact: true,
-      }),
-    ).toBeDisabled();
+    const reminder = page.getByRole("button", {name:"Send Reminder",exact:true});
+    if (kind === "Customer") await expect(reminder).toBeEnabled();
+    else await expect(reminder).toBeDisabled();
     await page
       .getByRole("button", { name: "More Actions", exact: true })
       .click();
@@ -106,7 +103,7 @@ for (const kind of ["Customer", "Supplier"] as const)
     await page.goto(`/invoices/${invoice.id}/correct`);
     await expect(
       page.getByText(
-        "Corrections are unavailable because this document has credit history. Existing records are preserved.",
+        "Corrections are unavailable because this document has credit or stock history. Existing records are preserved.",
         { exact: true },
       ),
     ).toBeVisible();

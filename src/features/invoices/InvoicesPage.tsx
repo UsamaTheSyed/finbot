@@ -99,9 +99,9 @@ export function InvoicesPage() {
                           onSelect: () => navigate(`/invoices/${i.id}`),
                         },
                         {
-                          label: "Send Reminder (coming later)",
-                          disabled: true,
-                          onSelect: () => {},
+                          label: "Send Reminder",
+                          disabled: i.status === "Draft" || i.balanceMinor <= 0 || parties.data?.find(p=>p.id===i.partyId)?.kind !== "Customer",
+                          onSelect: () => navigate(`/reminders?invoice=${i.id}`),
                         },
                         {
                           label: "Mark Paid",

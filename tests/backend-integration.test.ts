@@ -1,3 +1,4 @@
+import {inventoryReminderIntegration} from "./helpers/inventoryReminderIntegration";
 import { safetyIntegration } from "./helpers/safetyIntegration";
 import { creditIntegration } from "./helpers/creditIntegration";
 import { correctionIntegration } from "./helpers/correctionIntegration";
@@ -397,6 +398,7 @@ test(
       await correctionIntegration(t, app, setup.pool, headers);
       await creditIntegration(t, app, setup.pool, headers);
       await safetyIntegration(t, app, setup.pool, headers);
+      await inventoryReminderIntegration(t,app,setup.pool,headers);
     } finally {
       await app.close();
       await setup.pool.end();

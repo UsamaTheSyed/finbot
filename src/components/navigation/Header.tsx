@@ -28,6 +28,7 @@ export function Header({ onSearch }: { onSearch: () => void }) {
   });
   const segments = pathname.split("/").filter(Boolean);
   const titles: Record<string, string> = {
+    inventory:"Inventory", reminders:"Payment Reminders",
     "ar-aging": "A/R Aging",
     "ap-aging": "A/P Aging",
     sales: "Sales Report",

@@ -41,6 +41,7 @@ export const partySchema = z.object({
   paymentTerms: z.enum(["Due on receipt", "Net 15", "Net 30", "Net 60"]),
 });
 export const invoiceItemSchema = z.object({
+  productId: z.string().max(160).optional(),
   item: z.string().trim().min(1, "Item is required"),
   description: z.string().trim().max(250),
   quantity: z

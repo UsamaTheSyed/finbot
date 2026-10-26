@@ -1123,3 +1123,5 @@
     opacity: 0.45;
   }
 }
+
+.reminder-message { white-space: pre-wrap; overflow-wrap: anywhere; }

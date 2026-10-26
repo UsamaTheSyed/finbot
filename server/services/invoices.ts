@@ -1,3 +1,4 @@
+import { validateProducts, postInvoiceStock } from "./inventory.js";
 import { applyAdvance } from "./allocations.js";
 import { randomUUID } from "node:crypto";
 import type { PoolClient } from "pg";
@@ -21,6 +22,7 @@ export async function insertInvoiceGraph(
   );
   const direction = party.kind === "Supplier" ? "Sent" : "Received";
   const type = party.kind === "Supplier" ? "Purchase" : "Sale";
+  await validateProducts(client, businessId, input.items);
   const totals = calculateInvoice(input);
   const transactionId = input.draft
     ? null
@@ -57,8 +59,8 @@ export async function insertInvoiceGraph(
   for (const [position, item] of totals.items.entries()) {
     const itemId = `${invoiceId}-line-${position + 1}`;
     await client.query(
-      `insert into invoice_items (id,invoice_id,position,item,description,quantity_milli,unit,rate_minor,tax_basis_points)
-       values ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+      `insert into invoice_items (id,invoice_id,position,item,description,quantity_milli,unit,rate_minor,tax_basis_points,product_id)
+       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
       [
         itemId,
         invoiceId,
@@ -69,6 +71,7 @@ export async function insertInvoiceGraph(
         item.unit,
         item.rateMinor,
         item.taxBasisPoints,
+          item.productId || null,
       ],
     );
   }
@@ -146,6 +149,7 @@ export async function insertInvoiceGraph(
         [paymentId, invoiceId, totals.paidMinor],
       );
     }
+    await postInvoiceStock(client, businessId, userId, invoiceId, input, party.kind === "Supplier");
     await applyAdvance(client, businessId, input.partyId, direction);
   }
 }

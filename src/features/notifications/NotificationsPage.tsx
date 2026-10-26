@@ -36,6 +36,7 @@ export function NotificationsPage() {
   const query = useQuery({
     queryKey: key,
     queryFn: () => notificationService.list(business),
+    refetchInterval: 15000,
   });
   const refresh = () => client.invalidateQueries({ queryKey: key });
   const read = useMutation({

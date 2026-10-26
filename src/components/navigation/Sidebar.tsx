@@ -1,6 +1,8 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
   House,
+  Package,
+  Bell,
   Users,
   FileText,
   Receipt,
@@ -15,6 +17,8 @@ const links = [
   { href: "/transactions", label: "Transactions", icon: FileText },
   { href: "/invoices", label: "Invoices/Bills", icon: Receipt },
   { href: "/payments", label: "Payments", icon: Wallet },
+  { href:"/inventory",label:"Inventory",icon:Package },
+  { href:"/reminders",label:"Reminders",icon:Bell },
   { href: "/reports", label: "Reports", icon: ChartNoAxesColumn },
   { href: "/settings", label: "Settings", icon: Settings },
   { href: "/help", label: "Help", icon: CircleHelp },

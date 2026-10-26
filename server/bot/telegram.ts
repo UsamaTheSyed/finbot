@@ -1,3 +1,4 @@
+import { customerReminderCommand } from "../services/reminderRecipients.js";
 import { z } from "zod";
 import { loadConfig } from "../config.js";
 import { createDatabase } from "../db/client.js";
@@ -62,7 +63,7 @@ try {
           }),
         );
       for (const update of updates) {
-        await dispatchTelegram(update, engine, api);
+        await dispatchTelegram(update, engine, api, m=>customerReminderCommand(pool,m));
         offset = update.update_id + 1;
         await client.query(
           "insert into bot_runtime (key,value) values ($1,$2) on conflict(key) do update set value=excluded.value",

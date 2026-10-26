@@ -44,6 +44,9 @@ export async function seedDevelopment(pool: Pool) {
   const client = await pool.connect();
   try {
     await client.query("begin");
+    for (const table of ["reminders","reminder_recipients","stock_movements"]) await client.query(`delete from ${table} where business_id='business-1'`);
+    await client.query("update invoice_items set product_id=null where invoice_id in (select id from invoices where business_id='business-1')");
+    await client.query("delete from products where business_id='business-1'");
     // Explicit demo/test reset only: remove audit children before their parents.
     await client.query(
       "delete from credit_uses where business_id='business-1'",

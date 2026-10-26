@@ -43,6 +43,13 @@
       "when": 1792694900291,
       "tag": "0005_credit_notes",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792800112959,
+      "tag": "0006_inventory_reminders",
+      "breakpoints": true
     }
   ]
 }

@@ -114,11 +114,12 @@ export async function dispatchTelegram(
   raw: unknown,
   engine: { handle(m: InboundMessage): Promise<OutgoingMessage> },
   transport: TelegramTransport,
+  customerHandler?: (m: InboundMessage) => Promise<OutgoingMessage | undefined>,
 ) {
   const normalized = normalizeTelegram(raw);
   if (!normalized) return;
   if (normalized.callbackId)
     await transport.acknowledge(normalized.callbackId).catch(() => {});
-  const response = await engine.handle(normalized.message);
+  const response = (await customerHandler?.(normalized.message)) ?? (await engine.handle(normalized.message));
   await transport.send(normalized.message.externalChatId, response);
 }
