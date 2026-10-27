@@ -65,6 +65,8 @@ export interface InvoiceItem {
   taxPercent: number;
 }
 export interface Invoice {
+  stockMode?:"Immediate"|"Deferred";
+  warehouseId?:string;
   hasCreditHistory?: boolean;
   creditedMinor?: number;
   netTotalMinor?: number;

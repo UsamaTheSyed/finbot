@@ -142,26 +142,12 @@ export async function inventoryReminderIntegration(
       );
       assert.deepEqual(results.map((r) => r.statusCode).sort(), [201, 409]);
       assert.equal(await stock(), 1250);
-      const movement = {
-        requestId: randomUUID(),
-        date: "2026-11-28",
-        kind: "Customer return",
-        quantity: 1,
-        reason: "Goods physically received",
-      };
-      await post(`/inventory/${product.id}/adjustments`, movement);
-      await post(`/inventory/${product.id}/adjustments`, movement);
-      assert.equal(await stock(), 2250);
-      await post(
-        `/inventory/${product.id}/adjustments`,
-        { ...movement, quantity: 2 },
-        409,
-      );
-      await post(
-        `/inventory/${product.id}/adjustments`,
-        { ...movement, requestId: randomUUID(), date: "2026-11-27" },
-        409,
-      );
+      const movement = { requestId:randomUUID(),date:"2026-11-28",kind:"Customer return",quantity:1,reason:"Goods physically received",productId:product.id,warehouseId:"main:business-1",lineId:`${saleId}:${product.id}` };
+      await post("/stock/operations",movement);
+      await post("/stock/operations",movement);
+      assert.equal(await stock(),2250);
+      await post("/stock/operations",{...movement,quantity:2},409);
+      await post("/stock/operations",{...movement,requestId:randomUUID(),date:"2026-11-27"},400);
       assert.equal(await stock(), 2250);
     },
   );

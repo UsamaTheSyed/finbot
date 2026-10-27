@@ -1,0 +1,182 @@
+{
+  "baseline": "822af4e",
+  "migration": "0007_warehouse_inventory",
+  "files": [
+    {
+      "path": "server/app.ts",
+      "sha256": "29bc0144d3a915c856e41b0c463407297671e1e10023bf848310ba7d8d3ef9fd"
+    },
+    {
+      "path": "server/db/migrations/0007_warehouse_inventory.sql",
+      "sha256": "12d9e4a07c94088b892f6e1a887ac4ba63cdd703a1872a06d2e3b98fded36ee6"
+    },
+    {
+      "path": "server/db/migrations/meta/0007_snapshot.json",
+      "sha256": "3c671cda7dfbd1801a5f226acb86429a3509e4bdf62b408d9788f4d4d9b6318d"
+    },
+    {
+      "path": "server/db/migrations/meta/_journal.json",
+      "sha256": "ed97207cff1bf1e63357b651335005cdf579cc0240f8cb72dfd47772f99dd07f"
+    },
+    {
+      "path": "server/db/schema.ts",
+      "sha256": "1d4b724b4eb13e6d682575d8b54922fb286d371b6453fcf016615b9fb0809717"
+    },
+    {
+      "path": "server/db/seed.ts",
+      "sha256": "d6d3eef4367907f6e8d8698c6da529bdbbe2676b5b17bf955db151c6da72dd5d"
+    },
+    {
+      "path": "server/domain/inventory.ts",
+      "sha256": "684e1692523d16afef0d6a6437d076f1288a3c3878bf8e387748395ab0d283b7"
+    },
+    {
+      "path": "server/domain/validation.ts",
+      "sha256": "6519d361aa0baa3944abde75eb765fb6f0af39f4f1f4b58db56c3b548fc02ff0"
+    },
+    {
+      "path": "server/domain/warehouse.ts",
+      "sha256": "afcdf4df38e456b504de1487bab9ba4834692e5cedfa97208271e6d6982517f6"
+    },
+    {
+      "path": "server/routes/inventory.ts",
+      "sha256": "9ee5bff30529a43010c52c095320670d46689683ad9528eb53c964f744fbd06f"
+    },
+    {
+      "path": "server/routes/transactions.ts",
+      "sha256": "3b2b66a3e23c864e682671fa16d475a80f0c67e8ea26d0b29ce26d4794919950"
+    },
+    {
+      "path": "server/routes/warehouses.ts",
+      "sha256": "c126b2d5d2cbc58f3ebb4cc0e3b36ae5ffd57a39a99ecf67ca4873595f11742e"
+    },
+    {
+      "path": "server/services/corrections.ts",
+      "sha256": "2b20e097ba08cc557b768407798b4d27f79420abc60eb82ca191e3704a2c2992"
+    },
+    {
+      "path": "server/services/editDraft.ts",
+      "sha256": "85a15902a5e245722b4312657496395bdb9b5bb90471dbdc7f0d824fdbfd8e14"
+    },
+    {
+      "path": "server/services/inventory.ts",
+      "sha256": "93fc1cf59d23ef95e61d2e38f7af25aa8950e6e4d1b8e5cd772cdcc59d2f65ca"
+    },
+    {
+      "path": "server/services/invoices.ts",
+      "sha256": "650032697ad2d59f10ac949599832ab3832ee1c82bdf61bbf57e403c71384bf4"
+    },
+    {
+      "path": "server/services/ledger.ts",
+      "sha256": "d2636bbc784100983a2fd85302b73a5caa0ade5032b92b81e6004a0404a68446"
+    },
+    {
+      "path": "server/services/stockFulfillment.ts",
+      "sha256": "76e0f76774b5cab4ad8f94632be86d75cb402f8ffa08389a3c86bef53cb8411c"
+    },
+    {
+      "path": "server/services/stockOperations.ts",
+      "sha256": "2850ae3cedba8ca3bc5adfd35a3efb581b5dff0818da2eda67bf252110d01dc4"
+    },
+    {
+      "path": "server/services/warehouseStock.ts",
+      "sha256": "c474f256615792bf519c4013731d583235bca6cac1d658b55469b36ed0bae83a"
+    },
+    {
+      "path": "src/app/router/routes.tsx",
+      "sha256": "8fad6af86dfd37fc39c568caa599017b9e82a83b8529f21877b634329638bf36"
+    },
+    {
+      "path": "src/domain/validation.ts",
+      "sha256": "55056687f8a7df2567fc25aa3cfca0b9c1146f249961415c7513c646da26ae69"
+    },
+    {
+      "path": "src/features/finance/queries.ts",
+      "sha256": "e0bbd68718f41e7ee1fdb6b9c63ca5122ba1dcef47b6687594305d9232d7bf97"
+    },
+    {
+      "path": "src/features/inventory/InventoryPage.tsx",
+      "sha256": "07b62f1c3692acb043f7038041fd35879844d560bb2ae754f9e8a03aa4b76f29"
+    },
+    {
+      "path": "src/features/inventory/ProductDetailPage.tsx",
+      "sha256": "5b0b888f02de7e953f4b6ea85017021aa065e3108bde53895a1c0b0d5f0512d4"
+    },
+    {
+      "path": "src/features/inventory/ProductEditDialog.tsx",
+      "sha256": "3319641de3d759f58bdf15845413dbafbb52a32ba41a25af291b63a78393b768"
+    },
+    {
+      "path": "src/features/inventory/ProductUnits.tsx",
+      "sha256": "2a4d5e34f40bef6f5ab46a981087eaa20d68d21f73f05e88ff37835a5240e0aa"
+    },
+    {
+      "path": "src/features/inventory/StockNavigation.tsx",
+      "sha256": "67fda2ee3e2f17493512386de1ef824a25d4734e060ea9d38186a560431f6ade"
+    },
+    {
+      "path": "src/features/inventory/StockOperationsPage.tsx",
+      "sha256": "38a2603ee86916d48180551474fe6a1fc1697d4c2577cd57dd9e4941ba3621e1"
+    },
+    {
+      "path": "src/features/inventory/StockReportsPage.tsx",
+      "sha256": "f29144604fa8b07f24d715fc3d9c14df2252a8fde9e17aaf39bc6bdf7908002b"
+    },
+    {
+      "path": "src/features/inventory/WarehousesPage.tsx",
+      "sha256": "19e907d289be2901f8dda6e19621c8aee9e4a4d2816d2ea8b3166325ea83891e"
+    },
+    {
+      "path": "src/features/inventory/queries.ts",
+      "sha256": "5195edd102011388033633b52195da29945e70a4c30eae769c1a3119c8be731d"
+    },
+    {
+      "path": "src/features/invoices/CreateInvoicePage.tsx",
+      "sha256": "eceb253b5547df302f2a2d7265853e6f01bd7b12d257bb9c2d97e03bdf0da091"
+    },
+    {
+      "path": "src/features/invoices/InvoiceDetailPage.tsx",
+      "sha256": "1063953d106ec32a8b0c31db44e499b94bb121c192147eea7fde00287dc007d8"
+    },
+    {
+      "path": "src/features/invoices/InvoiceItemFields.tsx",
+      "sha256": "2c80f8909b98ada70407f0e9112bcae06aa7110f28e09bb86ca505069b44fc50"
+    },
+    {
+      "path": "src/services/inventoryService.ts",
+      "sha256": "4f5ab997938a9821dfc0700538f1270361b5ddab9254465919d3e10cc68eac46"
+    },
+    {
+      "path": "src/services/stockService.ts",
+      "sha256": "3cc2115459a0e97611b5da40ba2909ac758d28e002fc2c071b2e23e0bc2f5266"
+    },
+    {
+      "path": "src/types/index.ts",
+      "sha256": "2ea70b1a2973e80192c928a254a166cbc6fbbaf7a9531fe5d93664535b8e7247"
+    },
+    {
+      "path": "tests/backend-integration.test.ts",
+      "sha256": "015d2118fd7ff815d5d7c430276c5be9a541cc8c71d61aa3ebd314e6b23b9b2d"
+    },
+    {
+      "path": "tests/browser/warehouse-inventory.spec.ts",
+      "sha256": "afb4530e82260dd12f71e1d94cb0734482a89cca1a5f4d20d5ec59b582be86d9"
+    },
+    {
+      "path": "tests/helpers/inventoryReminderIntegration.ts",
+      "sha256": "50a0a53c64c35e6722f61cedb67785f4b5a467403fe02444af7fd4e2274128a2"
+    },
+    {
+      "path": "tests/helpers/warehouseIntegration.ts",
+      "sha256": "1b8831807726a8e9399bb6309a1d3b0a6c46c34d5053949169c6c15a364ecaa4"
+    },
+    {
+      "path": "tests/warehouse.test.ts",
+      "sha256": "325003091447475b153da9d8fb131329135ea89dfc8393d82eb9b1e76cf68ad4"
+    },
+    {
+      "path": "INVENTORY-COMPLETE-APPLY.md",
+      "sha256": "62718a117783e1438ff6f5a8b8843096ec80dd01e464e9134bf8ac6fae100ff1"
+    }
+  ]
+}

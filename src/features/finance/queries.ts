@@ -50,6 +50,7 @@ export function useFinanceMutations() {
     Promise.all(
       [
         "inventory",
+        "stock",
         "credits",
         "parties",
         "party",

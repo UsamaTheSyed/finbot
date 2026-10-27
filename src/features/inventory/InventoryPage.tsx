@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { StockNavigation } from "./StockNavigation";
+import { useStock } from "./queries";
 import { useProducts } from "./queries";
 import { inventoryService } from "../../services/inventoryService";
 import { useWorkspace } from "../../hooks/useWorkspace";
@@ -13,6 +15,7 @@ import { Modal } from "../../components/ui/Overlays";
 import { Table, TableHeader, TableRow } from "../../components/ui/Table";
 import { demoDate } from "../../lib/demo";
 export function InventoryPage() {
+  const stock = useStock();
   const q = useProducts(),
     b = useWorkspace(),
     client = useQueryClient();
@@ -21,7 +24,11 @@ export function InventoryPage() {
   const mutation = useMutation({
     mutationFn: (v: unknown) => inventoryService.create(b, v),
     onSuccess: async () => {
-      await client.invalidateQueries({ queryKey: ["inventory", b] });
+      await Promise.all(
+        ["inventory", "stock"].map((key) =>
+          client.invalidateQueries({ queryKey: [key, b] }),
+        ),
+      );
       setOpen(false);
     },
   });
@@ -29,10 +36,11 @@ export function InventoryPage() {
     <div className="page-stack finance-page">
       <PageHeader
         title="Inventory"
-        subtitle="Single warehouse · Physical stock quantities"
+        subtitle="Products, warehouses and physical stock"
         actions={
           <Button
             variant="primary"
+            disabled={!stock.data?.canManage}
             onClick={() => {
               mutation.reset();
               setOpen(true);
@@ -42,6 +50,7 @@ export function InventoryPage() {
           </Button>
         }
       />
+      <StockNavigation />
       <Input
         label="Search products"
         value={search}
@@ -63,7 +72,7 @@ export function InventoryPage() {
             <tbody>
               {q.data
                 .filter((p) =>
-                  `${p.name} ${p.sku}`
+                  `${p.name} ${p.sku} ${p.category || ""} ${p.variant || ""}`
                     .toLowerCase()
                     .includes(search.toLowerCase()),
                 )
@@ -72,6 +81,9 @@ export function InventoryPage() {
                     <td>{p.sku}</td>
                     <td>
                       <Link to={`/inventory/${p.id}`}>{p.name}</Link>
+                      <div>
+                        {[p.category, p.variant].filter(Boolean).join(" · ")}
+                      </div>
                     </td>
                     <td>
                       {Number(p.stock_milli) / 1000} {p.unit}
@@ -111,6 +123,13 @@ export function InventoryPage() {
             mutation.mutate({
               sku: f.get("sku"),
               name: f.get("name"),
+              category: f.get("category"),
+              variant: f.get("variant"),
+              ...(f.get("value")
+                ? {
+                    openingValueMinor: Math.round(Number(f.get("value")) * 100),
+                  }
+                : {}),
               unit: f.get("unit"),
               opening: Number(f.get("opening")),
               minimum: Number(f.get("minimum")),
@@ -119,6 +138,15 @@ export function InventoryPage() {
           }}
         >
           <Input label="SKU" name="sku" required maxLength={60} />
+          <Input label="Category" name="category" maxLength={100} />
+          <Input label="Variant" name="variant" maxLength={100} />
+          <Input
+            label="Opening stock value (PKR)"
+            name="value"
+            type="number"
+            min="0"
+            step="0.01"
+          />
           <Input label="Product name" name="name" required maxLength={160} />
           <Input
             label="Stock unit"

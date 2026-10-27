@@ -81,6 +81,7 @@ export async function editDraft(
         "Keep the same document type: choose a party of the same kind.",
       );
     await validateProducts(client, businessId, input.items);
+    await client.query("update invoices set stock_mode=$2,warehouse_id=$3 where id=$1",[invoiceId,input.stockMode||"Immediate",input.warehouseId||null]);
     await client.query(
       `update invoices set party_id=$3,date=$4,due_date=$5,reference=$6,
        subtotal_minor=$7,tax_minor=$8,discount_minor=$9,total_minor=$10,

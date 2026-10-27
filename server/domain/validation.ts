@@ -73,6 +73,8 @@ export const invoiceInput = z
     notes: z.string().max(1000),
     terms: z.string().max(1000),
     draft: z.boolean().default(false),
+    stockMode:z.enum(["Immediate","Deferred"]).optional(),
+    warehouseId:z.string().max(160).optional(),
   })
   .superRefine((value, context) => {
     if (value.dueDate < value.date)

@@ -85,6 +85,8 @@ export const invoiceSchema = z
     method: z.enum(paymentMethods),
     notes: z.string().max(1000),
     terms: z.string().max(1000),
+    stockMode:z.enum(["Immediate","Deferred"]).optional(),
+    warehouseId:z.string().max(160).optional(),
   })
   .superRefine((v, c) => {
     if (v.dueDate < v.date)

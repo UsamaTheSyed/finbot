@@ -8,3 +8,12 @@ export function useProducts() {
     queryFn: () => inventoryService.list(b),
   });
 }
+
+import { stockService } from "../../services/stockService";
+export function useStock() {
+  const b = useWorkspace();
+  return useQuery({
+    queryKey: ["stock", b],
+    queryFn: () => stockService.overview(b),
+  });
+}

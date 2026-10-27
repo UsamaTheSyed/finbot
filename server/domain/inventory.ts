@@ -11,6 +11,7 @@ export const stockQuantity = z
   );
 export const productInput = z
   .object({
+    category:z.string().trim().max(100).optional(),variant:z.string().trim().max(100).optional(),openingValueMinor:z.number().int().nonnegative().max(1_000_000_000_000).optional(),
     sku: z
       .string()
       .trim()
@@ -26,6 +27,7 @@ export const productInput = z
   .strict();
 export const adjustmentInput = z
   .object({
+    incomingCost:z.number().int().nonnegative().max(1_000_000_000_000).optional(),
     requestId: z.string().uuid(),
     date: calendarDate,
     kind: z.enum([

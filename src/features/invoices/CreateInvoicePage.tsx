@@ -69,6 +69,7 @@ export function InvoiceForm({
     defaultValues: editing
       ? {
           partyId: editing.partyId,
+          stockMode:editing.stockMode,warehouseId:editing.warehouseId,
           date: editing.date,
           dueDate: editing.dueDate,
           reference: editing.reference,

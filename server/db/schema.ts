@@ -1,4 +1,5 @@
 import {
+  bigserial,
   foreignKey,
   bigint,
   boolean,
@@ -347,6 +348,8 @@ export const transactionItems = pgTable(
 export const invoices = pgTable(
   "invoices",
   {
+    stockMode: text("stock_mode").notNull().default("Immediate"),
+    warehouseId: text("warehouse_id"),
     id: text("id").primaryKey(),
     displayId: text("display_id").notNull(),
     businessId: text("business_id")
@@ -395,6 +398,8 @@ export const invoices = pgTable(
 export const products = pgTable(
   "products",
   {
+    category: text("category").notNull().default(""),
+    variant: text("variant").notNull().default(""),
     id: text("id").primaryKey(),
     businessId: text("business_id")
       .notNull()
@@ -735,6 +740,11 @@ export const creditOperations = pgTable("credit_operations", {
 export const stockMovements = pgTable(
   "stock_movements",
   {
+    warehouseId: text("warehouse_id"),
+    lineId: text("line_id"),
+    costMinor: bigint("cost_minor", { mode: "number" }),
+    valueAfterMinor: bigint("value_after_minor", { mode: "number" }),
+    sequence: bigserial("sequence", { mode: "number" }).notNull(),
     id: text("id").primaryKey(),
     businessId: text("business_id")
       .notNull()
@@ -826,3 +836,111 @@ export const reminders = pgTable(
     ),
   ],
 );
+
+export const warehouses = pgTable(
+  "warehouses",
+  {
+    id: text("id").primaryKey(),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    name: text("name").notNull(),
+    active: boolean("active").notNull().default(true),
+  },
+  (t) => [uniqueIndex("warehouse_business_name").on(t.businessId, t.name)],
+);
+export const productUnits = pgTable(
+  "product_units",
+  {
+    productId: text("product_id")
+      .notNull()
+      .references(() => products.id),
+    name: text("name").notNull(),
+    factorMilli: bigint("factor_milli", { mode: "number" }).notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.productId, t.name] }),
+    check("positive_conversion", sql`${t.factorMilli}>0`),
+  ],
+);
+export const warehouseStock = pgTable(
+  "warehouse_stock",
+  {
+    productId: text("product_id")
+      .notNull()
+      .references(() => products.id),
+    warehouseId: text("warehouse_id")
+      .notNull()
+      .references(() => warehouses.id),
+    quantityMilli: bigint("quantity_milli", { mode: "number" })
+      .notNull()
+      .default(0),
+    reservedMilli: bigint("reserved_milli", { mode: "number" })
+      .notNull()
+      .default(0),
+    valueMinor: bigint("value_minor", { mode: "number" }),
+    revision: bigint("revision", { mode: "number" }).notNull().default(0),
+  },
+  (t) => [
+    primaryKey({ columns: [t.productId, t.warehouseId] }),
+    check(
+      "warehouse_stock_valid",
+      sql`${t.quantityMilli}>=0 and ${t.reservedMilli}>=0 and ${t.reservedMilli}<=${t.quantityMilli} and (${t.valueMinor} is null or ${t.valueMinor}>=0)`,
+    ),
+  ],
+);
+export const stockLines = pgTable(
+  "stock_lines",
+  {
+    id: text("id").primaryKey(),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    invoiceId: text("invoice_id")
+      .notNull()
+      .references(() => invoices.id),
+    productId: text("product_id")
+      .notNull()
+      .references(() => products.id),
+    warehouseId: text("warehouse_id")
+      .notNull()
+      .references(() => warehouses.id),
+    kind: text("kind").notNull(),
+    expectedMilli: bigint("expected_milli", { mode: "number" }).notNull(),
+    fulfilledMilli: bigint("fulfilled_milli", { mode: "number" })
+      .notNull()
+      .default(0),
+    returnedMilli: bigint("returned_milli", { mode: "number" })
+      .notNull()
+      .default(0),
+    reservedMilli: bigint("reserved_milli", { mode: "number" })
+      .notNull()
+      .default(0),
+    purchaseMinor: bigint("purchase_minor", { mode: "number" })
+      .notNull()
+      .default(0),
+    fulfilledCostMinor: bigint("fulfilled_cost_minor", { mode: "number" }),
+    returnedCostMinor: bigint("returned_cost_minor", { mode: "number" })
+      .notNull()
+      .default(0),
+  },
+  (t) => [
+    check(
+      "stock_line_valid",
+      sql`${t.expectedMilli}>0 and ${t.fulfilledMilli}>=0 and ${t.fulfilledMilli}<=${t.expectedMilli} and ${t.returnedMilli}>=0 and ${t.returnedMilli}<=${t.fulfilledMilli} and ${t.reservedMilli}>=0 and ${t.reservedMilli}<=${t.expectedMilli}-${t.fulfilledMilli}`,
+    ),
+  ],
+);
+export const inventoryOperations = pgTable("inventory_operations", {
+  id: text("id").primaryKey(),
+  businessId: text("business_id")
+    .notNull()
+    .references(() => businesses.id),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id),
+  payload: jsonb("payload").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});

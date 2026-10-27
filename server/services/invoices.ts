@@ -56,6 +56,7 @@ export async function insertInvoiceGraph(
       displayId,
     ],
   );
+  await client.query("update invoices set stock_mode=$2,warehouse_id=$3 where id=$1",[invoiceId,input.stockMode||"Immediate",input.warehouseId||null]);
   for (const [position, item] of totals.items.entries()) {
     const itemId = `${invoiceId}-line-${position + 1}`;
     await client.query(

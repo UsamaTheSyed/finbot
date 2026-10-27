@@ -138,6 +138,7 @@ export async function invoiceDto(
   return {
     id: row.id,
     displayId: row.display_id,
+    stockMode:row.stock_mode,warehouseId:row.warehouse_id||undefined,
     revision: row.revision,
     hasCreditHistory: Boolean(row.has_credit_history),
     businessId: row.business_id,

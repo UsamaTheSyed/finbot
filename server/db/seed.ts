@@ -44,6 +44,11 @@ export async function seedDevelopment(pool: Pool) {
   const client = await pool.connect();
   try {
     await client.query("begin");
+    await client.query("delete from inventory_operations where business_id='business-1'");
+    await client.query("delete from stock_lines where business_id='business-1'");
+    await client.query("delete from warehouse_stock where product_id in (select id from products where business_id='business-1')");
+    await client.query("delete from product_units where product_id in (select id from products where business_id='business-1')");
+    await client.query("delete from warehouses where business_id='business-1'");
     for (const table of ["reminders","reminder_recipients","stock_movements"]) await client.query(`delete from ${table} where business_id='business-1'`);
     await client.query("update invoice_items set product_id=null where invoice_id in (select id from invoices where business_id='business-1')");
     await client.query("delete from products where business_id='business-1'");

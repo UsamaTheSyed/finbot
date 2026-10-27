@@ -1,5 +1,8 @@
 import { httpApi } from "./api";
 export interface Product {
+  category?: string;
+  variant?: string;
+  units?: { name: string; factor: number }[];
   id: string;
   sku: string;
   name: string;

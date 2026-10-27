@@ -69,6 +69,8 @@ export function InvoiceDetailPage() {
         revision: invoice.revision,
         data: {
           partyId: invoice.partyId,
+          stockMode: invoice.stockMode,
+          warehouseId: invoice.warehouseId,
           date: invoice.date,
           dueDate: invoice.dueDate,
           reference: invoice.reference,
@@ -117,7 +119,14 @@ export function InvoiceDetailPage() {
           >
             <Printer size={16} /> Print (coming later)
           </Button>
-          <Button disabled={invoice.status === "Draft" || invoice.balanceMinor <= 0 || party?.kind !== "Customer"} onClick={()=>navigate(`/reminders?invoice=${invoice.id}`)}>
+          <Button
+            disabled={
+              invoice.status === "Draft" ||
+              invoice.balanceMinor <= 0 ||
+              party?.kind !== "Customer"
+            }
+            onClick={() => navigate(`/reminders?invoice=${invoice.id}`)}
+          >
             <Bell size={16} /> Send Reminder
           </Button>
           <Dropdown
@@ -148,7 +157,8 @@ export function InvoiceDetailPage() {
                 label: "Correct Document",
                 disabled:
                   invoice.status === "Draft" ||
-                  !!invoice.hasCreditHistory || invoice.items.some(i=>i.productId) ||
+                  !!invoice.hasCreditHistory ||
+                  invoice.items.some((i) => i.productId) ||
                   updateInvoice.isPending,
                 onSelect: () => navigate(`/invoices/${invoice.id}/correct`),
               },
@@ -168,15 +178,23 @@ export function InvoiceDetailPage() {
           Record Payment
         </Button>
       </Card>
-      {(invoice.hasCreditHistory || invoice.items.some(i=>i.productId)) && (
+      {(invoice.hasCreditHistory || invoice.items.some((i) => i.productId)) && (
         <p role="note">
-          Corrections are unavailable because this document has credit or stock history.
-          Existing records are preserved.
+          Corrections are unavailable because this document has credit or stock
+          history. Existing records are preserved.
         </p>
       )}
       <Link id="invoice-party-link" to={`/parties/${invoice.partyId}`}>
         View {party?.name}'s account
       </Link>
+      {invoice.status !== "Draft" && invoice.items.some((i) => i.productId) && (
+        <Link
+          className="button button--secondary"
+          to={`/inventory/operations?invoice=${encodeURIComponent(invoice.id)}`}
+        >
+          Receive / Dispatch / Return Stock
+        </Link>
+      )}
       <InvoiceDocument invoice={invoice} party={party} summary={false} />
       <div className="invoice-bottom-grid">
         <PaymentHistory

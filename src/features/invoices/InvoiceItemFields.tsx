@@ -1,3 +1,4 @@
+import { useStock } from "../inventory/queries";
 import { useProducts } from "../inventory/queries";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { Plus, Trash2 } from "lucide-react";
@@ -18,7 +19,8 @@ export const blankInvoiceItem = {
   taxPercent: 0,
 };
 export function InvoiceItemFields() {
-  const products = useProducts();
+  const products = useProducts(),
+    stock = useStock();
   const {
       setValue,
       control,
@@ -40,6 +42,24 @@ export function InvoiceItemFields() {
       <div className="section-heading">
         <h2>Items</h2>
       </div>
+      {items.some((i) => i.productId) && (
+        <div className="form-grid">
+          <Select label="Stock fulfilment" {...register("stockMode")}>
+            <option value="Immediate">Immediate receipt / dispatch</option>
+            <option value="Deferred">Deferred receipt / dispatch</option>
+          </Select>
+          <Select label="Stock warehouse" {...register("warehouseId")}>
+            <option value="">Main warehouse</option>
+            {stock.data?.warehouses
+              .filter((w) => w.active)
+              .map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.name}
+                </option>
+              ))}
+          </Select>
+        </div>
+      )}
       <Table aria-label="Invoice line items" className="finance-table">
         <TableHeader>
           <TableRow>
@@ -126,10 +146,18 @@ export function InvoiceItemFields() {
                 </td>
                 <td>
                   <Input
+                    list={`units-${index}`}
                     label={`Unit ${index + 1}`}
                     {...register(`items.${index}.unit`)}
                     error={error?.unit?.message}
                   />
+                  <datalist id={`units-${index}`}>
+                    {products.data
+                      ?.find((p) => p.id === items[index]?.productId)
+                      ?.units?.map((u) => (
+                        <option key={u.name} value={u.name} />
+                      ))}
+                  </datalist>
                 </td>
                 <td>
                   <Input

@@ -1,3 +1,4 @@
+import { inventoryManager } from "./warehouses.js";
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
 import type { FastifyInstance } from "fastify";
@@ -16,9 +17,10 @@ export async function inventoryRoutes(
   type Params = { businessId: string; id?: string };
   app.patch<{ Params: Params }>(path + "/:id", async (r) => {
     const b = id.parse(r.params.businessId);
-    await auth.requireMembership(r, b);
+    inventoryManager((await auth.requireMembership(r,b)).role);
     const v = z
       .object({
+        category:z.string().trim().max(100).optional(),variant:z.string().trim().max(100).optional(),
         name: z.string().trim().min(1).max(160),
         minimum: productInput.shape.minimum,
         active: z.boolean(),
@@ -26,13 +28,13 @@ export async function inventoryRoutes(
       .strict()
       .parse(r.body);
     const result = await pool.query(
-      "update products set name=$3,minimum_milli=$4,active=$5 where business_id=$1 and id=$2 returning id",
+      "update products set name=$3,minimum_milli=$4,active=$5,category=coalesce($6,category),variant=coalesce($7,variant) where business_id=$1 and id=$2 returning id",
       [
         b,
         id.parse(r.params.id),
         v.name,
         Math.round(v.minimum * 1000),
-        v.active,
+        v.active,v.category??null,v.variant??null,
       ],
     );
     if (!result.rowCount)
@@ -44,7 +46,7 @@ export async function inventoryRoutes(
     await auth.requireMembership(r, b);
     return (
       await pool.query(
-        "select * from products where business_id=$1 order by name,id",
+        "select p.*,coalesce((select json_agg(json_build_object('name',u.name,'factor',u.factor_milli::numeric/1000)) from product_units u where u.product_id=p.id),'[]'::json) units from products p where business_id=$1 order by name,id",
         [b],
       )
     ).rows.map((p) => ({
@@ -55,11 +57,12 @@ export async function inventoryRoutes(
   });
   app.post<{ Params: Params }>(path, async (r, reply) => {
     const b = id.parse(r.params.businessId),
-      { user } = await auth.requireMembership(r, b),
+      { user,role } = await auth.requireMembership(r, b),
       v = productInput.parse(r.body),
       productId = randomUUID(),
       c = await pool.connect();
     try {
+      inventoryManager(role);
       await c.query("begin");
       const duplicate = await c.query(
         "select 1 from products where business_id=$1 and sku=$2",
@@ -76,11 +79,12 @@ export async function inventoryRoutes(
         productId,
         delta: Math.round(v.opening * 1000),
         date: v.date,
-        kind: "Opening",
+        kind: "Opening",incomingCost:v.opening===0?0:v.openingValueMinor??null,
         reason: "Opening physical stock",
         userId: user.id,
         requestId: `opening:${productId}`,
       });
+      await c.query("update products set category=$2,variant=$3 where id=$1",[productId,v.category||"",v.variant||""]);
       await c.query("commit");
       return reply.status(201).send({ id: productId });
     } catch (e) {
@@ -115,11 +119,13 @@ export async function inventoryRoutes(
   });
   app.post<{ Params: Params }>(path + "/:id/adjustments", async (r, reply) => {
     const b = id.parse(r.params.businessId),
-      { user } = await auth.requireMembership(r, b),
+      { user,role } = await auth.requireMembership(r, b),
       v = adjustmentInput.parse(r.body),
       c = await pool.connect();
     try {
+      inventoryManager(role);
       await c.query("begin");
+      if(v.kind.endsWith("return"))throw new ApiError(400,"LINK_RETURN","Use Stock Operations and select the original document for returns.");
       const outgoing =
         v.kind === "Adjustment out" || v.kind === "Supplier return";
       await moveStock(c, {
@@ -127,7 +133,7 @@ export async function inventoryRoutes(
         productId: id.parse(r.params.id),
         delta: Math.round(v.quantity * 1000) * (outgoing ? -1 : 1),
         date: v.date,
-        kind: v.kind,
+        kind: v.kind,incomingCost:v.incomingCost??null,
         reason: v.reason,
         userId: user.id,
         requestId: v.requestId,

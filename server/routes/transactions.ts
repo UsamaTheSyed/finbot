@@ -133,7 +133,7 @@ export async function transactionRoutes(
           true,
         );
         const tracked = await client.query(
-          "select 1 from stock_movements s join invoices i on i.id=s.invoice_id where i.business_id=$1 and i.transaction_id=$2 limit 1",
+          "select 1 from invoices i where i.business_id=$1 and i.transaction_id=$2 and (exists(select 1 from stock_movements s where s.invoice_id=i.id) or exists(select 1 from stock_lines l where l.invoice_id=i.id)) limit 1",
           [businessId, transactionId],
         );
         if (tracked.rowCount)
@@ -277,7 +277,7 @@ export async function transactionRoutes(
         const reminders=await client.query("select 1 from reminders r join invoices i on i.id=r.invoice_id where i.business_id=$1 and i.transaction_id=$2 limit 1",[businessId,transactionId]);
         if(reminders.rowCount)throw new ApiError(409,"REMINDER_HISTORY","This document has reminder history and cannot be deleted. Use a credit note if the balance needs to be reduced.");
         const stock = await client.query(
-          "select 1 from stock_movements s join invoices i on i.id=s.invoice_id where i.business_id=$1 and i.transaction_id=$2 limit 1",
+          "select 1 from invoices i where i.business_id=$1 and i.transaction_id=$2 and (exists(select 1 from stock_movements s where s.invoice_id=i.id) or exists(select 1 from stock_lines l where l.invoice_id=i.id)) limit 1",
           [businessId, transactionId],
         );
         if (stock.rowCount)

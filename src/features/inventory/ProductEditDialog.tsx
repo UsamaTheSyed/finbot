@@ -21,7 +21,11 @@ export function ProductEditDialog({
   const m = useMutation({
     mutationFn: (data: unknown) => inventoryService.update(b, product.id, data),
     onSuccess: async () => {
-      await client.invalidateQueries({ queryKey: ["inventory", b] });
+      await Promise.all(
+        ["stock", "inventory"].map((key) =>
+          client.invalidateQueries({ queryKey: [key, b] }),
+        ),
+      );
       close();
     },
   });
@@ -43,11 +47,23 @@ export function ProductEditDialog({
           const f = new FormData(e.currentTarget);
           m.mutate({
             name: f.get("name"),
+            category: f.get("category"),
+            variant: f.get("variant"),
             minimum: Number(f.get("minimum")),
             active: f.get("active") === "true",
           });
         }}
       >
+        <Input
+          label="Category"
+          name="category"
+          defaultValue={product.category || ""}
+        />
+        <Input
+          label="Variant"
+          name="variant"
+          defaultValue={product.variant || ""}
+        />
         <Input
           label="Product name"
           name="name"
