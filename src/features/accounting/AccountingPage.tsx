@@ -69,6 +69,7 @@ export function AccountingPage() {
         title="Accounting & General Ledger"
         subtitle="PKR · Verified opening balances and source-linked journals"
       />
+      <Link to="/reports/trial-balance">Open Trial Balance</Link>
       <Link to="/reports/profit-loss">Open Profit &amp; Loss</Link>
       <div className="form-grid">
         <Input

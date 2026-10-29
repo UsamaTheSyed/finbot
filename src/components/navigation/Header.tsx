@@ -33,6 +33,7 @@ export function Header({ onSearch }: { onSearch: () => void }) {
     reminders: "Payment Reminders",
     "ar-aging": "A/R Aging",
     "ap-aging": "A/P Aging",
+    "trial-balance": "Trial Balance",
     sales: "Sales Report",
     purchases: "Purchase Report",
     "profit-loss": "Profit & Loss",

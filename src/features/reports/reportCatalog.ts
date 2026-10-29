@@ -48,6 +48,7 @@ export const reportCatalog = [
   },
   {
     title: "Trial Balance",
+    path: "trial-balance",
     icon: "trial",
     tone: "info",
     description:

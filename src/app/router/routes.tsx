@@ -195,6 +195,14 @@ export const routes: RouteObject[] = [
             .ReportsPage,
         }),
       },
+      {
+        path: "reports/trial-balance",
+        lazy: async () => ({
+          Component: (
+            await import("../../features/accounting/TrialBalancePage")
+          ).TrialBalancePage,
+        }),
+      },
       ...(
         [
           "daily",

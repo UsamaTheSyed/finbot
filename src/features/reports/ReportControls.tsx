@@ -22,11 +22,7 @@ export function ReportTabs() {
       <NavLink to="/reports/ap-aging">A/P Aging</NavLink>
       <NavLink to="/reports/sales">Sales</NavLink>
       <NavLink to="/reports/purchases">Purchases</NavLink>
-      <button
-        onClick={() => notify("Trial Balance is scheduled for a later phase.")}
-      >
-        Trial Balance
-      </button>
+      <NavLink to="/reports/trial-balance">Trial Balance</NavLink>
       <NavLink to="/reports/profit-loss">P&amp;L</NavLink>
       <NavLink to="/reports/cash-flow">Cash Flow</NavLink>
       <button
