@@ -1,3 +1,4 @@
+import { validateAccountingDate } from "./accountingDate.js";
 import { validateProducts, postInvoiceStock } from "./inventory.js";
 import { applyAdvance } from "./allocations.js";
 import { randomUUID } from "node:crypto";
@@ -13,6 +14,8 @@ export async function insertInvoiceGraph(
   input: InvoiceInput,
   displayId: string,
 ) {
+  if (!input.draft)
+    await validateAccountingDate(client, businessId, input.date);
   const party = await requireScopedRecord(
     client,
     "parties",
@@ -56,7 +59,10 @@ export async function insertInvoiceGraph(
       displayId,
     ],
   );
-  await client.query("update invoices set stock_mode=$2,warehouse_id=$3 where id=$1",[invoiceId,input.stockMode||"Immediate",input.warehouseId||null]);
+  await client.query(
+    "update invoices set stock_mode=$2,warehouse_id=$3 where id=$1",
+    [invoiceId, input.stockMode || "Immediate", input.warehouseId || null],
+  );
   for (const [position, item] of totals.items.entries()) {
     const itemId = `${invoiceId}-line-${position + 1}`;
     await client.query(
@@ -72,7 +78,7 @@ export async function insertInvoiceGraph(
         item.unit,
         item.rateMinor,
         item.taxBasisPoints,
-          item.productId || null,
+        item.productId || null,
       ],
     );
   }
@@ -150,7 +156,14 @@ export async function insertInvoiceGraph(
         [paymentId, invoiceId, totals.paidMinor],
       );
     }
-    await postInvoiceStock(client, businessId, userId, invoiceId, input, party.kind === "Supplier");
+    await postInvoiceStock(
+      client,
+      businessId,
+      userId,
+      invoiceId,
+      input,
+      party.kind === "Supplier",
+    );
     await applyAdvance(client, businessId, input.partyId, direction);
   }
 }

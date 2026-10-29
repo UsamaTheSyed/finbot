@@ -37,7 +37,7 @@ export function ProductDetailPage() {
     mutationFn: () => inventoryService.adjust(b, id, review),
     onSuccess: async () => {
       await Promise.all(
-        ["stock", "inventory"].map((key) =>
+        ["stock", "inventory", "accounting", "financial-reports"].map((key) =>
           client.invalidateQueries({ queryKey: [key, b] }),
         ),
       );

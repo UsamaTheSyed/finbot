@@ -1,3 +1,4 @@
+import { accountingRoutes } from "./routes/accounting.js";
 import { warehouseRoutes } from "./routes/warehouses.js";
 import { inventoryRoutes } from "./routes/inventory.js";
 import { reminderRoutes } from "./routes/reminders.js";
@@ -65,10 +66,11 @@ export async function buildApp(
   await paymentRoutes(app, pool, security);
   await workspaceRoutes(app, pool, security);
   await reportRoutes(app, pool, security);
+  await accountingRoutes(app, pool, security);
   await botRoutes(app, pool, security, options.bot ?? botConfig());
-  await inventoryRoutes(app,pool,security);
-  await warehouseRoutes(app,pool,security);
-  await reminderRoutes(app,pool,security,options.bot ?? botConfig());
+  await inventoryRoutes(app, pool, security);
+  await warehouseRoutes(app, pool, security);
+  await reminderRoutes(app, pool, security, options.bot ?? botConfig());
   app.addHook("onClose", async () => pool.end());
   return app;
 }

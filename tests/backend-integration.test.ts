@@ -1,5 +1,6 @@
-import {warehouseIntegration} from "./helpers/warehouseIntegration";
-import {inventoryReminderIntegration} from "./helpers/inventoryReminderIntegration";
+import { accountingIntegration } from "./helpers/accountingIntegration";
+import { warehouseIntegration } from "./helpers/warehouseIntegration";
+import { inventoryReminderIntegration } from "./helpers/inventoryReminderIntegration";
 import { safetyIntegration } from "./helpers/safetyIntegration";
 import { creditIntegration } from "./helpers/creditIntegration";
 import { correctionIntegration } from "./helpers/correctionIntegration";
@@ -40,23 +41,15 @@ test(
     const setup = createDatabase(config);
     await migrate(setup.db, { migrationsFolder: "server/db/migrations" });
     await seedDevelopment(setup.pool);
-    await setup.pool.query(`
-      INSERT INTO businesses (id, name)
-      VALUES ('business-2', 'Isolated Workspace')
-      ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name
-    `);
 
-    await setup.pool.query(`
-      INSERT INTO parties (id, business_id, name, kind)
-      VALUES ('other-party', 'business-2', 'Private Party', 'Customer')
-      ON CONFLICT (id) DO UPDATE SET
-        business_id = EXCLUDED.business_id,
-        name = EXCLUDED.name,
-        kind = EXCLUDED.kind
-    `);
-    // Reset numbering for the isolated test workspace only.
     await setup.pool.query(
-      "delete from invoice_counters where business_id = 'business-2'",
+      "insert into businesses (id,name) values ('business-2','Isolated Workspace') on conflict(id) do update set name=excluded.name",
+    );
+    await setup.pool.query(
+      "insert into parties (id,business_id,name,kind) values ('other-party','business-2','Private Party','Customer') on conflict(id) do update set name=excluded.name",
+    );
+    await setup.pool.query(
+      "delete from invoice_counters where business_id='business-2'",
     );
     const app = await buildApp(config, {
       bot: {
@@ -410,8 +403,9 @@ test(
       await correctionIntegration(t, app, setup.pool, headers);
       await creditIntegration(t, app, setup.pool, headers);
       await safetyIntegration(t, app, setup.pool, headers);
-      await inventoryReminderIntegration(t,app,setup.pool,headers);
-      await warehouseIntegration(t,app,setup.pool,headers);
+      await inventoryReminderIntegration(t, app, setup.pool, headers);
+      await warehouseIntegration(t, app, setup.pool, headers);
+      await accountingIntegration(t, setup.pool);
     } finally {
       await app.close();
       await setup.pool.end();

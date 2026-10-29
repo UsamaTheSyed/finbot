@@ -100,6 +100,13 @@ export const routes: RouteObject[] = [
             .RemindersPage,
         }),
       },
+      {
+        path: "accounting",
+        lazy: async () => ({
+          Component: (await import("../../features/accounting/AccountingPage"))
+            .AccountingPage,
+        }),
+      },
       { index: true, element: <Navigate to="/dashboard" replace /> },
       {
         path: "dashboard",

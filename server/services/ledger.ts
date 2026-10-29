@@ -5,7 +5,15 @@ import { fromMinor } from "../domain/money.js";
 export type Queryable = Pick<Pool | PoolClient, "query">;
 
 export function businessDate() {
-  return process.env.APP_DATE_OVERRIDE || new Date().toISOString().slice(0, 10);
+  return (
+    process.env.APP_DATE_OVERRIDE ||
+    new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Karachi",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date())
+  );
 }
 
 export async function requireScopedRecord(

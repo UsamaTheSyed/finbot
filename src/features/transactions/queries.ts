@@ -41,6 +41,7 @@ export function useTransactionActions(id: string) {
         "parties",
         "party",
         "financial-reports",
+        "accounting",
       ].map((key) => client.invalidateQueries({ queryKey: [key, business] })),
     );
   const edit = useMutation({

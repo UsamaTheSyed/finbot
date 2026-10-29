@@ -1,3 +1,4 @@
+import { validateAccountingDate } from "./accountingDate.js";
 import { applyAdvance, previewAllocation } from "./allocations.js";
 import { randomUUID } from "node:crypto";
 import type { PoolClient } from "pg";
@@ -14,6 +15,7 @@ export async function validatePayment(
   forcedTransactionId?: string,
 ) {
   const input = paymentInput.parse(raw);
+  await validateAccountingDate(client, businessId, input.date);
   const party = await requireScopedRecord(
     client,
     "parties",

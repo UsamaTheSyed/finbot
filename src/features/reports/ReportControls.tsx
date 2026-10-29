@@ -16,6 +16,7 @@ export function ReportTabs() {
   return (
     <nav className="report-tabs no-print" aria-label="Report navigation">
       <Link to="/reports">Overview</Link>
+      <NavLink to="/accounting">General Ledger</NavLink>
       <NavLink to="/reports/daily">Daily</NavLink>
       <NavLink to="/reports/ar-aging">A/R Aging</NavLink>
       <NavLink to="/reports/ap-aging">A/P Aging</NavLink>

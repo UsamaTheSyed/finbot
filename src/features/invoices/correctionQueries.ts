@@ -23,6 +23,7 @@ export function useCorrectInvoice(id: string) {
         "transactions",
         "reports",
         "financial-reports",
+        "accounting",
         "statement",
       ].map((key) => client.invalidateQueries({ queryKey: [key, business] })),
     );

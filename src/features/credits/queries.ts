@@ -24,6 +24,7 @@ export function usePostCredit() {
         "transactions",
         "reports",
         "financial-reports",
+        "accounting",
       ].map((key) => client.invalidateQueries({ queryKey: [key, business] })),
     );
   return useMutation({

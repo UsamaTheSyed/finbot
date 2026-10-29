@@ -59,6 +59,7 @@ export function useFinanceMutations() {
         "transactions",
         "reports",
         "financial-reports",
+        "accounting",
       ].map((key) => client.invalidateQueries({ queryKey: [key, business] })),
     );
   const saveParty = useMutation({

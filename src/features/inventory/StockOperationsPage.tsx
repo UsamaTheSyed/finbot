@@ -43,7 +43,7 @@ export function StockOperationsPage() {
     onError: () => c.invalidateQueries({ queryKey: ["stock", b] }),
     onSuccess: async () => {
       await Promise.all(
-        ["stock", "inventory"].map((key) =>
+        ["stock", "inventory", "accounting", "financial-reports"].map((key) =>
           c.invalidateQueries({ queryKey: [key, b] }),
         ),
       );

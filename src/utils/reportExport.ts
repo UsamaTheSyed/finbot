@@ -13,6 +13,8 @@ export function reportCsv(report: FinancialReport) {
       "PKR",
     ],
   ];
+  if (report.accountingBasis) rows.push([report.accountingBasis]);
+  for (const warning of report.warnings || []) rows.push([warning]);
   if (report.kind === "ar-aging" || report.kind === "ap-aging") {
     rows.push([
       "Party",

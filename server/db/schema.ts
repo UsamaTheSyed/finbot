@@ -944,3 +944,57 @@ export const inventoryOperations = pgTable("inventory_operations", {
     .notNull()
     .defaultNow(),
 });
+
+export const accountingCutovers = pgTable("accounting_cutovers", {
+  businessId: text("business_id")
+    .primaryKey()
+    .references(() => businesses.id),
+  date: date("date", { mode: "string" }).notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id),
+  snapshot: jsonb("snapshot").notNull(),
+  baseline: jsonb("baseline").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+export const accountingJournals = pgTable(
+  "accounting_journals",
+  {
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    source: text("source").notNull(),
+    date: date("date", { mode: "string" }).notNull(),
+    sourceHash: text("source_hash").notNull(),
+    lines: jsonb("lines").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.businessId, t.source] })],
+);
+export const accountingCreditResolutions = pgTable(
+  "accounting_credit_resolutions",
+  {
+    id: text("id").primaryKey(),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => businesses.id),
+    creditId: text("credit_id")
+      .notNull()
+      .references(() => creditNotes.id),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id),
+    date: date("date", { mode: "string" }).notNull(),
+    inventoryMinor: bigint("inventory_minor", { mode: "number" }).notNull(),
+    cogsMinor: bigint("cogs_minor", { mode: "number" }).notNull(),
+    clearingMinor: bigint("clearing_minor", { mode: "number" }).notNull(),
+    expenseMinor: bigint("expense_minor", { mode: "number" }).notNull(),
+    allocations: jsonb("allocations").notNull(),
+    reason: text("reason").notNull(),
+  },
+  (t) => [uniqueIndex("accounting_credit_resolution_unique").on(t.creditId)],
+);

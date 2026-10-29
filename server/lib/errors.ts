@@ -17,6 +17,14 @@ export function errorHandler(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
+  if (error.message?.startsWith("ACCOUNTING_"))
+    return reply
+      .status(409)
+      .send({
+        code: error.message.split(":")[0],
+        message: error.message.split(": ").slice(1).join(": "),
+        requestId: request.id,
+      });
   if (error instanceof ZodError) {
     return reply.status(400).send({
       code: "VALIDATION_ERROR",
@@ -33,7 +41,10 @@ export function errorHandler(
       requestId: request.id,
     });
   }
-  request.log.error({ err: error, requestId: request.id }, "Unhandled request error");
+  request.log.error(
+    { err: error, requestId: request.id },
+    "Unhandled request error",
+  );
   return reply.status(500).send({
     code: "INTERNAL_ERROR",
     message: "An unexpected error occurred.",

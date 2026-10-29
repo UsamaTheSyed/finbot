@@ -40,6 +40,8 @@ export interface SalesRow {
   total: number;
 }
 export interface FinancialReport {
+  accountingBasis?: string;
+  warnings?: string[];
   sales?: SalesRow[];
   purchases?: SalesRow[];
   kind: ReportKind;

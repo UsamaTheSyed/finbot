@@ -57,6 +57,13 @@
       "when": 1793051486998,
       "tag": "0007_warehouse_inventory",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793205059213,
+      "tag": "0008_accounting_cutover",
+      "breakpoints": true
     }
   ]
 }

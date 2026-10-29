@@ -159,10 +159,21 @@ export function ReportDetailPage({ kind }: { kind: ReportKind }) {
             </>
           )}
           {kind === "profit-loss" && (
-            <div className="report-columns">
-              <Statement title="Statement of Accounts" lines={report.lines} />
-              <ReportChart report={report} />
-            </div>
+            <>
+              <p>
+                {report.accountingBasis ||
+                  "Legacy basis: purchases are expensed; inventory COGS accounting is not applied to this period."}
+              </p>
+              {report.warnings?.map((w) => (
+                <p role="alert" key={w}>
+                  {w}
+                </p>
+              ))}
+              <div className="report-columns">
+                <Statement title="Statement of Accounts" lines={report.lines} />
+                <ReportChart report={report} />
+              </div>
+            </>
           )}
           {kind === "cash-flow" && (
             <>

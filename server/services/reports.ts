@@ -1,3 +1,4 @@
+import { accountingProfit } from "./accountingReports.js";
 import type { Queryable } from "./ledger.js";
 import { fromMinor } from "../domain/money.js";
 const monthBounds = (period: string) => {
@@ -132,6 +133,8 @@ export async function financialReport(
     return { ...empty, aging };
   }
   if (kind === "profit-loss") {
+    const integrated = await accountingProfit(pool, businessId, period);
+    if (integrated !== undefined) return integrated;
     const result = await pool.query(
       `select coalesce(sum(total_minor) filter(where type='Sale'),0)::bigint revenue,
                 coalesce(sum(total_minor) filter(where type='Purchase'),0)::bigint expenses,count(*)::int count

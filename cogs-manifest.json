@@ -1,0 +1,158 @@
+{
+  "baseline": "8415950",
+  "feature": "Inventory COGS and accounting cutover",
+  "files": [
+    {
+      "path": "COGS-APPLY.md",
+      "sha256": "c427ec5b0526d35bc2115d98819856f1eb8acd84093bf18b2f0238c72b43c870"
+    },
+    {
+      "path": "server/app.ts",
+      "sha256": "250e48565b7686f4f3b783bbf243b83cc4707b08b05656c657f2e0feb7585f59"
+    },
+    {
+      "path": "server/db/migrations/0008_accounting_cutover.sql",
+      "sha256": "363b168cc3b6b9be43d656f4bfde822f1f1724b33c5d85bf50a4a895df671df1"
+    },
+    {
+      "path": "server/db/migrations/meta/0008_snapshot.json",
+      "sha256": "a50437e17e64cd8dca2b9375a134de40e226d70534717aa5726e6b19da465695"
+    },
+    {
+      "path": "server/db/migrations/meta/_journal.json",
+      "sha256": "5a5f12145c8a7fbe91891ed7d878d9feb08d18b1c530229d46f4fd64a0a4caae"
+    },
+    {
+      "path": "server/db/schema.ts",
+      "sha256": "c7f5cf45bdfcf4a6d0aee60ec81e80030d3a2317ae7d1626a2c1830d0596fc1f"
+    },
+    {
+      "path": "server/db/seed.ts",
+      "sha256": "115d34222ff18442cf93c390cf557e74243958e5e4531dac33c6233dd0ca847a"
+    },
+    {
+      "path": "server/lib/errors.ts",
+      "sha256": "e3354853ab063ec93e2bebdb5dacec80ec92f071c2979ac580f23371eb2c1bfe"
+    },
+    {
+      "path": "server/routes/accounting.ts",
+      "sha256": "b5b81a972e3d13c4784d4089bd8e4f33dda644607242bce27908c73d165f28fb"
+    },
+    {
+      "path": "server/services/accountingCredits.ts",
+      "sha256": "3b4f5634f1d9095b52df6a1859e4d616a2aef8ac44949bf041eaa4b9e59bff7b"
+    },
+    {
+      "path": "server/services/accountingDate.ts",
+      "sha256": "c2cbd2027e370c7a940b4f17d38453a71e46d6a191bcf985f51aed45177d2f0d"
+    },
+    {
+      "path": "server/services/accountingOpening.ts",
+      "sha256": "e99d0f8566168141fd4d55340af24d9cafaa08ac60cdd37f12189f98d852d24c"
+    },
+    {
+      "path": "server/services/accountingReports.ts",
+      "sha256": "d25aee5f1ef9e2025426500d4ad341451888278fa7d38eaf896228746226c25a"
+    },
+    {
+      "path": "server/services/invoices.ts",
+      "sha256": "3c6acab0c0f69a1f57f35310ad77a815833a88a5c71cd852b404d842bccbe7f5"
+    },
+    {
+      "path": "server/services/payments.ts",
+      "sha256": "5dd058ba5cce9bc954169e499aa91586f4bca532069d0e993d62c4f9d84a843a"
+    },
+    {
+      "path": "server/services/reports.ts",
+      "sha256": "f0dd0ba699b7126403e2c699dc3c109dd8ac7efce467e42e438279b14187ed37"
+    },
+    {
+      "path": "src/app/router/routes.tsx",
+      "sha256": "a5197f76977f37ef0e591007eaaf7f5eb79236e833f617736e3a26866c986d3f"
+    },
+    {
+      "path": "src/components/navigation/Header.tsx",
+      "sha256": "a1c082b4ea0856a9e612eac892cd5ffd2d1ed10d32897f1e28f574dbef379405"
+    },
+    {
+      "path": "src/domain/accounting.ts",
+      "sha256": "c7dc5ddc8448aa53764a0d1f5cad9d40e170b34974968284b7990a7c4a2ed4ae"
+    },
+    {
+      "path": "src/features/accounting/AccountingPage.tsx",
+      "sha256": "96fb334c3309d13532fe24011039b9e68ce439a666d64d0d3095ecc30ba2169e"
+    },
+    {
+      "path": "src/features/accounting/CreditCostAllocation.tsx",
+      "sha256": "0862161660599e916af4acb8c16d206c658582413500c8455638b016a82c27f7"
+    },
+    {
+      "path": "src/features/accounting/OpeningAccounting.tsx",
+      "sha256": "022a6579ec5a5beb3d1b2d8b59b502fca26382296c3de0317f825888d1df46a5"
+    },
+    {
+      "path": "src/features/credits/queries.ts",
+      "sha256": "f1d3339ea1c9396faf50ca40905a1468ae3517f2ab00975dc1f65cf260efc29d"
+    },
+    {
+      "path": "src/features/finance/queries.ts",
+      "sha256": "848a8a57928974f4bc367c05f1825b1dfa4640974c1a7f01f0c43eb6de8e62ba"
+    },
+    {
+      "path": "src/features/inventory/ProductDetailPage.tsx",
+      "sha256": "fe6d55973a11ca28fb4aeeabafe7acedcdd8570f6225552a66502c1b91b39d16"
+    },
+    {
+      "path": "src/features/inventory/StockOperationsPage.tsx",
+      "sha256": "d2f77ec3a0717ed5ffb6ea2ab262ae7e7b227e968d369f0d7e2a51e51da7c359"
+    },
+    {
+      "path": "src/features/invoices/correctionQueries.ts",
+      "sha256": "011767a436a8ca73538d8b4985bed9b72755e415d9c4894d5ad52cfbba12566b"
+    },
+    {
+      "path": "src/features/reports/ReportControls.tsx",
+      "sha256": "2ab6f0b81b2df2a621d5b5dae5572fbd1778912261532a4729186da971ba497d"
+    },
+    {
+      "path": "src/features/reports/ReportDetailPage.tsx",
+      "sha256": "ec1451460e473ca805241e7174da80daaf5c8cb320092020fa78b0cc0037f13a"
+    },
+    {
+      "path": "src/features/settings/SettingsPage.tsx",
+      "sha256": "3639c7735da3fe16e3426ff1e0824bfd2bc8c0ce7fe6d2e52b03a54df49d8c5e"
+    },
+    {
+      "path": "src/features/transactions/queries.ts",
+      "sha256": "a745fe4ccc32b4cec99aaddde1f979feb52c8957de8a2d033a5033b51095e542"
+    },
+    {
+      "path": "src/services/accountingService.ts",
+      "sha256": "da52d7e2da6fed7d33d333e49effce0a9c3a688e2b18274c9891605f358751a7"
+    },
+    {
+      "path": "src/types/financialReports.ts",
+      "sha256": "8d8ef3bd7ef1d4ae933c0e1367a0968555be8905e3f75b3b07d6fbd3a80066c7"
+    },
+    {
+      "path": "src/utils/reportExport.ts",
+      "sha256": "e9104e623c0e16f459fe9f191115ba7d250f48f9fd64adf6afc721a8c3a15b36"
+    },
+    {
+      "path": "tests/accounting.test.ts",
+      "sha256": "cf14ba0f63713eb02b11c51d18a3cebc1e1c067c3a28740b2dcaf79ec5b24532"
+    },
+    {
+      "path": "tests/backend-integration.test.ts",
+      "sha256": "8fbea224b7f0d1f30924e62308e5dc776e147efde7d261f7cf03913995d71ac4"
+    },
+    {
+      "path": "tests/browser/accounting.spec.ts",
+      "sha256": "b8a5e064afdf8378e82daf5d48416e69d8320f70270cd6de783ccc6a9694786c"
+    },
+    {
+      "path": "tests/helpers/accountingIntegration.ts",
+      "sha256": "e8d59b1cccb8dd9b7a55822b17039607eb9755530d107988e31afca8c1d86ce0"
+    }
+  ]
+}

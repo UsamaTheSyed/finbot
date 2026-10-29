@@ -24,6 +24,7 @@ export function SettingsPage() {
         <a className="active" href="#business-profile">
           Business Profile
         </a>
+        <Link to="/accounting">Accounting &amp; General Ledger</Link>
         <Link to="/team">Team Members</Link>
         <a href="#bot-integrations">Bot Integration</a>
         <Link to="/notifications">Notifications</Link>
@@ -68,9 +69,7 @@ export function SettingsPage() {
             </p>
           </div>
           <div className="integration-grid">
-            {[
-              { title: "WhatsApp Business", icon: whatsapp },
-            ].map((bot) => (
+            {[{ title: "WhatsApp Business", icon: whatsapp }].map((bot) => (
               <Card className="integration-card" key={bot.title}>
                 <div className="row-between">
                   <h3>
