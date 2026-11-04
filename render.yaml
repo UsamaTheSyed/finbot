@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: finbot
+    runtime: docker
+    plan: free
+    branch: master
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TELEGRAM_MODE
+        value: "off"
+      - key: DATABASE_URL
+        sync: false
+      - key: BOOTSTRAP_OWNER_EMAIL
+        sync: false
+      - key: BOOTSTRAP_OWNER_PASSWORD
+        sync: false
+      - key: BOOTSTRAP_OWNER_NAME
+        sync: false
+      - key: BOOTSTRAP_BUSINESS_NAME
+        sync: false
