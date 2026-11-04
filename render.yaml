@@ -9,7 +9,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: TELEGRAM_MODE
-        value: "off"
+        value: "webhook"
       - key: DATABASE_URL
         sync: false
       - key: BOOTSTRAP_OWNER_EMAIL
